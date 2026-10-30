@@ -77,4 +77,4 @@ runnable validation suite (non-zero exit on failure) · one-command reproducibil
 transparent fraud-indicator score · starter dataset + reviewer's guide.
 
 ## Data dictionary
-TODO: filled in the first build step (one row per field per entity).
+See [DATA_DICTIONARY.md](DATA_DICTIONARY.md) (generated from `src/claimsgen/schema.py`) and [schema.sql](schema.sql).

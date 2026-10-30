@@ -14,6 +14,9 @@ A living guide to understand every file, function and decision in this repo. Upd
 | Area | File | Note | Status |
 |---|---|---|---|
 | package | `src/claimsgen/__init__.py` | [modules/package.md](modules/package.md) | done |
+| vocabulary | `src/claimsgen/vocab.py` | [modules/vocab.md](modules/vocab.md) | done |
+| schema | `src/claimsgen/schema.py` | [modules/schema.md](modules/schema.md) | done |
+| schema docs | `src/claimsgen/schema_docs.py` | [modules/schema_docs.md](modules/schema_docs.md) | done |
 | tooling | `scripts/*.py` | [scripts.md](scripts.md) | done |
 
 Add one row per new file as it is created. Status: `todo` / `draft` / `done`.
