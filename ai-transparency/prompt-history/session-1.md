@@ -1,6 +1,6 @@
 # Session 1 (0e27adb4)
 
-UTC 2026-10-30T06:46:26.356Z to 2026-10-30T16:55:12.162Z | models used: claude-sonnet-5-5 | user prompts: 34
+UTC 2026-10-30T06:46:26.356Z to 2026-10-30T19:08:01.053Z | models used: claude-sonnet-5-5 | user prompts: 36
 
 Prompts typed or pasted by the user, in order. Repeated `/loop` entries are scheduled re-runs of the same prompt.
 
@@ -348,4 +348,16 @@ prompt loop and do all of them. sonnet plus hailu workers
 
 ```text
 do them yourself
+```
+
+## 35. 2026-10-30T18:11:43.504Z
+
+```text
+in terms of building the project where are we?
+```
+
+## 36. 2026-10-30T18:16:08.040Z
+
+```text
+okay from the pov of an ai fde, what would u do? assess what we have done. and also. do we have a certain format or template of how the input claim should be? we should be able to operate from the streamlit frontend, and we get display for everything we have built, all the features, just a clean looking streamlit ui nothing fancy. split across what models to take for what task according to its complexity
 ```

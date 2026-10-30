@@ -4,8 +4,8 @@ This directory is the transparency record required by the submission guidelines:
 what the candidate reviewed, and the prompts submitted. Facts below come from the project history; items marked **TO COMPLETE**
 can only be written by the candidate and are left open on purpose.
 
-**Status of the prompt history: EXPORTED.** `prompt-history/` holds all three Claude Code sessions of this project (63 user prompts,
-21 subagent prompts and 2 helper-model prompts at export time). Re-run `python scripts/export_prompts.py` before the final push so it is current.
+**Status of the prompt history: EXPORTED.** `prompt-history/` holds all three Claude Code sessions of this project (66 user prompts,
+32 subagent prompts and 2 helper-model prompts at export time). Re-run `python scripts/export_prompts.py` before the final push so it is current.
 
 ## Tools and models used
 | Tool | Model(s) | Used for |
