@@ -46,14 +46,6 @@ Suggested order: IMP-002..005 (credibility of the numbers) -> IMP-006..007 (expo
 - Why it matters: directly tests a stated hard rule; an unrelated-row change would fail a criterion.
 - Priority: high
 
-### IMP-005 Fill README review-point evidence table
-- Area: docs
-- Source: README.md ("Status: scaffold only"; points a-f are TODO)
-- Finding: the README is the first thing a reviewer reads and still claims nothing is built.
-- Suggestion: link each review point a-g to a concrete report line, test or script, and update Status. Note that 10-30 rows per case applies at full scale.
-- Why it matters: reviewer-checkable proof is a stated deliverable requirement.
-- Priority: high
-
 ### IMP-006 Per-claim "why" drill-down in the view
 - Area: design
 - Source: SPEC deliverable 11; docs/DESIGN.md rule catalogue
@@ -86,28 +78,12 @@ Suggested order: IMP-002..005 (credibility of the numbers) -> IMP-006..007 (expo
 - Why it matters: makes reproducibility demonstrable live.
 - Priority: med
 
-### IMP-010 Known limitations section
-- Area: docs
-- Source: docs/DESIGN.md (under_review terminal; hand-chosen constants)
-- Finding: limits are scattered across DESIGN decisions.
-- Suggestion: one README section: under_review is terminal, thresholds are hand-chosen, fully synthetic, no reopen/appeal flow, fraud flags are simple heuristics.
-- Why it matters: stating limits first is stronger than being caught on them.
-- Priority: med
-
 ### IMP-011 Realism panel
 - Area: validation
 - Source: review point (a)
 - Finding: distributions are asserted in the summary but not shown.
 - Suggestion: view panel with claimed-amount distribution, claim-type mix, policy status split, lag between incident and submission.
 - Why it matters: makes review point (a) visible.
-- Priority: low
-
-### IMP-012 CI runs the proof
-- Area: tests
-- Source: .github, scripts/verify.py
-- Finding: reproducibility is proven locally only.
-- Suggestion: CI job runs `pytest -q`, ruff, and `scripts/verify.py`.
-- Why it matters: reproducibility shown on every push.
 - Priority: low
 
 ## Done
@@ -123,6 +99,33 @@ Suggested order: IMP-002..005 (credibility of the numbers) -> IMP-006..007 (expo
 - Why it matters: a reviewer may open the repo expecting to see the workflow running, not only CSVs.
 - Priority: high
 - Resolution: done in commit 864bc54 (docs(scope)); SPEC deliverable 11 added, view is core scope, build order export -> metrics -> view.
+
+### IMP-005 Fill README review-point evidence table
+- Area: docs
+- Source: README.md ("Status: scaffold only"; points a-f are TODO)
+- Finding: the README is the first thing a reviewer reads and still claims nothing is built.
+- Suggestion: link each review point a-g to a concrete report line, test or script, and update Status. Note that 10-30 rows per case applies at full scale.
+- Why it matters: reviewer-checkable proof is a stated deliverable requirement.
+- Priority: high
+- Resolution: README rewritten as a reviewer's guide with the review-point evidence table, status and the 10-30 rows per case note (commit a62674e, docs(readme)).
+
+### IMP-010 Known limitations section
+- Area: docs
+- Source: docs/DESIGN.md (under_review terminal; hand-chosen constants)
+- Finding: limits are scattered across DESIGN decisions.
+- Suggestion: one README section: under_review is terminal, thresholds are hand-chosen, fully synthetic, no reopen/appeal flow, fraud flags are simple heuristics.
+- Why it matters: stating limits first is stronger than being caught on them.
+- Priority: med
+- Resolution: README 'Known limits' section extended with hand-chosen thresholds, no reopen/appeal flow and heuristic fraud flags (commit: to be filled by the orchestrator).
+
+### IMP-012 CI runs the proof
+- Area: tests
+- Source: .github, scripts/verify.py
+- Finding: reproducibility is proven locally only.
+- Suggestion: CI job runs `pytest -q`, ruff, and `scripts/verify.py`.
+- Why it matters: reproducibility shown on every push.
+- Priority: low
+- Resolution: CI runs ruff, pytest and scripts/verify.py 0.05 on every push (commits 1cbb481 and 6241e72).
 
 ## Rejected
 

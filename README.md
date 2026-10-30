@@ -69,6 +69,9 @@ validator against the answer key) are in each package's `metrics.md` and the vie
 - `under_review` is terminal in this dataset, and reserves are not revised in the baseline.
 - The `SET-...-002` second payment is an unavoidable marker of the paid-twice case.
 - The optional LLM extension is not built; the dataset and workflow are fully deterministic.
+- The approver threshold (10,000 USD), fraud cutoff (score 0.5), the 30/90/60-day fraud windows and the document window (5 days) are hand-chosen constants in `src/claimsgen/config.py`, not fitted to data.
+- There is no reopen or appeal flow: `denied` and `under_review` claims are final in this dataset.
+- The four fraud flags (early claim, repeated claims, amount near the limit, late reporting) are simple heuristics, combined as flags divided by 4, not a trained model.
 
 ## AI use and prompt history
 `ai-transparency/` records which AI tools and models were used, where they helped, what was verified, and the limits of that record;

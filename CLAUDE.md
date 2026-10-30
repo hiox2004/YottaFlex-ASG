@@ -28,6 +28,8 @@ Plain Python 3.11+, stdlib (`csv`, `json`, `sqlite3`, `hashlib`), pytest, ruff. 
 - Subagents: never use `general-purpose`. Use `reviewer` (Opus, read-only) only for the design review and the final audit; use `mechanical` (Haiku)
   for boilerplate; any other subagent call sets `model` explicitly. Reviewer findings are ranked by ROI (quality gain vs token/time cost):
   apply DO NOW, log DO LATER in docs/study/LOG.md, skip the rest. Agent files load at session start, so run the final audit in a fresh session.
+  Workers (the user asked for Sonnet + Haiku workers): `Agent` with subagent_type `claude` and an explicit model, `sonnet` for implementation and `haiku` for
+  mechanical docs, on disjoint files only. Workers never commit and never edit docs/study/README.md, LOG.md, DESIGN.md or SPEC.md; the orchestrator integrates.
 - ground_truth is for scoring only: the exceptions list and decisions come from engine output, never from labels.
 - Never read raw `output/` CSV/DB files; use `scripts/summarize_data.py`.
 - One git commit per step. Keep diffs small. Public repo: no secrets, ever.
