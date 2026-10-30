@@ -39,6 +39,7 @@ A living guide to understand every file, function and decision in this repo. Upd
 | sensitivity | `src/claimsgen/sensitivity.py` | [modules/sensitivity.md](modules/sensitivity.md) | done |
 | scoring | `src/claimsgen/scoring.py` | [modules/scoring.md](modules/scoring.md) | done |
 | claim draft | `src/claimsgen/draft.py` | [modules/draft.md](modules/draft.md) | done |
+| intake examples | `src/claimsgen/intake_examples.py` | [modules/intake_examples.md](modules/intake_examples.md) | done |
 | intake validation | `src/claimsgen/intake.py` | [modules/intake.md](modules/intake.md) | done |
 | what-if evaluation | `src/claimsgen/whatif.py` | [modules/whatif.md](modules/whatif.md) | done |
 | view data | `src/claimsgen/view_data.py` | [modules/view_data.md](modules/view_data.md) | done |
