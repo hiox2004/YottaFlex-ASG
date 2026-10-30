@@ -21,6 +21,8 @@ A living guide to understand every file, function and decision in this repo. Upd
 | ids | `src/claimsgen/ids.py` | [modules/ids.md](modules/ids.md) | done |
 | master data | `src/claimsgen/masterdata.py` | [modules/masterdata.md](modules/masterdata.md) | done |
 | policies | `src/claimsgen/policies.py` | [modules/policies.md](modules/policies.md) | done |
+| claim building blocks | `src/claimsgen/claim_build.py` | [modules/claim_build.md](modules/claim_build.md) | done |
+| claims | `src/claimsgen/claims.py` | [modules/claims.md](modules/claims.md) | done |
 | tooling | `scripts/*.py` | [scripts.md](scripts.md) | done |
 
 Add one row per new file as it is created. Status: `todo` / `draft` / `done`.

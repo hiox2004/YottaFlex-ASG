@@ -51,6 +51,26 @@ CATALOGUE = {
     ),
 }
 
+# coverage name -> (incident types, item types); "cosmetic" items are excluded by the coverages that list it
+COVERAGE_PROFILE = {
+    "Collision": (("collision",), ("repair", "towing", "cosmetic")),
+    "Theft": (("theft",), ("replacement",)),
+    "Third-party liability": (("third_party_property",), ("liability_payment",)),
+    "Towing and rental": (("collision",), ("towing", "rental_car")),
+    "Fire": (("fire",), ("repair", "replacement", "cosmetic")),
+    "Water damage": (("water_damage",), ("repair", "replacement")),
+    "Burglary": (("burglary",), ("replacement",)),
+    "Contents": (("fire", "burglary", "water_damage"), ("replacement", "cosmetic")),
+    "Outpatient": (("illness", "injury"), ("medical_treatment", "cosmetic")),
+    "Hospital stay": (("illness", "injury"), ("hospital_stay",)),
+    "Emergency care": (("injury", "illness"), ("medical_treatment", "hospital_stay")),
+    "Trip cancellation": (("trip_cancellation",), ("cancellation_fee",)),
+    "Baggage loss": (("baggage_loss",), ("baggage",)),
+    "Medical abroad": (("illness", "injury"), ("medical_treatment", "hospital_stay")),
+    "Third-party injury": (("third_party_injury",), ("liability_payment", "medical_treatment")),
+    "Third-party property": (("third_party_property",), ("liability_payment", "repair")),
+}
+
 # claim_type -> ((doc_type, mandatory), ...)
 REQUIREMENTS = {
     "AUTO": (("photo", "Y"), ("police_report", "Y"), ("repair_estimate", "N")),

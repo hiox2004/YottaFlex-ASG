@@ -11,6 +11,9 @@
 | `rng(stream)` | `Random(f"{SEED}:{stream}")` | one stream per table group so changing one table never shifts another |
 | `APPROVER_THRESHOLD_CENTS` | 10,000 USD | used by R-APR-01 later |
 
+| `SCENARIO_RATES`, `scenario_counts(n)` | share of baseline claims planted per condition | min 1 each, so tiny starters still show every case |
+| `inject_rows(scale)` | rows per injected edge case (15 at full scale) | injected duplicates are carved out of the 1,000 |
+
 ## Worked example
 `rng("customers")` always yields the same sequence for seed 20261022.
 ## Tests

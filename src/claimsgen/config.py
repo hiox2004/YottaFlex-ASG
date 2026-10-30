@@ -33,3 +33,27 @@ def counts(scale: float) -> Counts:
 def rng(stream: str) -> Random:
     """Independent, reproducible RNG per named stream, e.g. rng('policies')."""
     return Random(f"{SEED}:{stream}")
+
+
+# Share of baseline claims planted for each documented condition (brief step 4 + boundary cases).
+SCENARIO_RATES = {
+    "lapsed_policy": 0.04,
+    "outside_coverage_period": 0.03,
+    "incomplete_evidence": 0.07,
+    "claim_over_limit": 0.03,
+    "suspected_fraud": 0.03,
+    "duplicate_incident": 0.02,
+    "boundary_incident_on_start": 0.01,
+    "boundary_incident_on_end": 0.01,
+    "boundary_amount_at_limit": 0.01,
+    "boundary_amount_at_deductible": 0.01,
+}
+
+
+def scenario_counts(n_claims: int) -> dict[str, int]:
+    return {k: max(1, round(r * n_claims)) for k, r in SCENARIO_RATES.items()}
+
+
+def inject_rows(scale: float) -> int:
+    """Rows per injected edge case (10-30 at full scale); injected duplicates are carved out of the claim total."""
+    return max(2, round(15 * scale))

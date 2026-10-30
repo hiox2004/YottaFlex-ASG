@@ -53,7 +53,7 @@ First failing step ends the path (later rules not evaluated). under_review is te
 Per-module RNG: `random.Random(f"{SEED}:{module}")`, fixed call order, sort before any choice, never iterate sets.
 1. customers, adjusters, coverage catalogue, document_requirement
 2. policies + policy_event + policy_coverage (in-force ~75%, expired ~13%, lapsed ~8%, cancelled ~4%)
-3. incidents, claims (uneven type mix, ~35% AUTO), claim_items (lognormal), documents (~8% naturally incomplete); deliberate boundary cases
+3. (claims.py; returns planted scenarios separately; the injection step renumbers IDs in a finalize step) incidents, claims (uneven type mix, ~35% AUTO), claim_items (lognormal), documents (~8% naturally incomplete); deliberate boundary cases
 4. rules engine per claim: history, assignment, assessment, reserve, settlement
 5. baseline validation must show zero failures
 6. injection (below), ground_truth written

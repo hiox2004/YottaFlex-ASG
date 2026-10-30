@@ -1,16 +1,8 @@
 import re
 from collections import Counter
 
-import pytest
-
 from claimsgen import config, masterdata, policies, schema
 from claimsgen.vocab import ITEM_TYPES, PRODUCTS
-
-
-@pytest.fixture(scope="module")
-def data():
-    master = masterdata.generate(1.0)
-    return {**master, **policies.generate(master, 1.0)}
 
 
 def test_counts(data):
