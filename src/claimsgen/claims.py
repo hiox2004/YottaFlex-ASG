@@ -112,7 +112,7 @@ BUILDERS = {
         rng,
         ctx,
         "claim_over_limit",
-        lambda r, c: int(c["limit_amount"] * r.uniform(1.1, 1.6)),
+        lambda r, c: int(c["limit_amount"] * r.uniform(1.1, 1.6)) + c["deductible"],
         after_start_days=config.FRAUD_F1_DAYS,
         cosmetic=False,
     ),

@@ -148,7 +148,7 @@ Decision with reason; new row when re-run. PK `assessment_id` pattern `ASM-CLM-2
 | assessment_date | date | Y | YYYY-MM-DD |  | N |  | >= assignment date |
 | decision | enum | Y | approve\|deny\|pend_docs\|refer_review |  | N |  |  |
 | rule_id | text | Y | R-[A-Z]{3}-\d{2} |  | N |  | rule catalogue id |
-| reason_code | enum | Y | submitted\|before_policy_start\|policy_not_in_force\|outside_coverage_period\|duplicate_claim\|missing_document\|suspected_fraud\|item_not_covered\|item_excluded\|within_deductible\|limit_reached\|docs_received\|approved_by_authority\|payment_recorded\|reassigned |  | N |  |  |
+| reason_code | enum | Y | submitted\|before_policy_start\|policy_not_in_force\|outside_coverage_period\|duplicate_claim\|missing_document\|suspected_fraud\|item_not_covered\|item_excluded\|eligible\|within_deductible\|limit_reached\|docs_received\|approved_by_authority\|payment_recorded\|reassigned |  | N |  |  |
 | eligible_amount | money | Y | >= 0 | USD | N |  | <= claimed_amount |
 | deductible_applied | money | Y | >= 0 | USD | N |  | per R-PAY-01 |
 | payable_amount | money | Y | >= 0 | USD | N |  | per R-PAY-01 |
@@ -193,7 +193,7 @@ Append-only claim event log; claim status = last event. PK `event_id` pattern `E
 | event_date | date | Y | YYYY-MM-DD |  | N |  | non-decreasing per claim |
 | actor_role | enum | Y | requester\|process_owner\|approver\|operations_analyst\|administrator |  | N |  |  |
 | rule_id | text | N | R-[A-Z]{3}-\d{2} |  | N |  | rule catalogue id |
-| reason_code | enum | Y | submitted\|before_policy_start\|policy_not_in_force\|outside_coverage_period\|duplicate_claim\|missing_document\|suspected_fraud\|item_not_covered\|item_excluded\|within_deductible\|limit_reached\|docs_received\|approved_by_authority\|payment_recorded\|reassigned |  | N |  |  |
+| reason_code | enum | Y | submitted\|before_policy_start\|policy_not_in_force\|outside_coverage_period\|duplicate_claim\|missing_document\|suspected_fraud\|item_not_covered\|item_excluded\|eligible\|within_deductible\|limit_reached\|docs_received\|approved_by_authority\|payment_recorded\|reassigned |  | N |  |  |
 
 ## ground_truth
 Separate answer key; never joined into inputs. PK `entity_id` pattern `any entity id`.

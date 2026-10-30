@@ -32,7 +32,7 @@ def counts(scale: float) -> Counts:
         policies=policies,
         claims=max(5, round(1000 * scale)),
         customers=max(5, round(policies * 0.625)),
-        adjusters=max(5, round(30 * scale)),
+        adjusters=max(10, round(30 * scale)),
     )
 
 

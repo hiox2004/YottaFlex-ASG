@@ -58,6 +58,7 @@ REASON_CODES = (
     "suspected_fraud",
     "item_not_covered",
     "item_excluded",
+    "eligible",
     "within_deductible",
     "limit_reached",
     "docs_received",

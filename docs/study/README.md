@@ -23,6 +23,8 @@ A living guide to understand every file, function and decision in this repo. Upd
 | policies | `src/claimsgen/policies.py` | [modules/policies.md](modules/policies.md) | done |
 | claim building blocks | `src/claimsgen/claim_build.py` | [modules/claim_build.md](modules/claim_build.md) | done |
 | claims | `src/claimsgen/claims.py` | [modules/claims.md](modules/claims.md) | done |
+| rules | `src/claimsgen/rules.py` | [modules/rules.md](modules/rules.md) | done |
+| engine | `src/claimsgen/engine.py` | [modules/engine.md](modules/engine.md) | done |
 | tooling | `scripts/*.py` | [scripts.md](scripts.md) | done |
 | backlog | n/a | [IMPROVEMENTS.md](IMPROVEMENTS.md) teacher findings for the builder | living |
 

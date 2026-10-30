@@ -96,3 +96,10 @@ share of settlements above threshold must land ~5-15% (tune lognormal) so the ap
   ground_truth remap tests (injection step); the AS_OF date check applies to event/transaction dates only, not term end dates
   (validator step); settlement_exceeds_limit targets single-coverage paid claims and compares to policy_coverage.limit_amount (injection);
   fraud_score exported as a fixed 2-dp string (export).
+
+## Engine decisions (rules step)
+- remaining limit = policy_coverage limit minus the sum of `recommended_amount` already committed on earlier claims (not only paid), so in-flight claims cannot jointly exceed a limit.
+- Fraud decision rule is R-FRD-05 (R-FRD-01..04 are the flags). New reason code `eligible` for an uncapped approval; `limit_reached` for a capped or exhausted limit.
+- A claim whose next step would fall after AS_OF stays in its earlier status; docs_pending claims with a late document resume on its received date (second assessment); claims with no such document stay docs_pending.
+- Preliminary reserve is set only at an approving assessment, so `revised` reserves do not occur in the baseline (enum kept for later use).
+- Adjusters: at least 10 (two per product) so a 5% reassignment is always possible; initial assignment is least-loaded by specialty.
