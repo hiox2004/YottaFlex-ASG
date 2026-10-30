@@ -1,11 +1,13 @@
 # YottaFlex-ASG: Claims Synthetic Data Challenge
 
-Goal: one deterministic Python generator -> clean, joinable 11-entity insurance claims dataset
-(2,000 policies, 1,000 claims, 5 claim types) + separate ground_truth + validation + reproducibility proof.
+Goal: a working claims workflow solution plus its test bed. (1) A deterministic Python generator -> clean, joinable
+11-entity insurance claims dataset (2,000 policies, 1,000 claims, 5 claim types) + separate ground_truth + validation +
+reproducibility proof. (2) The workflow engine (intake -> coverage -> documents -> eligibility -> settlement routing) with a
+minimal view exposing decisions, exceptions, per-claim timeline and metrics (core scope, see docs/SPEC.md deliverable 11).
 Full spec: `docs/SPEC.md` (source of truth, incl. data dictionary).
 
 ## Stack and commands
-Plain Python 3.11+, stdlib (`csv`, `json`, `sqlite3`, `hashlib`), pytest, ruff. UI = single-file Streamlit, built last. No Faker.
+Plain Python 3.11+, stdlib (`csv`, `json`, `sqlite3`, `hashlib`), pytest, ruff. View = single-file Streamlit `app.py` (rendering only; logic lives in tested modules), built after export and metrics. No Faker.
 - Install: `pip install -e ".[dev]"`
 - Test: `pytest -q` · Lint: `ruff check . && ruff format --check .`
 - Proof: `python scripts/verify.py` (or `/verify`) · Inspect data: `python scripts/summarize_data.py`
@@ -23,9 +25,10 @@ Plain Python 3.11+, stdlib (`csv`, `json`, `sqlite3`, `hashlib`), pytest, ruff. 
 - State changes append to claim_status_history; never overwrite.
 - No label/answer columns (is_fraud, anomaly_type...) in input tables. Labels live only in ground_truth.
 - Inject anomalies AFTER the clean baseline, without orphan FKs or touching unrelated rows.
-- Subagents: never use `general-purpose` for reviews. Use `reviewer` (Opus, read-only) after each major step (generation, rules engine, injection, export) and for the final audit.
-  If `reviewer` is not registered (agent files load at session start), call a general agent with `model: opus` and the body of `.claude/agents/reviewer.md` as the prompt.
-  Its findings are ranked by ROI (quality gain vs token/time cost); apply DO NOW items, log DO LATER ones in docs/study/LOG.md, skip the rest.
+- Subagents: never use `general-purpose`. Use `reviewer` (Opus, read-only) only for the design review and the final audit; use `mechanical` (Haiku)
+  for boilerplate; any other subagent call sets `model` explicitly. Reviewer findings are ranked by ROI (quality gain vs token/time cost):
+  apply DO NOW, log DO LATER in docs/study/LOG.md, skip the rest. Agent files load at session start, so run the final audit in a fresh session.
+- ground_truth is for scoring only: the exceptions list and decisions come from engine output, never from labels.
   Mechanical jobs go to `mechanical` (Haiku). Any other subagent call sets `model: sonnet` or `haiku` explicitly.
 - Never read raw `output/` CSV/DB files; use `scripts/summarize_data.py`.
 - One git commit per step. Keep diffs small. Public repo: no secrets, ever.

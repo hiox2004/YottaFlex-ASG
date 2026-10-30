@@ -122,3 +122,15 @@ share of settlements above threshold must land ~5-15% (tune lognormal) so the ap
 - Duplicate: a new claim (temporary id) cloning the source; the baseline reserves 15 claim slots so the total stays exactly 1,000.
 - Business cases re-run the full engine; defects patch outputs afterwards. Result at full scale: the validator's failing ids equal the integrity-defect ground_truth ids.
 - ground_truth expected decisions are written from the rules, not from engine output.
+
+## Scope correction decisions (expose layer)
+- Build order: export + reproducibility, metrics, then the view. The view is core scope (SPEC deliverable 11); the LLM extension is not started.
+- Layers: `metrics.py` and `view_data.py` hold tested logic; `app.py` is single-file Streamlit rendering only. Data comes from `build_dataset(scale)` (cached), so the app reads no output files.
+- Exceptions list and decisions come from engine output (assessment, history, validator failures). ground_truth is read only by the scoring panel.
+- Scoring (precision/recall) uses predicted classes derived from engine output plus inputs, never from labels:
+  claim_before_policy_start = denied R-COV-01; cancelled_before_incident = denied R-COV-02 and a `cancelled` policy event on/before the incident;
+  lapsed_policy = denied R-COV-02 and a `lapsed` event; outside_coverage_period = denied R-COV-03; duplicate_incident = referred R-ELG-03;
+  suspected_fraud = referred R-FRD-05; claim_over_limit = decision with reason limit_reached;
+  DOC class (incomplete_evidence + missing_mandatory_doc share one prediction, pended R-DOC-01) is scored as one class and reported per label for recall;
+  settlement_exceeds_limit and paid_twice = validator failing ids; boundary labels = recall of "decided as expected".
+- Operational metrics: approval/denial/docs-pending rates, days submission to settlement, amount blocked by rules (claimed minus payable on decided claims), reserve vs final settlement.

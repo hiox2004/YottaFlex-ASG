@@ -27,7 +27,7 @@ Verdict: the direction matches the brief. The items below are our additions or o
 - IDs for Customer, Coverage, Incident, ClaimItem, Adjuster, Assessment, Reserve (brief specifies only five).
 - Approval authority matrix and actor role on every event (brief lists five actors but no matrix).
 - Fraud-indicator score, precision/recall of our engine vs ground_truth, operational metrics.
-- Small Streamlit UI built last. Brief says "working solution" and "expose key decisions and exceptions"; the UI is our reading, not a stated deliverable.
+- (Corrected 2026-10-30) The minimal view is CORE scope, not an extra: the brief asks for a working solution that exposes decisions and exceptions. See section 6.
 - Optional LLM extension (adjuster summary scored against ground_truth). Brief never mentions AI; never part of generation or validation.
 - Tooling: Python/stdlib/pytest/ruff, USD, fixed as-of date, guardrails and hooks.
 
@@ -43,7 +43,7 @@ f. **1,000 claims include duplicates and anomalies** (assumed, affects counts).
 g. **Ground-truth kind.** Brief says "expected decisions or labels"; we add a business-outcome vs integrity-defect column.
 
 ## 4. Risks
-- Scope creep: UI, metrics and AI extension are extras; the graded part is the data (review points a-g). Finish the core and `/verify` first.
+- Scope: the graded evidence is the data (review points a-g) AND a working workflow that exposes decisions and exceptions with traceability and metrics. Keep the view minimal; the optional LLM extension stays out.
 - A label column in an input table, random outcomes, status overwrite, orphan FKs from injection, or clock/unseeded randomness would each fail a stated criterion.
 - Brief does not give counts for customers, coverages, adjusters, or per-case anomaly rows; we choose and document them.
 
@@ -56,3 +56,9 @@ Edge cases: claim date before policy start; policy cancelled before incident; du
 missing mandatory document; claim paid twice.
 Evaluation: (a) distributions (b) IDs/joins (c) lifecycle (d) derived values (e) normal/boundary/failure/exception
 (f) separate ground truth (g) reproducibility, documentation, lawful provenance.
+
+## 6. Scope correction (2026-10-30)
+Earlier sections framed the dataset as the whole product and the UI as an optional extra. The original Objective says:
+"Build a working solution for this end-to-end workflow ... expose key decisions and exceptions, preserve traceability, and produce measurable outputs."
+So the deliverable is the generator + ground_truth (test bed) AND the workflow engine with a minimal expose layer. Review points a-g still apply to the data.
+The expose layer (decisions table, exceptions list, per-claim timeline, metrics panel) is SPEC deliverable 11, built after export and metrics. The LLM extension is not started.

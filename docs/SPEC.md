@@ -1,5 +1,16 @@
 # SPEC: Claims Synthetic Data Challenge (condensed from the Understanding Brief)
 
+## What we are building
+A working claims workflow solution plus its test bed: (1) a deterministic synthetic-data generator with a separate
+ground_truth, and (2) the workflow engine (intake -> coverage validation -> document request -> eligibility -> settlement
+routing) with a minimal view that exposes key decisions and exceptions, preserves traceability (rule IDs, append-only
+history) and reports measurable outputs.
+Original objective (verbatim): "Build a working solution for this end-to-end workflow: Intake claims, validate policy
+coverage, request missing documents, assess eligibility and route for settlement. The solution should expose key decisions
+and exceptions, preserve traceability, and produce measurable outputs. Medium complexity means multiple related entities,
+conditional rules, at least one exception path and meaningful evaluation metrics."
+The dataset and ground_truth are the evidence that the workflow works.
+
 ## Deliverables (each needs reviewer-checkable proof)
 1. Data dictionary, all entities: type, required, allowed values, units, uniqueness, validation rule (one row per field)
 2. Generator, parents first then children/events; one command builds starter + full; scale is a parameter
@@ -11,6 +22,10 @@
 8. Validation report: PK uniqueness, FK integrity, enums, date order, arithmetic, lifecycle, duplicates
 9. Export + docs: CSV, JSON, SQL seed, README, schema, generator command, seed, source manifest, validation summary
 10. Reproducibility proof: two same-seed runs, matching row counts and SHA-256 checksums
+11. Expose layer (core scope, minimal): decisions table (claim, decision, rule_id, reason_code, actor role); exceptions list
+    (docs_pending, duplicate, over-limit, paid twice, cancelled before incident, claim before start) built from engine output;
+    per-claim timeline from claim_status_history; metrics panel (approval/denial/docs-pending rates, days submission to
+    settlement, amount blocked, reserve vs final, precision/recall per label vs ground_truth). ground_truth is used only for scoring.
 
 ## Entities (PK -> FK)
 | Entity | PK | FK |
@@ -69,7 +84,7 @@ f. Ground truth separate, no leakage (test proves it) · g. Reproducibility + pr
 ## Assumptions (state in README)
 Products AUTO/HOME/HLTH/TRVL/LIAB one per claim type · ASN = adjuster assignment, reassignment = -002 ·
 claim date = submission date, incident date separate · 1,000 claims include duplicates/anomalies ·
-USD · fixed as-of date in config · generator + rules engine + metrics report + small UI last.
+USD · fixed as-of date in config · generator + rules engine + metrics + a minimal view (core scope, built after export and metrics).
 
 ## Stand-out items
 Rule catalogue with reason codes · precision/recall of own engine vs ground truth + operational metrics ·
