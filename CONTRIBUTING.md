@@ -19,5 +19,9 @@ git config core.hooksPath .githooks
 - Larger or risky work (e.g. the UI) uses a branch `<type>/<short-name>`, e.g. `feat/ui`, merged by PR using the PR template.
 - Squash-merge PRs so history stays one commit per step.
 
+## Prompt history
+The submission requires every prompt sent to every AI tool. Re-run `python scripts/export_prompts.py` before the final push, read the
+output (it is public), and commit `ai-transparency/prompt-history/`. Never commit raw transcripts.
+
 ## Releases
 Tag milestones `v0.<n>.0` (e.g. `v0.1.0` = dictionary + generator baseline passing validation).

@@ -1,0 +1,58 @@
+# AI use and prompt history
+
+This directory is the transparency record required by the submission guidelines: which AI tools were used, where they helped,
+what the candidate reviewed, and the prompts submitted. Facts below come from the project history; items marked **TO COMPLETE**
+can only be written by the candidate and are left open on purpose.
+
+**Status of the prompt history: PENDING EXPORT.** Generate it with `python scripts/export_prompts.py` (details below), review the
+output, then commit `prompt-history/`.
+
+## Tools and models used
+| Tool | Model(s) | Used for |
+|---|---|---|
+| Claude Code (VS Code extension), build session | Claude Sonnet 5.5 | Planning, design, and essentially all code, tests and docs in this repo |
+| Subagents inside the build session | Claude Opus (4 read-only reviews: the design review, then checkpoints on generation, rules engine and injection) | Finding defects and ranking fixes by return on effort |
+| Claude Code, teaching session | Sonnet (briefly switched to Haiku, then back) | Explaining the code and the insurance domain; logging ideas in `docs/study/IMPROVEMENTS.md` |
+| Claude Code, GitHub research session | Sonnet and Haiku workers | Searching public GitHub for related projects (see the note under TO COMPLETE) |
+| Claude chat on claude.ai | Claude | Produced the "Understanding Brief" PDF and the initial setup pitch that this repo's setup followed. **Its prompts are not in this repo** (see limits) |
+| GitHub CLI | none | Creating the repository and pushing; not an AI tool |
+
+## Where AI accelerated, and where it was relied on heavily
+- **Relied on heavily (written by the AI, directed by prompts):** the generator, rules engine, validation suite, injection and ground
+  truth, export, metrics, the Streamlit view, the tests, the study guide and the design/spec documents.
+- **Where review changed the result:** Opus reviews found real defects that were then fixed, for example claim ordering by a
+  provisional ID, a shared random stream that would have changed untouched claims on re-run, injected rows identifiable by table
+  position, and an unassessed injected duplicate. Each fix is recorded in `docs/study/LOG.md` and `docs/DESIGN.md`.
+- **Human direction visible in the history:** the objective and the briefs came from the candidate; the candidate caught that the plan
+  treated the working workflow as optional and corrected the scope (IMP-001, SPEC deliverable 11); the candidate set the
+  subagent/model policy, delegated several design decisions, and authenticated `gh` and approved installs and edits through permission prompts.
+
+## How the solution was verified
+`pip install -e ".[dev,ui]"` then `pytest -q` (99 tests, including a headless run of the Streamlit app), `python scripts/verify.py`
+(builds the dataset twice and compares every file by SHA-256), and CI on every push. The validator is checked against the planted
+defects, and precision/recall against the answer key is reported in each package's `metrics.md`. Known limits are in the main README.
+
+## Limits of this record (disclosed)
+- Only Claude Code transcripts are exportable here. Prompts typed into claude.ai are not included unless the candidate adds them.
+- AI responses are not exported (optional per the FAQ); the decisions and reasoning are in `docs/DESIGN.md`, `docs/study/LOG.md` and the commit history.
+- The export keeps user text verbatim except: local OS username in paths, e-mail addresses and token-like strings are redacted;
+  harness-injected blocks (system reminders, IDE notices) and tool outputs are omitted; attached PDFs appear as `[attached document: name]`.
+- Repeated `/loop` entries are scheduled re-runs of the same prompt. Prompts that Claude wrote for subagents and helper models are in
+  `prompt-history/subagent-and-helper-prompts.md`.
+- The briefs and FAQ pasted into prompts are the organisation's material; they appear in the history because the history must be complete.
+
+## Regenerating the prompt history
+```
+python scripts/export_prompts.py            # reads this project's Claude Code transcripts, writes ai-transparency/prompt-history/
+```
+Re-run it before the final push so the history is current. The script exits non-zero if a secret-like pattern remains. Always read
+the output before committing: it is a public repository.
+
+## TO COMPLETE (candidate)
+1. **What you personally reviewed, changed and validated.** Be specific (which modules you read, what you ran, what you changed or rejected).
+2. **claude.ai prompts.** Add the prompts you sent in the claude.ai chat (or state that they could not be exported).
+3. **The GitHub research session.** It searched public repositories. Say what, if anything, informed this project, and confirm that no
+   third-party solution or core code was imported or copied (FAQ 7 and 10). If you looked at other people's entries for this task, say so plainly.
+4. **Be ready to explain** these decisions: the rule order and why the first failing rule ends a claim; the per-claim random streams;
+   injecting business cases before the engine re-run but integrity defects after it; the single-map ID renumbering after injection;
+   the replay validator and its shared-formula limit; predicted labels never reading ground truth; byte-stable export.

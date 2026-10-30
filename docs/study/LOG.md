@@ -2,6 +2,7 @@
 
 Add a line per step: date, commit scope, what it taught or changed, which notes were updated.
 
+- 2026-10-30 `docs(ai)` AI-use disclosure scaffold and `scripts/export_prompts.py` (tested on synthetic transcripts). The real export is pending the candidate's approval because it copies session transcripts into a public repo. Note: the disclosure has TO COMPLETE items only the candidate can write.
 - 2026-10-30 `docs(readme)` README rewritten as a reviewer's guide: five-minute tour, commands, how the workflow decides, review-point evidence, explicit assumptions and known limits.
 - 2026-10-30 `feat(view)` minimal Streamlit view (`app.py`) over tested `view_data.py`: decisions, exceptions, per-claim timeline, metrics. Exceptions come from engine output and validator failures, never ground truth. Headless AppTest covers every panel. Notes: view_data, scripts.
 - 2026-10-30 `feat(metrics)` operational metrics + precision/recall vs ground_truth (predictions never read labels); metrics.md added to every package. Result at full scale: planted defects and injected cases score 1.00; baseline cases 0.95-1.00 recall; claim_over_limit precision 0.85 (other claims also hit exhausted limits). Notes: metrics, scoring.
