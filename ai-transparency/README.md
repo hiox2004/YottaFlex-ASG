@@ -7,6 +7,10 @@ can only be written by the candidate and are left open on purpose.
 **Status of the prompt history: EXPORTED.** `prompt-history/` holds all three Claude Code sessions of this project (66 user prompts,
 32 subagent prompts and 2 helper-model prompts at export time). Re-run `python scripts/export_prompts.py` before the final push so it is current.
 
+## Timeline
+The 72-hour window ran from Fri 30 Oct 2026 01:13:12 IST to Mon 2 Nov 2026 01:13:12 IST (as given by the organisation). The first prompt in the history is
+30 Oct 12:16 IST and the first commit is 30 Oct 12:29 IST; every commit in this repository is inside the window (`git log --format=%cI`).
+
 ## Tools and models used
 | Tool | Model(s) | Used for |
 |---|---|---|
