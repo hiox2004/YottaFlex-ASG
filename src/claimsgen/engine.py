@@ -33,7 +33,8 @@ class Decision:
 
 
 class World:
-    def __init__(self, t: dict):
+    def __init__(self, t: dict, as_of=None):
+        self.as_of = as_of or config.AS_OF
         self.policy = {p["policy_id"]: p for p in t["policy"]}
         self.incident = {i["incident_id"]: i for i in t["incident"]}
         # processing order is by dates, never by (provisional) claim_id
@@ -201,7 +202,7 @@ def _resume_date(w, c):
 
 
 def _settle(w, c, d: Decision, day, delays):
-    cid, as_of = c["claim_id"], config.AS_OF
+    cid, as_of = c["claim_id"], w.as_of
     for cov, amount in d.payout.by_coverage.items():
         w.committed[(c["policy_id"], cov)] += amount
     w.out["reserve"].append(
@@ -253,7 +254,7 @@ def _process(w: World, c: dict, rng):
     # fixed draw order per claim; the stream depends only on the claim's own stable fields
     delays = (rng.randint(1, 5), rng.randint(1, 3), rng.randint(1, 5))
     reassign, pick1, pick2 = rng.random() < 0.05, rng.random(), rng.random()
-    cid, sub, as_of = c["claim_id"], c["submission_date"], config.AS_OF
+    cid, sub, as_of = c["claim_id"], c["submission_date"], w.as_of
     key = (c["policy_id"], w.incident[c["incident_id"]]["incident_date"], c["claim_type"])
     duplicate = key in w.seen_keys
     w.seen_keys.add(key)
@@ -268,7 +269,7 @@ def _process(w: World, c: dict, rng):
     _assess(w, c, adjuster, day, d, "submitted")
     if d.decision == "pend_docs":
         day = _resume_date(w, c)
-        if day is None:
+        if day is None or day > as_of:
             return
         d = evaluate(w, c, duplicate, resumed=True)
         _assess(w, c, adjuster, day, d, "docs_pending")
@@ -276,8 +277,9 @@ def _process(w: World, c: dict, rng):
         _settle(w, c, d, day, delays)
 
 
-def run(tables: dict) -> dict[str, list[dict]]:
-    w = World(tables)
+def run(tables: dict, as_of=None) -> dict[str, list[dict]]:
+    """as_of defaults to config.AS_OF; a later date lets recent claims progress (used by what-if, never mutates config)."""
+    w = World(tables, as_of)
     for c in w.claims:
         incident_date = w.incident[c["incident_id"]]["incident_date"]
         stream = f"engine:{c['policy_id']}:{incident_date}:{c['submission_date']}:{c['claim_type']}"

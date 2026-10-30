@@ -2,6 +2,7 @@
 
 Add a line per step: date, commit scope, what it taught or changed, which notes were updated.
 
+- 2026-10-30 `feat(intake)` what-if evaluation: `engine.run(tables, as_of=None)` (default byte-identical; never patches config) and `whatif.py` (evaluate a draft on a copy of the dataset under provisional ids, request missing documents, evaluation horizon = dataset date + 30 days). Opus design review shaped it: the dataset date is already in the past, so without a later horizon a new claim would stay 'submitted'. Worker: Sonnet.
 - 2026-10-30 `test(validate)` IMP-002: independent payable reference (`tests/payable_reference.py`, written from the spec, no import of rules.py) + hand-computed fixtures; the full-scale replay matches every approving assessment and every non-defect settlement. Worker: Sonnet.
 - 2026-10-30 `test(metrics)` IMP-003: mutation tests prove the evaluation can fail: ignoring cancel/lapse events drops recall for those labels, ignoring the deductible drops boundary recall and the independent reference disagrees with the engine, and a zero document window lowers document precision. Worker: Sonnet.
 - 2026-10-30 `test(inject)` IMP-004: for every non-target claim all nine claim-related tables are identical before and after injection (ids translated through the finalize map); master/policy tables unchanged and policy_event only gains the injected cancellations. Starter and full scale. Worker: Sonnet.
