@@ -4,7 +4,7 @@ markdown report that combines them with the precision/recall scoring."""
 from collections import Counter, defaultdict
 from statistics import mean, median
 
-from claimsgen import config, scoring, sensitivity
+from claimsgen import config, flagmix, scoring, sensitivity
 
 
 def usd(cents: int) -> str:
@@ -241,6 +241,14 @@ def _business_markdown(op: dict) -> list[str]:
     ]
 
 
+def _flag_line(tables: dict) -> str:
+    mix = flagmix.flag_counts(tables)
+    n, f = mix["claims"], mix["flags"]
+    shares = ", ".join(f"{k} {v} ({v / n:.1%})" for k, v in f.items())
+    combos = ", ".join(f"{k} {v}" for k, v in mix["combos"].items())
+    return f"Fraud flag counts over {n} claims: {shares}. Flag combinations: {combos}."
+
+
 def to_markdown(tables: dict, ground_truth: list, checks: list) -> str:
     op, rows = operational(tables), scoring.score(tables, ground_truth, checks)
     a, r = op["amounts_cents"], op["reserve_vs_final"]
@@ -285,6 +293,8 @@ def to_markdown(tables: dict, ground_truth: list, checks: list) -> str:
         "## Precision and recall vs ground_truth",
         "",
         "Predicted labels come from engine output, input data and validator failures only. Unassessed (very recent) claims count as misses.",
+        "",
+        _flag_line(tables),
         "",
         "Fraud caveat: the fraud labels are the planted indicator pattern (an early claim near the limit), so the suspected_fraud row checks rule consistency; it is not a fraud-detection accuracy.",
         "",

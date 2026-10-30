@@ -16,7 +16,7 @@
 | docs pending aging | `docs_pending_aging`: `count, mean_days, median_days, p90_days, max_days, older_than_14_days, older_than_30_days, older_than_90_days`; age = AS_OF minus the date the claim entered its final status |
 | cycle by claim type | `cycle_by_claim_type`: `{type: {paid_claims, median_days, p90_days}}`, submission to paid |
 
-These keys are added next to the existing ones; all are plain dicts of ints, floats and strings. `to_markdown` also renders them and the "Threshold sensitivity" section from `sensitivity.sweep` (see sensitivity.md).
+`flagmix.flag_counts` feeds one line above the precision/recall table ("Fraud flag counts ..."). These keys are added next to the existing ones; all are plain dicts of ints, floats and strings. `to_markdown` also renders them and the "Threshold sensitivity" section from `sensitivity.sweep` (see sensitivity.md).
 
 `operational(tables)` returns a plain dict (cents as integers); `to_markdown(tables, ground_truth, checks)` renders the report written to `metrics.md` in every dataset package.
 

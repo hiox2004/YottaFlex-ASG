@@ -24,7 +24,7 @@ Uniqueness: `_draw` keeps a `seen` set of (policy, incident date) so only labell
 | Function | Role | Gotcha |
 |---|---|---|
 | `BUILDERS` | one builder per scenario name | each returns `None` when the drawn policy cannot support it; `_draw` retries |
-| `_duplicate` | clones a normal claim, submitted 1-20 days later | the clone's `detail` is the source claim ID |
+| `_duplicate` | clones a normal claim, submitted 1-20 days later; each source is cloned at most once (`copied` set) | the clone's `detail` is the source claim ID; before T6 two clones of one source could appear by chance and made a group of three |
 | `_assemble` | sorts by (submission, incident, policy) then assigns IDs | injection step must renumber after adding claims |
 | `generate` | returns `(tables, planted)` | `planted` is never joined into input tables; later feeds ground_truth |
 

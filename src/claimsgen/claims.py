@@ -26,7 +26,7 @@ from claimsgen.masterdata import rand_date
 
 def _lapsed(rng, ctx):
     p = ctx.policies[rng.choice(ctx.lapsed)]
-    pcv, lag = rng.choice(ctx.pcvs[p["policy_id"]]), draw_lag(rng)
+    pcv, lag = rng.choice(ctx.pcvs[p["policy_id"]]), draw_lag(rng, p["product"])
     lo, hi = (
         ctx.ends[p["policy_id"]][1] + DAY,
         min(p["end_date"], config.AS_OF - timedelta(days=lag)),
@@ -43,7 +43,7 @@ def _outside(rng, ctx):
     pcv = rng.choice(
         [r for r in ctx.pcvs[p["policy_id"]] if r["effective_start"] > p["start_date"]]
     )
-    lag = draw_lag(rng)
+    lag = draw_lag(rng, p["product"])
     hi = min(latest_incident(ctx, p, lag), pcv["effective_start"] - DAY)
     if p["start_date"] > hi:
         return None
@@ -74,7 +74,7 @@ def _fraud(rng, ctx):
 def _on_start(rng, ctx):
     p = ctx.policies[rng.choice(ctx.ids)]
     zero = [r for r in ctx.pcvs[p["policy_id"]] if r["effective_start"] == p["start_date"]]
-    lag = draw_lag(rng)
+    lag = draw_lag(rng, p["product"])
     if not zero or p["start_date"] > latest_incident(ctx, p, lag):
         return None
     return build_spec(
@@ -84,7 +84,7 @@ def _on_start(rng, ctx):
 
 def _on_end(rng, ctx):
     p = ctx.policies[rng.choice(ctx.expired)]
-    lag = draw_lag(rng)
+    lag = draw_lag(rng, p["product"])
     if p["end_date"] > latest_incident(ctx, p, lag):
         return None
     return build_spec(
@@ -143,12 +143,16 @@ def _draw(rng: Random, ctx: Ctx, scenario: str, seen: set) -> Spec:
     raise RuntimeError(f"cannot build scenario {scenario}")
 
 
-def _duplicate(rng: Random, ctx: Ctx, normals: list) -> Spec:
+def _duplicate(rng: Random, ctx: Ctx, normals: list, used: set) -> Spec:
+    """A re-submission of a normal claim; each source is copied at most once, so duplicates always come in pairs."""
     for _ in range(2000):
         src = rng.choice(normals)
+        if id(src) in used:
+            continue
         submission = src.submission_date + timedelta(days=rng.randint(1, 20))
         if submission <= config.AS_OF:
             docs = make_docs(rng, ctx, src.policy["product"], submission)
+            used.add(id(src))
             return Spec(
                 src.policy,
                 src.incident_date,
@@ -228,12 +232,13 @@ def generate(master: dict, pol: dict, scale: float) -> tuple[dict[str, list[dict
     counts = config.scenario_counts(n)
     ctx, rng = make_ctx(master, pol), config.rng("claims")
     seen: set = set()
+    copied: set = set()
     specs = [_draw(rng, ctx, "normal", seen) for _ in range(n - sum(counts.values()))]
     normals = list(specs)
     for scenario, k in counts.items():
         for _ in range(k):
             specs.append(
-                _duplicate(rng, ctx, normals)
+                _duplicate(rng, ctx, normals, copied)
                 if scenario == "duplicate_incident"
                 else _draw(rng, ctx, scenario, seen)
             )

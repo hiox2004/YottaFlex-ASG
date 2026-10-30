@@ -15,7 +15,7 @@ def test_sweep_is_deterministic(built):
 
 
 def test_config_is_restored(built):
-    assert config.APPROVER_THRESHOLD_CENTS == 2_500_000
+    assert config.APPROVER_THRESHOLD_CENTS == 3_000_000
     assert config.FRAUD_THRESHOLD == 0.5
 
 
@@ -58,4 +58,4 @@ def test_markdown_section_marks_current(built):
     _, _, result = built
     text = "\n".join(sensitivity.to_markdown_section(result))
     assert text.count("(current)") == 2
-    assert metrics.usd(1_000_000) in text
+    assert metrics.usd(config.APPROVER_THRESHOLD_CENTS) in text

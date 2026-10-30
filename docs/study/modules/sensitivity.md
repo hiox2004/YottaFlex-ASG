@@ -5,7 +5,7 @@
 
 `sweep(tables, ground_truth) -> dict`:
 - Drops the engine output tables (assignment, assessment, reserve, settlement, status history) and calls `engine.run` on the inputs.
-- Passes `approver_threshold_cents` over 1,000,000 / 2,500,000 / 5,000,000 / 10,000,000 cents, then `fraud_threshold` over 0.25 / 0.5 / 0.75 / 1.0, as arguments to `engine.run`. `config` is never mutated, so a concurrent what-if session cannot see a swept value.
+- Passes `approver_threshold_cents` over 1,500,000 / 3,000,000 / 5,000,000 / 10,000,000 cents, then `fraud_threshold` over 0.25 / 0.5 / 0.75 / 1.0, as arguments to `engine.run`. `config` is never mutated, so a concurrent what-if session cannot see a swept value.
 - Deterministic: the engine is seeded and nothing reads the clock.
 
 Result: `{"current": {"approver_threshold_cents", "fraud_threshold"}, "approver": [row...], "fraud": [row...]}`. Each row:

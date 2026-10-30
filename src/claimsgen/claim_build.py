@@ -4,13 +4,17 @@ import math
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import date, timedelta
+from itertools import accumulate
 from random import Random
 
 from claimsgen import config
 from claimsgen.masterdata import COVERAGE_PROFILE, SEVERITY, rand_date
 
-LAGS = (0, 1, 2, 3, 5, 7, 10, 14)
-LAG_WEIGHTS = (25, 20, 15, 12, 10, 8, 6, 4)
+# days from incident to submission: mostly short with a long tail (a few claims are reported months late)
+LAGS = (0, 1, 2, 3, 5, 7, 10, 14, 21, 30, 45, 75, 120)
+LAG_WEIGHTS = (25, 20, 15, 12, 10, 8, 6, 4, 3, 2, 1.5, 1, 0.5)
+# liability is reported late more often
+LIAB_LAG_WEIGHTS = (8, 8, 8, 8, 10, 10, 10, 10, 8, 7, 6, 5, 2)
 DAY = timedelta(days=1)
 
 
@@ -38,6 +42,8 @@ class Ctx:
     lapsed: list
     late: list  # policies with a coverage that starts after the policy
     expired: list  # policies that simply ran to their end date
+    exposure: list  # days in force before AS_OF per policy, aligned with ids (at least 1)
+    cum_exposure: list  # running total of exposure, for weighted policy choice
 
 
 def make_ctx(master: dict, pol: dict) -> Ctx:
@@ -54,6 +60,10 @@ def make_ctx(master: dict, pol: dict) -> Ctx:
         required[r["claim_type"]].append((r["doc_type"], r["mandatory"]))
     policies = {p["policy_id"]: p for p in pol["policy"]}
     pids = sorted(policies)
+    exposure = []
+    for i in pids:
+        last = min(config.AS_OF, policies[i]["end_date"], ends.get(i, (0, config.AS_OF))[1])
+        exposure.append(max(1, (last - policies[i]["start_date"]).days))
     return Ctx(
         policies=policies,
         pcvs=pcvs,
@@ -68,11 +78,16 @@ def make_ctx(master: dict, pol: dict) -> Ctx:
             if any(r["effective_start"] > policies[i]["start_date"] for r in pcvs[i])
         ],
         expired=[i for i in pids if i not in ends and policies[i]["end_date"] < config.AS_OF],
+        exposure=exposure,
+        cum_exposure=list(accumulate(exposure)),
     )
 
 
-def draw_lag(rng: Random) -> int:
-    return rng.choices(LAGS, weights=LAG_WEIGHTS)[0]
+def draw_lag(rng: Random, product: str, max_lag: int | None = None) -> int:
+    """Report lag in days for a policy product; max_lag keeps flag-isolated scenarios below the F4 window."""
+    weights = LIAB_LAG_WEIGHTS if product == "LIAB" else LAG_WEIGHTS
+    pairs = [(d, w) for d, w in zip(LAGS, weights) if max_lag is None or d <= max_lag]
+    return rng.choices([d for d, _ in pairs], weights=[w for _, w in pairs])[0]
 
 
 def latest_incident(ctx: Ctx, p: dict, lag: int) -> date:
@@ -176,8 +191,11 @@ def build_spec(
 
 def normal_spec(rng, ctx, scenario="", cents=None, after_start_days=0, **kw):
     """after_start_days > 0 forces submission to be more than that many days after policy start (no F1 flag)."""
-    p = ctx.policies[rng.choice(ctx.ids)]
-    pcv, lag = rng.choice(ctx.pcvs[p["policy_id"]]), draw_lag(rng)
+    # policies are chosen by exposure (days in force), so recently started policies get fewer claims
+    p = ctx.policies[rng.choices(ctx.ids, cum_weights=ctx.cum_exposure)[0]]
+    # scenarios that must not trip F4 by accident (they already avoid F1) keep their lag inside its window
+    max_lag = config.FRAUD_F4_DAYS if after_start_days else None
+    pcv, lag = rng.choice(ctx.pcvs[p["policy_id"]]), draw_lag(rng, p["product"], max_lag)
     lo, hi = max(p["start_date"], pcv["effective_start"]), latest_incident(ctx, p, lag)
     if after_start_days:
         lo = max(lo, p["start_date"] + timedelta(days=after_start_days + 1 - lag))

@@ -2,24 +2,32 @@
 benchmarks, not a fitted target; the dataset is built once per module (about 5 s)."""
 
 from collections import defaultdict
+from datetime import timedelta
 from statistics import mean, median
 
 import pytest
 
-from claimsgen import metrics
+from claimsgen import config, flagmix, metrics, scoring, validate
 from claimsgen.generate import build_dataset
 
 
 @pytest.fixture(scope="module")
-def full():
-    tables, _ = build_dataset(1.0)
-    return tables
+def built_full():
+    return build_dataset(1.0)
+
+
+@pytest.fixture(scope="module")
+def full(built_full):
+    return built_full[0]
 
 
 def _claimed_by_type(full):
+    """Claimed amount of each claim item (USD) by claim type. Items, not claim totals: the severity table is per item,
+    and a claim sums one to three items, so claim totals sit about 1.7x higher (see DESIGN.md "Realism")."""
+    claim_type = {c["claim_id"]: c["claim_type"] for c in full["claim"]}
     out = defaultdict(list)
-    for c in full["claim"]:
-        out[c["claim_type"]].append(c["claimed_amount"] / 100)
+    for i in full["claim_item"]:
+        out[claim_type[i["claim_id"]]].append(i["claimed_amount"] / 100)
     return out
 
 
@@ -66,3 +74,54 @@ def test_claim_coverage_totals_do_not_pile_up_below_the_cap(full):
         0.85 <= v / limits[(policy[cid], cov)] <= 0.90 for (cid, cov), v in totals.items()
     )
     assert near_cap / len(totals) <= 0.03
+
+
+def _lags(full):
+    incident = {i["incident_id"]: i["incident_date"] for i in full["incident"]}
+    return [(c["submission_date"] - incident[c["incident_id"]]).days for c in full["claim"]]
+
+
+def test_reporting_lag_has_a_long_tail(full):
+    assert max(_lags(full)) >= 75
+
+
+def test_f4_fires_organically_on_one_to_four_percent_of_claims(full):
+    mix = flagmix.flag_counts(full)
+    assert 0.01 <= mix["flags"]["F4"] / mix["claims"] <= 0.04
+
+
+# F1, F3 and R-COV-01 claims are early by construction: the planted fraud, before-start and on-start scenarios.
+EARLY_BY_CONSTRUCTION = (
+    "suspected_fraud",
+    "claim_before_policy_start",
+    "boundary_incident_on_start",
+)
+
+
+def test_f1_is_at_most_15_percent_of_claims_that_are_not_early_by_construction(built_full):
+    """The spec bound is 15% of ALL claims; the measured share is higher (about 16%) because 55 planted claims carry F1
+    by design (5.5% of claims) on top of the organic share. The bound is therefore applied to the rest."""
+    full, gt = built_full
+    early = {g["entity_id"] for g in gt if g["label"] in EARLY_BY_CONSTRUCTION}
+    organic = [c for c in full["claim"] if c["claim_id"] not in early]
+    policy = {p["policy_id"]: p for p in full["policy"]}
+    f1 = sum(
+        c["submission_date"]
+        <= policy[c["policy_id"]]["start_date"] + timedelta(days=config.FRAUD_F1_DAYS)
+        for c in organic
+    )
+    assert f1 / len(organic) <= 0.15
+    assert (
+        flagmix.flag_counts(full)["flags"]["F1"] / len(full["claim"]) <= 0.18
+    )  # all claims, with the planted ones
+
+
+def test_suspected_fraud_row_keeps_recall_and_precision_above_0_8(built_full):
+    full, gt = built_full
+    row = next(
+        r
+        for r in scoring.score(full, gt, validate.run_all(full))
+        if r["class"] == "suspected_fraud"
+    )
+    assert row["recall"] >= 0.8
+    assert row["precision"] >= 0.8

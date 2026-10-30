@@ -188,7 +188,17 @@ def rebuild_and_compare(scale: float) -> tuple[bool, str, str]:
     return first == second, first, second
 
 
-LAG_BINS = [("0", 0, 0), ("1", 1, 1), ("2", 2, 2), ("3", 3, 3), ("4-7", 4, 7), ("8-14", 8, 14)]
+LAG_BINS = [
+    ("0", 0, 0),
+    ("1", 1, 1),
+    ("2", 2, 2),
+    ("3", 3, 3),
+    ("4-7", 4, 7),
+    ("8-14", 8, 14),
+    ("15-30", 15, 30),
+    ("31-60", 31, 60),
+    ("61+", 61, 10**6),
+]
 AMOUNT_EDGES_USD = [0, 500, 1_000, 2_500, 5_000, 10_000, 25_000]
 
 
@@ -207,7 +217,6 @@ def realism(tables: dict) -> dict:
     lag = [
         {"bin_days": label, "count": sum(lo <= d <= hi for d in lags)} for label, lo, hi in LAG_BINS
     ]
-    lag.append({"bin_days": "15+", "count": sum(d >= 15 for d in lags)})
     last = {}
     for e in tables["policy_event"]:
         last[e["policy_id"]] = {"issued": "in force"}.get(e["event_type"], e["event_type"])

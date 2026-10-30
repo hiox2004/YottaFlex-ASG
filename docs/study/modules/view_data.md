@@ -14,7 +14,7 @@
 | `rule_trace(tables, claim_id)`, `counterfactual(tables, claim_id)` | decision path per claim and what would make it payable (re-exported from `view_trace`, see its note) | assessments, history, input rows |
 | `dataset_checksum(tables)` | SHA-256 over the canonical CSV text of the input tables in schema order (nothing written) | `export._csv` |
 | `rebuild_and_compare(scale)` | `(identical, checksum_1, checksum_2)` from two fresh builds with the fixed seed | `generate.build_dataset` |
-| `realism(tables)` | claimed-amount histogram + median/mean/p90, claim-type mix, policy status at AS_OF, incident-to-submission lag bins | dataset tables |
+| `realism(tables)` | claimed-amount histogram + median/mean/p90, claim-type mix, policy status at AS_OF, incident-to-submission lag bins (0, 1, 2, 3, 4-7, 8-14, 15-30, 31-60, 61+) | dataset tables |
 
 Rule: `decisions_table`, `exceptions` and `claim_detail` never receive ground_truth (a test checks their signatures). Only `metrics_panel` reads it, for scoring and the sweep's precision/recall.
 

@@ -119,7 +119,17 @@ def test_realism_numbers_add_up(full):
     assert sum(r["policy_status"].values()) == len(tables["policy"])
     s = r["claimed_stats_usd"]
     assert 0 < s["median"] <= s["p90"] and s["mean"] > 0
-    assert [b["bin_days"] for b in r["lag_days"]] == ["0", "1", "2", "3", "4-7", "8-14", "15+"]
+    assert [b["bin_days"] for b in r["lag_days"]] == [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4-7",
+        "8-14",
+        "15-30",
+        "31-60",
+        "61+",
+    ]  # T6 added a reporting-lag tail
 
 
 def test_app_runs_headless_and_shows_every_panel():

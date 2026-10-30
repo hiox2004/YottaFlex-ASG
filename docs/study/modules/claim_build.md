@@ -6,7 +6,8 @@
 | Function | Role | Gotcha |
 |---|---|---|
 | `make_ctx(master, pol)` | indexes policies, coverages, lapse/cancel dates, document requirements, and scenario pools (lapsed, late-coverage, expired) | pools are sorted lists, so draws are deterministic |
-| `draw_lag(rng)` | days between incident and submission (0-14, mostly short) | fraud scenario uses 0-3 instead |
+| `draw_lag(rng, product, max_lag=None)` | days between incident and submission: 0 to 120, mostly short with a long tail (LIAB reports later, `LIAB_LAG_WEIGHTS`); `max_lag` keeps the over-limit and at-limit scenarios inside the F4 window | fraud scenario uses 0-3 instead; every caller passes the policy product |
+| `Ctx.exposure`, `Ctx.cum_exposure` | days each policy was in force before AS_OF (at least 1), and the running total | `normal_spec` picks the policy with `rng.choices(ids, cum_weights=cum_exposure)`, so claims follow exposure: young policies get fewer claims and F1 falls to its organic rate; short TRVL terms mean fewer travel claims |
 | `latest_incident(ctx, p, lag)` | latest legal incident date: policy end, AS_OF minus lag, day before lapse/cancel | keeps ordinary claims inside the in-force window |
 | `_items` | 1-3 items (the incident type is drawn first in `build_spec`; a secondary coverage is used only if it covers that incident type), lognormal amounts with a per-coverage median and sigma from `masterdata.SEVERITY` (independent of the limit), capped at 90% of each coverage limit; an overflowing coverage is scaled to a random 40-100% of the cap so totals do not pile up at 90% | cosmetic (excluded) items 8% of the time |
 | `make_docs` | all mandatory docs, optional ones 50%; one doc can be omitted or arrive 10-30 days late | received_date never after AS_OF |
