@@ -28,6 +28,10 @@ A living guide to understand every file, function and decision in this repo. Upd
 | structural checks | `src/claimsgen/checks_structure.py` | [modules/checks_structure.md](modules/checks_structure.md) | done |
 | business checks | `src/claimsgen/checks_business.py` | [modules/checks_business.md](modules/checks_business.md) | done |
 | validate | `src/claimsgen/validate.py` | [modules/validate.md](modules/validate.md) | done |
+| inject | `src/claimsgen/inject.py` | [modules/inject.md](modules/inject.md) | done |
+| finalize | `src/claimsgen/finalize.py` | [modules/finalize.md](modules/finalize.md) | done |
+| ground truth | `src/claimsgen/ground_truth.py` | [modules/ground_truth.md](modules/ground_truth.md) | done |
+| generate | `src/claimsgen/generate.py` | [modules/generate.md](modules/generate.md) | done |
 | tooling | `scripts/*.py` | [scripts.md](scripts.md) | done |
 | backlog | n/a | [IMPROVEMENTS.md](IMPROVEMENTS.md) teacher findings for the builder | living |
 

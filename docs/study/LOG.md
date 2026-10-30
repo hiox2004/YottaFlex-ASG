@@ -2,6 +2,7 @@
 
 Add a line per step: date, commit scope, what it taught or changed, which notes were updated.
 
+- 2026-10-30 `feat(inject)` six labelled cases on isolated targets, engine re-run for business cases and post-engine patches for the two defects, single-map ID finalize, ground_truth. Result: 1,000 claims, validator failing ids == the 30 integrity defects exactly. Notes: inject, finalize, ground_truth, generate.
 - 2026-10-30 `feat(validate)` 12 checks on 290k rows, zero baseline failures; mutation tests prove each defect type is caught on the right id. Notes: checks_structure, checks_business, validate.
 - 2026-10-30 `fix(rules)` Opus checkpoint 2 (DO NOW): date-ordered processing, per-claim RNG (decouples claims for injection), reassignment guard, assessment after in-window docs, fraud_score only at the fraud step, DESIGN corrections. DO LATER items in DESIGN 'Reviewer checkpoint 2'.
 - 2026-10-30 `feat(rules)` rules catalogue + engine: decisions, history, assignments, reserves, settlements derived from rules. Learned: claimed == limit is paid below the limit (deductible); a capped over-limit claim can be denied when earlier claims used the limit. Notes: rules, engine.

@@ -116,3 +116,9 @@ share of settlements above threshold must land ~5-15% (tune lognormal) so the ap
 - The AS_OF check covers event/transaction dates only; term end dates and coverage effective dates are exempt.
 - The only pre-start activity allowed is for claims whose history shows denial by R-COV-01.
 - Injection must keep ground_truth entity ids aligned with failure keys: the settlement row for settlement_exceeds_limit and paid_twice (second settlement).
+
+## Injection decisions (inject step)
+- Targets: clean claims whose policy and customer each have exactly one claim and whose status is assessed/approved/paid; disjoint across cases; defects drawn first from paid single-coverage claims.
+- Duplicate: a new claim (temporary id) cloning the source; the baseline reserves 15 claim slots so the total stays exactly 1,000.
+- Business cases re-run the full engine; defects patch outputs afterwards. Result at full scale: the validator's failing ids equal the integrity-defect ground_truth ids.
+- ground_truth expected decisions are written from the rules, not from engine output.
