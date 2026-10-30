@@ -33,8 +33,16 @@ class Decision:
 
 
 class World:
-    def __init__(self, t: dict, as_of=None):
+    def __init__(self, t: dict, as_of=None, fraud_threshold=None, approver_threshold_cents=None):
         self.as_of = as_of or config.AS_OF
+        self.fraud_threshold = (
+            config.FRAUD_THRESHOLD if fraud_threshold is None else fraud_threshold
+        )
+        self.approver_threshold_cents = (
+            config.APPROVER_THRESHOLD_CENTS
+            if approver_threshold_cents is None
+            else approver_threshold_cents
+        )
         self.policy = {p["policy_id"]: p for p in t["policy"]}
         self.incident = {i["incident_id"]: i for i in t["incident"]}
         # processing order is by dates, never by (provisional) claim_id
@@ -154,7 +162,7 @@ def evaluate(w: World, c: dict, duplicate: bool, resumed: bool) -> Decision:
             w.required[c["claim_type"]], w.docs[c["claim_id"]], c["submission_date"]
         ):
             return out("pend_docs", "R-DOC-01", "missing_document", scored=False)
-    if score >= config.FRAUD_THRESHOLD:
+    if score >= w.fraud_threshold:
         return out("refer_review", "R-FRD-05", "suspected_fraud")
     eligible = rules.eligible_by_coverage(items, w.exclusions)
     if not eligible:
@@ -215,7 +223,7 @@ def _settle(w, c, d: Decision, day, delays):
             "rule_id": "R-RSV-01",
         }
     )
-    role = "approver" if d.payable > config.APPROVER_THRESHOLD_CENTS else "process_owner"
+    role = "approver" if d.payable > w.approver_threshold_cents else "process_owner"
     approved = day + timedelta(days=delays[1])
     paid = approved + timedelta(days=delays[2])
     row = {
@@ -277,9 +285,15 @@ def _process(w: World, c: dict, rng):
         _settle(w, c, d, day, delays)
 
 
-def run(tables: dict, as_of=None) -> dict[str, list[dict]]:
-    """as_of defaults to config.AS_OF; a later date lets recent claims progress (used by what-if, never mutates config)."""
-    w = World(tables, as_of)
+def run(
+    tables: dict, as_of=None, *, fraud_threshold=None, approver_threshold_cents=None
+) -> dict[str, list[dict]]:
+    """as_of, fraud_threshold and approver_threshold_cents default to the config values (read once per run).
+
+    A later as_of lets recent claims progress; overriding thresholds is how what-if and the sensitivity
+    sweep vary them without ever mutating config (safe under concurrent sessions).
+    """
+    w = World(tables, as_of, fraud_threshold, approver_threshold_cents)
     for c in w.claims:
         incident_date = w.incident[c["incident_id"]]["incident_date"]
         stream = f"engine:{c['policy_id']}:{incident_date}:{c['submission_date']}:{c['claim_type']}"

@@ -21,7 +21,7 @@ def test_config_is_restored(built):
 
 def test_config_is_restored_after_an_error(built):
     with pytest.raises(KeyError):
-        sensitivity._rerun({"claim": []}, FRAUD_THRESHOLD=0.9)
+        sensitivity._rerun({"claim": []}, fraud_threshold=0.9)
     assert config.FRAUD_THRESHOLD == 0.5
 
 

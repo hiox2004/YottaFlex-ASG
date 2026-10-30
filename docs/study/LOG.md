@@ -2,6 +2,7 @@
 
 Add a line per step: date, commit scope, what it taught or changed, which notes were updated.
 
+- 2026-10-31 `fix(engine)` Opus intake audit #1: the threshold sweep patched global config while a concurrent session could run a what-if; thresholds are now `engine.run` arguments (like `as_of`), config is never patched, defaults byte-identical, tests prove it. My own DESIGN note had claimed this was already true. Worker: Sonnet.
 - 2026-10-31 `feat(intake)` Submit a claim tab (`app_intake.py`) wired into app.py with eight tabs; examples, form, JSON, field errors, request-missing-documents, session list. intake helpers made public. Headless walk-through: all seven examples reach their rule; pend and resume shows a second assessment and payment. 229 tests. Worker: Sonnet.
 - 2026-10-31 `feat(intake)` seven example claims chosen deterministically per dataset (clean approve, missing document, duplicate, lapsed policy, over limit, claim before start, within deductible), each tested against its intended (decision, rule, reason) at starter and full scale and checked at 0.25. Worker: Sonnet.
 - 2026-10-30 `feat(view)` Quality and data tab (`app_quality.py`) and `docs/CLAIM_INPUT.md` (template, validation table, what is not rejected, what-if and horizon notes, no AI in intake). Headless render test added. Worker: Haiku.

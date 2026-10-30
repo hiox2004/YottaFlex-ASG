@@ -1,6 +1,6 @@
 """Threshold sensitivity: re-run the engine while sweeping the approver threshold and the fraud-score cutoff.
 
-Deterministic (the engine is seeded, no clock). config is patched only inside `_rerun` and always restored.
+Deterministic (the engine is seeded, no clock). Thresholds are passed to engine.run as arguments; config is never mutated.
 ground_truth is read only to build the suspected_fraud truth set that precision and recall are scored against.
 """
 
@@ -17,16 +17,9 @@ OUTPUT_TABLES = (
 )
 
 
-def _rerun(tables: dict, **patch) -> dict:
+def _rerun(tables: dict, **kwargs) -> dict:
     inputs = {k: v for k, v in tables.items() if k not in OUTPUT_TABLES}
-    original = {k: getattr(config, k) for k in patch}
-    try:
-        for k, v in patch.items():
-            setattr(config, k, v)
-        return {**inputs, **engine.run(inputs)}
-    finally:
-        for k, v in original.items():
-            setattr(config, k, v)
+    return {**inputs, **engine.run(inputs, **kwargs)}
 
 
 def _row(value, current: bool, rerun: dict, truth: set | None, threshold: int) -> dict:
@@ -61,11 +54,11 @@ def sweep(tables: dict, ground_truth: list) -> dict:
     }
     approver, fraud = [], []
     for v in APPROVER_VALUES:
-        rerun = _rerun(tables, APPROVER_THRESHOLD_CENTS=v)
+        rerun = _rerun(tables, approver_threshold_cents=v)
         # the approver threshold does not change fraud decisions, so no precision/recall for this sweep
         approver.append(_row(v, v == now["approver_threshold_cents"], rerun, None, v))
     for v in FRAUD_VALUES:
-        rerun = _rerun(tables, FRAUD_THRESHOLD=v)
+        rerun = _rerun(tables, fraud_threshold=v)
         fraud.append(
             _row(v, v == now["fraud_threshold"], rerun, truth, now["approver_threshold_cents"])
         )
