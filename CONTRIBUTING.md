@@ -3,7 +3,7 @@
 ## Commits
 Format: `<type>(<scope>): <summary>` (imperative, <=72 chars, no trailing period), then a body explaining why.
 - Types: `feat`, `fix`, `docs`, `test`, `refactor`, `chore`, `ci`, `data`
-- Scopes: `schema`, `rules`, `gen`, `inject`, `validate`, `export`, `ui`, `docs`, `tooling`
+- Scopes: `schema`, `rules`, `gen`, `inject`, `validate`, `export`, `ui`, `docs`, `tooling`, `intake`, `engine`, `metrics`, `view`, `ai`, `readme`, `container`, `review`
 - One logical step per commit, tests and lint passing (`pytest -q`, `ruff check .`, `ruff format --check .`).
 - Never commit secrets, `.env*`, `.db` files, or `output/full/`. The repo is public.
 - Claude-assisted commits end with the `Co-Authored-By` trailer.

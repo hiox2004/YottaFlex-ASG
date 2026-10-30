@@ -2,7 +2,7 @@
 and an append-only status history. Every outcome is derived from rules.py; nothing here is randomly assigned except
 processing delays and the 5% reassignment, which only move dates and adjusters.
 
-Claims are processed in claim_id order (submission date order). A step whose date would fall after AS_OF is not
+Claims are processed in submission-date order (then incident date, policy, claim id), never by claim_id alone. A step whose date would fall after AS_OF is not
 taken, so recent claims honestly stay in an earlier status.
 """
 

@@ -2,7 +2,7 @@
 
 A working claims workflow plus its test bed. A rules engine takes insurance claims through intake, coverage validation,
 document request, eligibility and settlement routing, with a rule ID, a reason and an append-only history behind every
-decision. A deterministic generator produces the 11-entity dataset (2,000 policies, 1,000 claims, 5 claim types) with six
+decision. A deterministic generator produces the dataset (11 core entities plus five event and link tables make 16 input tables, and a separate ground-truth table makes 17; 2,000 policies, 1,000 claims, 5 claim types) with six
 labelled edge cases and a separate answer key, so the workflow can be checked end to end. A minimal view exposes the
 decisions, exceptions, per-claim timeline and metrics.
 
@@ -67,7 +67,7 @@ rule ID and reason. The catalogue is `src/claimsgen/rules.py`.
 
 ## How we know it works
 
-- **Validation:** 12 checks over about 290,000 rows; zero failures on the clean baseline, and after injection the failing ids are exactly the planted integrity defects.
+- **Validation:** 12 checks (about 290,000 row-level checks over the roughly 23,000-row dataset); zero failures on the clean baseline, and after injection the failing ids are exactly the planted integrity defects.
 - **Independent payable check:** `tests/payable_reference.py` re-implements the payable rule from the spec text (it does not import `rules.py`) and is compared with the engine on hand-computed cases and on every approving claim.
 - **The evaluation can fail:** mutation tests (`tests/test_mutation.py`) break one rule at a time and assert that recall, precision or amounts move.
 - **Injection is contained:** every non-target claim is identical before and after injection (`tests/test_injection_isolation.py`).
@@ -107,6 +107,8 @@ validator against the answer key) are in each package's `metrics.md` and the vie
 - Very recent claims are honestly left in an earlier status when the next step would fall after the as-of date, and count as
   misses in recall. `claim_over_limit` precision is below 1 because organic claims also exhaust a limit.
 - `under_review` is terminal in this dataset, and reserves are not revised in the baseline.
+- There is no document-chase SLA or closure: a claim in `docs_pending` or `under_review` stays there unless documents arrive.
+- Duplicate detection matches the exact incident date only; a copy with the date shifted by one day is not caught (real carriers match within a window).
 - The `SET-...-002` second payment is an unavoidable marker of the paid-twice case.
 - The optional LLM extension is not built; the dataset and workflow are fully deterministic.
 - The approver threshold (10,000 USD), fraud cutoff (score 0.5), the 30/90/60-day fraud windows and the document window (5 days) are hand-chosen constants in `src/claimsgen/config.py`, not fitted to data.

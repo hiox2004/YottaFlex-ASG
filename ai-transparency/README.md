@@ -4,8 +4,8 @@ This directory is the transparency record required by the submission guidelines:
 what the candidate reviewed, and the prompts submitted. Facts below come from the project history; items marked **TO COMPLETE**
 can only be written by the candidate and are left open on purpose.
 
-**Status of the prompt history: EXPORTED.** `prompt-history/` holds all three Claude Code sessions of this project (66 user prompts,
-32 subagent prompts and 2 helper-model prompts at export time). Re-run `python scripts/export_prompts.py` before the final push so it is current.
+**Status of the prompt history: EXPORTED.** `prompt-history/` holds all three Claude Code sessions of this project (counts at the last export: 66 user prompts,
+32 subagent prompts and 2 helper-model prompts). Re-run `python scripts/export_prompts.py` before the final push so it is current.
 
 ## Timeline
 The 72-hour window ran from Fri 30 Oct 2026 01:13:12 IST to Mon 2 Nov 2026 01:13:12 IST (as given by the organisation). The first prompt in the history is
@@ -33,7 +33,7 @@ The 72-hour window ran from Fri 30 Oct 2026 01:13:12 IST to Mon 2 Nov 2026 01:13
   subagent/model policy, delegated several design decisions, and authenticated `gh` and approved installs and edits through permission prompts.
 
 ## How the solution was verified
-`pip install -e ".[dev,ui]"` then `pytest -q` (229 tests, including headless runs of the Streamlit app), `python scripts/verify.py`
+`pip install -e ".[dev,ui]"` then `pytest -q` (see `pytest -q` for the current count, including headless runs of the Streamlit app), `python scripts/verify.py`
 (builds the dataset twice and compares every file by SHA-256), and CI on every push. The validator is checked against the planted
 defects, and precision/recall against the answer key is reported in each package's `metrics.md`. Known limits are in the main README.
 
