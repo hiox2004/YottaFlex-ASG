@@ -12,6 +12,7 @@ output, then commit `prompt-history/`.
 |---|---|---|
 | Claude Code (VS Code extension), build session | Claude Sonnet 5.5 | Planning, design, and essentially all code, tests and docs in this repo |
 | Subagents inside the build session | Claude Opus (4 read-only reviews: the design review, then checkpoints on generation, rules engine and injection) | Finding defects and ranking fixes by return on effort |
+| Claude Code workers (subagents) for the improvements backlog | Claude Sonnet 5.5 (three workers) and Haiku (one worker) | Independent tests, business metrics and the sensitivity sweep, the view panels, README limits. Each worker edited separate files and did not commit; the orchestrating session ran ruff and the tests, spot-checked outputs and committed |
 | Claude Code, teaching session | Sonnet (briefly switched to Haiku, then back) | Explaining the code and the insurance domain; logging ideas in `docs/study/IMPROVEMENTS.md` |
 | Claude Code, GitHub research session | Sonnet and Haiku workers | Searching public GitHub for related projects (see the note under TO COMPLETE) |
 | Claude chat on claude.ai | Claude | Produced the "Understanding Brief" PDF and the initial setup pitch that this repo's setup followed. **Its prompts are not in this repo** (see limits) |
@@ -28,7 +29,7 @@ output, then commit `prompt-history/`.
   subagent/model policy, delegated several design decisions, and authenticated `gh` and approved installs and edits through permission prompts.
 
 ## How the solution was verified
-`pip install -e ".[dev,ui]"` then `pytest -q` (99 tests, including a headless run of the Streamlit app), `python scripts/verify.py`
+`pip install -e ".[dev,ui]"` then `pytest -q` (144 tests, including a headless run of the Streamlit app), `python scripts/verify.py`
 (builds the dataset twice and compares every file by SHA-256), and CI on every push. The validator is checked against the planted
 defects, and precision/recall against the answer key is reported in each package's `metrics.md`. Known limits are in the main README.
 

@@ -17,7 +17,7 @@ python scripts/verify.py                    # builds twice, compares every file 
 streamlit run app.py                        # the view
 ```
 1. Open `output/starter/` (small, committed): `README.md`, `validation_summary.md`, `metrics.md`, `ground_truth.csv`.
-2. Run the view: Decisions, Exceptions, Claim timeline, Metrics tabs.
+2. Run the view. Tabs: Decisions (rule, reason, actor per claim), Exceptions, Claim timeline (append-only history, a rule trace showing where a claim stopped and why, and what would make it payable), Metrics (rates, cycle times, amounts blocked, money effect by rule, touchless rate, approver workload, docs-pending aging, reserve vs final, threshold sensitivity, precision/recall), Realism (distributions) and Reproducibility (fixed seed, dataset checksum, rebuild-and-compare).
 3. Regenerate anything with the command below; the same seed always gives byte-identical files.
 
 ## Generate data
