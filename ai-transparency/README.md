@@ -46,7 +46,9 @@ defects, and precision/recall against the answer key is reported in each package
 ```
 python scripts/export_prompts.py            # reads this project's Claude Code transcripts, writes ai-transparency/prompt-history/
 ```
-Re-run it before the final push so the history is current. The script exits non-zero if a secret-like pattern remains. Always read
+Re-run it before the final push so the history is current. Each run rebuilds the files from the transcripts (fast and deterministic, so
+there are no duplicated or reordered entries), but it refuses to overwrite the existing history with fewer prompts (for example if the local
+transcripts were trimmed) unless `--force` is passed. The script exits non-zero if a secret-like pattern remains. Always read
 the output before committing: it is a public repository.
 
 ## The research session (disclosure)

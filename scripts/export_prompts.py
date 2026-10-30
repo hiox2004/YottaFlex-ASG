@@ -182,11 +182,36 @@ def leftovers(text: str) -> list[str]:
     ]
 
 
-def export(source: Path, out: Path) -> dict:
+def previous_counts(out: Path) -> dict[str, int]:
+    """Session id (8 chars) -> user prompts recorded in an existing export."""
+    counts = {}
+    for f in out.glob("session-*.md"):
+        text = f.read_text(encoding="utf-8")
+        sid = re.search(r"^# Session \d+ \((\w+)\)", text, re.MULTILINE)
+        n = re.search(r"user prompts: (\d+)", text)
+        if sid and n:
+            counts[sid.group(1)] = int(n.group(1))
+    return counts
+
+
+def check_not_shrinking(previous: dict[str, int], current: dict[str, int], force: bool) -> None:
+    """The export rebuilds everything from local transcripts; never let that silently replace committed history with less."""
+    lost = {s: (n, current.get(s, 0)) for s, n in previous.items() if current.get(s, 0) < n}
+    if lost and not force:
+        detail = ", ".join(f"{s}: {old} -> {new}" for s, (old, new) in sorted(lost.items()))
+        raise SystemExit(
+            f"refusing to overwrite the existing history with fewer prompts ({detail}); "
+            "the transcripts may have been trimmed. Re-run with --force only if that is intended."
+        )
+
+
+def export(source: Path, out: Path, force: bool = False) -> dict:
     out.mkdir(parents=True, exist_ok=True)
     sessions = sorted(
         source.glob("*.jsonl"), key=lambda p: next(_records(p)).get("timestamp") or ""
     )
+    current = {p.stem[:8]: len(session_prompts(p)["prompts"]) for p in sessions}
+    check_not_shrinking(previous_counts(out), current, force)
     rows, findings, helpers, subs = [], [], [], []
     for n, path in enumerate(sessions, start=1):
         data = session_prompts(path)
@@ -262,8 +287,13 @@ def main(argv=None) -> int:
         help="Claude Code project transcript directory (default: found from the current directory)",
     )
     parser.add_argument("--out", type=Path, default=Path("ai-transparency/prompt-history"))
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="overwrite even if the new export has fewer prompts than the existing one",
+    )
     args = parser.parse_args(argv)
-    result = export(args.source or find_source(Path.cwd()), args.out)
+    result = export(args.source or find_source(Path.cwd()), args.out, force=args.force)
     print(
         f"sessions {result['sessions']} | user prompts {result['user_prompts']} | subagent prompts {result['subagent_prompts']} "
         f"| WebFetch prompts {result['webfetch_prompts']} | secret-like leftovers {len(result['findings'])}"

@@ -163,3 +163,37 @@ def test_missing_transcripts_is_a_clear_error(tmp_path, monkeypatch):
     monkeypatch.setattr(ep.Path, "home", classmethod(lambda cls: tmp_path))
     with pytest.raises(SystemExit, match="no Claude Code transcripts"):
         ep.find_source(tmp_path / "nowhere")
+
+
+def test_rebuild_refuses_to_shrink_committed_history(source, tmp_path):
+    out = tmp_path / "out"
+    ep.export(source, out)
+    kept = [
+        json.loads(line)
+        for line in (source / "aaaa1111.jsonl").read_text(encoding="utf-8").splitlines()
+    ][:1]
+    write_jsonl(
+        source / "aaaa1111.jsonl", kept
+    )  # transcript trimmed: only the first prompt is left
+    before = (out / "session-1.md").read_bytes()
+    with pytest.raises(SystemExit, match="fewer prompts"):
+        ep.export(source, out)
+    assert (out / "session-1.md").read_bytes() == before  # nothing was overwritten
+    ep.export(source, out, force=True)
+    assert "user prompts: 1" in (out / "session-1.md").read_text(encoding="utf-8")
+
+
+def test_rebuild_refuses_when_a_session_disappears_and_allows_growth(source, tmp_path):
+    out = tmp_path / "out"
+    ep.export(source, out)
+    records = [
+        json.loads(line)
+        for line in (source / "aaaa1111.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
+    records.append(user("2026-10-30T07:00:00Z", "one more prompt", origin="human"))
+    write_jsonl(source / "aaaa1111.jsonl", records)
+    assert ep.export(source, out)["user_prompts"] == 4  # growth is fine
+    (source / "aaaa1111.jsonl").unlink()
+    write_jsonl(source / "bbbb2222.jsonl", [user("2026-10-30T08:00:00Z", "other", origin="human")])
+    with pytest.raises(SystemExit, match="aaaa1111: 4 -> 0"):
+        ep.export(source, out)
