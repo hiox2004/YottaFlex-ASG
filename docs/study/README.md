@@ -37,6 +37,8 @@ A living guide to understand every file, function and decision in this repo. Upd
 | command line | `src/claimsgen/__main__.py` | [modules/__main__.md](modules/__main__.md) | done |
 | metrics | `src/claimsgen/metrics.py` | [modules/metrics.md](modules/metrics.md) | done |
 | scoring | `src/claimsgen/scoring.py` | [modules/scoring.md](modules/scoring.md) | done |
+| view data | `src/claimsgen/view_data.py` | [modules/view_data.md](modules/view_data.md) | done |
+| view (app) | `app.py` | [scripts.md](scripts.md) | done |
 | tooling | `scripts/*.py` | [scripts.md](scripts.md) | done |
 | backlog | n/a | [IMPROVEMENTS.md](IMPROVEMENTS.md) teacher findings for the builder | living |
 

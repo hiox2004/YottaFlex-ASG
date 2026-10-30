@@ -153,3 +153,8 @@ share of settlements above threshold must land ~5-15% (tune lognormal) so the ap
 - Document labels share one predicted class (R-DOC-01 pended); injected-vs-baseline cannot be told apart from the decision, so they are scored as a class and per label for recall.
 - Claims not yet assessed at AS_OF count as misses; claim_over_limit precision is below 1 because organic claims also reach `limit_reached`. These are reported as they are, not tuned away.
 - Every dataset package includes metrics.md; the view will reuse metrics.operational and scoring.score.
+
+## View decisions (view step)
+- `app.py` (repo root) is rendering only; logic and numbers live in `view_data.py` (tested). Run with `streamlit run app.py`; the dataset is built in memory (starter or full) and cached, so the app reads no output files.
+- Exceptions list reuses `scoring.predictions`, so what the view shows as an exception and what the scoring table scores are the same definitions.
+- A headless `streamlit.testing.v1.AppTest` run proves the app executes and every panel and selector works (skipped if the `ui` extra is not installed).

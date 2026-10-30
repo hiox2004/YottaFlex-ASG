@@ -17,6 +17,13 @@ python -m claimsgen all --out output                          # both
 ```
 The starter dataset is in `output/starter/` (see its README.md and validation_summary.md).
 
+## The view
+```
+pip install -e ".[ui]"
+streamlit run app.py
+```
+Tabs: Decisions (rule, reason, actor per claim), Exceptions (docs pending, duplicate, over limit, paid twice, cancelled before incident, claim before start, ...), Claim timeline (append-only history), Metrics (rates, cycle times, amounts blocked, reserve vs final, precision/recall).
+
 ## Where to verify the review points
 | Point | Evidence |
 |---|---|
@@ -32,5 +39,6 @@ The starter dataset is in `output/starter/` (see its README.md and validation_su
 Built and tested: generator, rules engine (workflow), validation, injection and ground truth (60 tests).
 Also built: export (CSV/JSON/SQL + docs), CLI and the same-seed reproducibility proof.
 Also built: metrics (operational + precision/recall vs ground_truth, in each package's `metrics.md`).
-Next: the minimal view (decisions, exceptions, timeline, metrics).
+Also built: the minimal view (`streamlit run app.py`): decisions, exceptions, per-claim timeline, metrics.
+Next: final README polish and the final audit.
 See `docs/SPEC.md` for scope and `docs/study/LOG.md` for progress.
