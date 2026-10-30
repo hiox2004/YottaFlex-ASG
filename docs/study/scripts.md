@@ -1,0 +1,9 @@
+# scripts/
+
+| Script | Purpose | How it works / gotcha |
+|---|---|---|
+| `verify.py` | Reproducibility proof (brief step 10) | Imports `claimsgen.generate`, builds twice into temp dirs with `SEED`, compares per-file row counts + SHA-256. Prints "not built yet" and exits 0 until the generator exists. Exit 1 on mismatch |
+| `summarize_data.py` | Compact look at generated CSVs | Prints row count, columns and 3 sample rows per file, so raw data never needs reading (also saves tokens) |
+| `post_edit.py` | Claude Code PostToolUse hook | Reads the hook JSON from stdin; for edited `.py` files runs ruff format, ruff check --fix, pytest -x; exit 2 (blocking feedback) only on real failures; exit 5 (no tests collected) is tolerated |
+
+Wired in `.claude/settings.json` (hook) and `.claude/commands/verify.md` (`/verify`).
