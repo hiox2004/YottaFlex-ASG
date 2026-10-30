@@ -2,6 +2,7 @@
 
 Add a line per step: date, commit scope, what it taught or changed, which notes were updated.
 
+- 2026-10-31 `fix(intake)` Opus intake audit #4, #6, #8, #9: horizon = max(dataset date + 30 days, submission + 21 days); tab state keyed by scale, last draft reused for request-docs, session list capped; tests for the horizon boundary, both approver sides, lapsed policy with documents, examples at 0.25 with a validation round-trip; a tautology replaced. Worker: Sonnet.
 - 2026-10-31 `fix(intake)` Opus intake audit #2, #3, #10: hostile JSON (huge integer, deep nesting, duplicate keys, over-long text), ancient dates that overflowed the engine, lenient date formats. All return field errors. 68 intake tests. Worker: Haiku.
 - 2026-10-31 `fix(engine)` Opus intake audit #1: the threshold sweep patched global config while a concurrent session could run a what-if; thresholds are now `engine.run` arguments (like `as_of`), config is never patched, defaults byte-identical, tests prove it. My own DESIGN note had claimed this was already true. Worker: Sonnet.
 - 2026-10-31 `feat(intake)` Submit a claim tab (`app_intake.py`) wired into app.py with eight tabs; examples, form, JSON, field errors, request-missing-documents, session list. intake helpers made public. Headless walk-through: all seven examples reach their rule; pend and resume shows a second assessment and payment. 229 tests. Worker: Sonnet.

@@ -35,9 +35,7 @@ def _submit(app, key):
 def test_first_run_has_no_exception_and_no_result(AppTest):
     app = _app(AppTest)
     assert len(app.tabs) == 8
-    assert (
-        not app.session_state["intake_results"] if "intake_results" in app.session_state else True
-    )
+    assert "intake_results" not in app.session_state or app.session_state["intake_results"] == []
 
 
 @pytest.mark.parametrize("key", list(intake_examples.EXPECTED))
@@ -75,3 +73,21 @@ def test_clear_empties_the_list(AppTest):
     app.button(key="intake_clear").click().run()
     assert not app.exception, app.exception
     assert app.session_state["intake_results"] == []
+
+
+def test_switching_dataset_clears_results(AppTest):
+    app = _app(AppTest)
+    _submit(app, "clean_approve")
+    assert len(app.session_state["intake_results"]) == 1
+    options = app.sidebar.selectbox(key="dataset").options
+    other = next(o for o in options if o != app.sidebar.selectbox(key="dataset").value)
+    app.sidebar.selectbox(key="dataset").select(other).run()
+    assert not app.exception, app.exception
+    assert (
+        not app.session_state["intake_results"] if "intake_results" in app.session_state else True
+    )
+
+
+def test_text_area_is_capped(AppTest):
+    app = _app(AppTest)
+    assert app.text_area(key="intake_json").max_chars == 50_000

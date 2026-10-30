@@ -8,12 +8,21 @@ import streamlit as st
 
 from claimsgen import config, intake, intake_examples, view_data, vocab, whatif
 
+MAX_SESSION = 50
+MAX_JSON_CHARS = 50_000
+SCALE_KEYS = ("intake_results", "intake_errors", "intake_last", "intake_json", "intake_example")
+
 
 def _examples(tables, scale):
-    """Examples are built once per scale and kept in the session (tables is not hashable for st.cache_data)."""
+    """Examples are built once per scale and kept in the session (tables is not hashable for st.cache_data).
+    Returns None (and shows an error) when the dataset has no suitable policy for an example."""
     key = f"intake_examples_{scale}"
     if key not in st.session_state:
-        st.session_state[key] = intake_examples.build(tables)
+        try:
+            st.session_state[key] = intake_examples.build(tables)
+        except (StopIteration, LookupError, ValueError) as e:
+            st.error(f"Example claims cannot be built for this dataset ({type(e).__name__}: {e}).")
+            return None
     return st.session_state[key]
 
 
@@ -29,11 +38,22 @@ def _summary(draft, result):
 
 
 def _store(tables, draft):
-    result = whatif.evaluate(tables, draft)
+    """Evaluate and remember the draft as the last one; an identical consecutive submission is not added again."""
+    scale = st.session_state.get("intake_scale")
+    st.session_state["intake_last"] = draft
     results = st.session_state.setdefault("intake_results", [])
+    if results and results[-1]["draft"] == draft.canonical() and results[-1]["scale"] == scale:
+        return
+    result = whatif.evaluate(tables, draft)
     results.append(
-        {"draft": draft.canonical(), "summary": _summary(draft, result), "result": result}
+        {
+            "draft": draft.canonical(),
+            "scale": scale,
+            "summary": _summary(draft, result),
+            "result": result,
+        }
     )
+    del results[:-MAX_SESSION]
 
 
 def _load_example(examples):
@@ -41,6 +61,7 @@ def _load_example(examples):
     st.session_state["intake_json"] = json.dumps(
         by_title[st.session_state["intake_example"]].draft.to_json(), indent=2
     )
+    st.session_state["intake_errors"] = []
 
 
 def _submit(tables):
@@ -51,17 +72,28 @@ def _submit(tables):
 
 
 def _request_docs(tables):
-    draft, errors = intake.parse_and_validate(st.session_state["intake_json"], tables)
-    st.session_state["intake_errors"] = errors
-    if draft is not None:
-        nxt = whatif.request_docs(tables, draft)
-        st.session_state["intake_json"] = json.dumps(nxt.to_json(), indent=2)
-        _store(tables, nxt)
+    """Request the missing documents for the LAST EVALUATED draft (not the possibly edited text box)."""
+    draft = st.session_state.get("intake_last")
+    if draft is None:
+        return
+    st.session_state["intake_errors"] = []
+    nxt = whatif.request_docs(tables, draft)
+    st.session_state["intake_json"] = json.dumps(nxt.to_json(), indent=2)
+    _store(tables, nxt)
 
 
 def _clear():
     st.session_state["intake_results"] = []
     st.session_state["intake_errors"] = []
+    st.session_state["intake_last"] = None
+
+
+def _reset_for_scale(scale):
+    """Switching the dataset scale drops everything that belongs to the old one."""
+    if st.session_state.get("intake_scale") != scale:
+        for k in SCALE_KEYS:
+            st.session_state.pop(k, None)
+        st.session_state["intake_scale"] = scale
 
 
 def _from_form():
@@ -84,6 +116,7 @@ def _from_form():
         ],
     }
     f["intake_json"] = json.dumps(claim, indent=2)
+    f["intake_errors"] = []
 
 
 def _form(tables):
@@ -114,8 +147,8 @@ def _show(result):
     cols[1].metric("Decision", d["decision"])
     cols[2].metric("Rule", d["rule_id"] or "-")
     cols[3].metric("Payable (USD)", f"{d['payable_usd']:,.2f}")
-    if result["settlement"]:
-        st.write(f"Approval route: {result['settlement'][-1]['approver_role']}")
+    role = result["settlement"][-1]["approver_role"] if result["settlement"] else None
+    st.write(f"Approval route: {role}" if role else "Approval route: not reached (no settlement).")
     if result["missing_documents"]:
         st.write("Missing documents: " + ", ".join(result["missing_documents"]))
     st.subheader("Rule trace (decision path)")
@@ -141,7 +174,10 @@ def render(tables, scale):
         "on a copy of the dataset (the dataset is never changed) up to the evaluation horizon. "
         + whatif.NOTE
     )
+    _reset_for_scale(scale)
     examples = _examples(tables, scale)
+    if examples is None:
+        return
     titles = [e.title for e in examples]
     if "intake_json" not in st.session_state:
         st.session_state["intake_json"] = json.dumps(examples[0].draft.to_json(), indent=2)
@@ -149,7 +185,7 @@ def render(tables, scale):
     st.caption(examples[titles.index(pick)].expect)
     st.button("Load example", key="intake_load", on_click=_load_example, args=(examples,))
     _form(tables)
-    st.text_area("Claim (JSON)", key="intake_json", height=320)
+    st.text_area("Claim (JSON)", key="intake_json", height=320, max_chars=MAX_JSON_CHARS)
     st.button("Submit and evaluate", key="intake_submit", on_click=_submit, args=(tables,))
     if st.session_state.get("intake_errors"):
         st.error("The claim is not valid.")

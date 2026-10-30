@@ -2,7 +2,7 @@ from datetime import timedelta
 
 import pytest
 
-from claimsgen import config, engine, generate, view_data, whatif
+from claimsgen import config, engine, generate, intake_examples, view_data, whatif
 from claimsgen.draft import Doc, Draft, Item
 from claimsgen.sensitivity import OUTPUT_TABLES
 
@@ -162,3 +162,95 @@ def test_submitted_on_as_of_is_processed_beyond_submitted(tables):
 def test_full_dataset_clean_draft(data):
     r = whatif.evaluate(data, _clean(data))
     assert r["decision"]["decision"] == "approve"
+
+
+def _with_amount(t, cents_of):
+    """Draft on a plain policy whose coverage limit is far above the approver threshold; cents_of(pcv) gives the amount."""
+    x = intake_examples._ctx(t)
+    big = [
+        c
+        for c in intake_examples._cands(x)
+        if intake_examples._claimable(c)
+        and c.pcv["limit_amount"] >= 3 * config.APPROVER_THRESHOLD_CENTS
+    ]
+    assert big, "no policy coverage with a limit well above the approver threshold"
+    c = big[0]
+    day = c.policy["start_date"] + timedelta(days=intake_examples.DAYS_AFTER_START)
+    return intake_examples._draft(x, c, day, cents_of(c.pcv))
+
+
+@pytest.mark.parametrize(("delta", "role"), [(-1000, "process_owner"), (1000, "approver")])
+def test_approver_route_straddles_threshold(data, delta, role):
+    d = _with_amount(data, lambda r: r["deductible"] + config.APPROVER_THRESHOLD_CENTS + delta)
+    r = whatif.evaluate(data, d)
+    assert r["decision"]["decision"] == "approve"
+    assert r["settlement"][-1]["approver_role"] == role
+
+
+def test_submitted_on_horizon_is_paid(tables):
+    clean = _clean(tables)
+    h = config.intake_horizon()
+    d = Draft(
+        clean.policy_id,
+        clean.incident_date,
+        clean.incident_type,
+        h,
+        clean.items,
+        tuple(Doc(x.doc_type, h) for x in clean.documents),
+    )
+    assert whatif.horizon_for(d) == h + timedelta(days=21)
+    r = whatif.evaluate(tables, d)
+    assert r["decision"]["decision"] == "approve"
+    assert r["decision"]["status"] == "paid"
+    assert r["settlement"] and r["settlement"][-1]["approver_role"] is not None
+    assert r["horizon"] == whatif.horizon_for(d)
+
+
+def test_horizon_for_never_before_intake_horizon(tables):
+    d = _clean(tables)
+    assert whatif.horizon_for(d) >= config.intake_horizon()
+
+
+def test_request_docs_near_horizon_still_pends_then_resumes(tables):
+    clean = _clean(tables)
+    h = config.intake_horizon() - timedelta(days=2)
+    pending = Draft(
+        clean.policy_id,
+        clean.incident_date,
+        clean.incident_type,
+        h,
+        clean.items,
+        tuple(Doc(x.doc_type, h) for x in clean.documents[1:]),
+    )
+    assert whatif.evaluate(tables, pending)["decision"]["status"] == "docs_pending"
+    fixed = whatif.request_docs(tables, pending)
+    day = max(x.received_date for x in fixed.documents)
+    assert day > h + timedelta(days=config.DOC_WINDOW_DAYS)
+    r = whatif.evaluate(tables, fixed)
+    assert [a["decision"] for a in r["assessments"]] == ["pend_docs", "approve"]
+    assert r["settlement"]
+
+
+def test_request_docs_respects_max_documents(tables):
+    from claimsgen import intake
+
+    clean = _clean(tables)
+    filler = tuple(
+        Doc(clean.documents[0].doc_type, clean.submission_date) for _ in range(intake.MAX_DOCS - 1)
+    )
+    d = Draft(
+        clean.policy_id,
+        clean.incident_date,
+        clean.incident_type,
+        clean.submission_date,
+        clean.items,
+        filler,
+    )
+    assert len(whatif.request_docs(tables, d).documents) <= intake.MAX_DOCS
+
+
+def test_lapsed_policy_with_documents_is_denied(data):
+    lapsed = next(e for e in intake_examples.build(data) if e.key == "lapsed_policy")
+    assert whatif.missing_documents(data, lapsed.draft) == []
+    d = whatif.evaluate(data, lapsed.draft)["decision"]
+    assert (d["decision"], d["rule_id"]) == ("deny", "R-COV-02")

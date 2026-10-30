@@ -2,10 +2,10 @@ import inspect
 
 import pytest
 
-from claimsgen import config, generate, intake_examples, whatif
+from claimsgen import config, generate, intake, intake_examples, whatif
 
 
-@pytest.fixture(scope="module", params=[0.05, 1.0], ids=["starter", "full"])
+@pytest.fixture(scope="module", params=[0.05, 0.25, 1.0], ids=["starter", "quarter", "full"])
 def tables(request):
     return generate.build_dataset(request.param)[0]
 
@@ -31,3 +31,9 @@ def test_build_is_deterministic(tables):
 
 def test_build_takes_only_tables():
     assert list(inspect.signature(intake_examples.build).parameters) == ["tables"]
+
+
+def test_examples_round_trip_through_intake(tables):
+    for e in intake_examples.build(tables):
+        draft, errors = intake.parse_and_validate(e.draft.to_json(), tables)
+        assert errors == [] and draft == e.draft, e.key

@@ -1,24 +1,36 @@
 """What-if evaluation of a claim submitted through intake: the REAL engine runs on the input tables plus the draft, without
 changing the dataset (the engine does not mutate input rows, so the lists are only shallow-copied).
 
-The draft becomes one provisional claim (PROVISIONAL_CLAIM sorts after every real id, so same-day ties go to real claims) and the
-engine runs to the intake horizon (config.intake_horizon()), so its whole workflow is visible. Only that claim's rows are read back.
+The draft becomes one provisional claim and the engine runs to horizon_for(draft), so its whole workflow is visible. Only that
+claim's rows are read back.
 
-Ordering semantics: existing claims submitted LATER than the draft are processed after it. If the draft would change their
-outcome (a shared limit, a duplicate key), that effect is NOT shown; only the draft's own outcome is. ground_truth is never used.
+Ordering semantics: the engine processes claims in the order (submission_date, incident_date, policy_id, claim_id); the
+provisional id only breaks complete ties. Existing claims submitted LATER than the draft ARE processed, but their outcomes are
+not shown, so any effect the draft has on them (a shared limit, a duplicate key) is invisible. The whole dataset advances to the
+horizon, so real claims still pending at the dataset date can consume limits before the draft does. ground_truth is never used.
 """
 
-from datetime import timedelta
+from datetime import date, timedelta
 
-from claimsgen import config, engine, ids, rules, sensitivity, view_data
+from claimsgen import config, engine, ids, intake, rules, sensitivity, view_data
 from claimsgen.draft import Doc, Draft
 
 PROVISIONAL_CLAIM = "CLM-2026-999999"
 PROVISIONAL_INCIDENT = "INC-2026-999999"
 NOTE = (
-    "What-if only: the dataset is unchanged. Existing claims submitted after this draft are not re-evaluated, "
-    "so any effect the draft would have on them is not shown."
+    "What-if only: the dataset is unchanged. Claims are processed in engine order (submission date, incident date, policy, "
+    "claim); existing claims submitted after this draft are processed too, but their outcomes are not shown, so any effect "
+    "the draft has on them is not shown. The whole dataset advances to the horizon, so real claims still pending at the "
+    "dataset date can use up limits before this draft does."
 )
+HORIZON_DAYS = (
+    21  # assessment up to 5 days, approval up to 3, payment up to 5, plus the documents path
+)
+
+
+def horizon_for(draft: Draft) -> date:
+    """Date the what-if runs to: the intake horizon, or later when the draft is submitted close to it."""
+    return max(config.intake_horizon(), draft.submission_date + timedelta(days=HORIZON_DAYS))
 
 
 def _policy(tables: dict, draft: Draft) -> dict:
@@ -89,7 +101,7 @@ def evaluate(tables: dict, draft: Draft) -> dict:
     """Run the engine on the draft as a what-if. Keys: claim, incident, decision, timeline, rule_trace, counterfactual,
     assessments, reserve, settlement, assignments, history, horizon, missing_documents, note."""
     inputs = _inputs(tables, draft)
-    horizon = config.intake_horizon()
+    horizon = horizon_for(draft)
     out = engine.run(inputs, as_of=horizon)
 
     def mine(rows):
@@ -121,13 +133,14 @@ def request_docs(tables: dict, draft: Draft, day=None) -> Draft:
     """New draft with one received document per missing mandatory type, arriving on `day`.
 
     Default day is submission + document window + 1 (outside the window, so the claim pends first and then resumes), capped at
-    the intake horizon.
+    horizon_for(draft). Documents are not added beyond the intake limit (intake.MAX_DOCS).
     """
     missing = missing_documents(tables, draft)
     day = day or min(
-        draft.submission_date + timedelta(days=config.DOC_WINDOW_DAYS + 1), config.intake_horizon()
+        draft.submission_date + timedelta(days=config.DOC_WINDOW_DAYS + 1), horizon_for(draft)
     )
-    extra = tuple(Doc(t, day) for t in missing)
+    room = max(0, intake.MAX_DOCS - len(draft.documents))
+    extra = tuple(Doc(t, day) for t in missing[:room])
     return Draft(
         draft.policy_id,
         draft.incident_date,
