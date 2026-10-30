@@ -2,6 +2,7 @@
 
 Add a line per step: date, commit scope, what it taught or changed, which notes were updated.
 
+- 2026-10-30 `feat(export)` CSV/JSON/SQL export, validation summary with distributions + edge-case counts + same-seed proof, manifest, README, checksums, CLI (`build`, `all`), verify.py. Learned: the manifest command must not contain the output path, or two runs into different folders would differ. Notes: export, dataset_docs, __main__, generate, scripts.
 - 2026-10-30 `fix(inject)` Opus checkpoint 3 (DO NOW): duplicate filter with 15 days of room, policy_event re-sorted in finalize, orphan/row-count asserts, machine-readable expected_decision words, clearer settlement wording, tests parametrized over starter and full. DO LATER: non-target claims unchanged before/after injection; weaker-test cleanups; hand-computed payable fixtures (validator shares rules.payable with the engine); README note that 10-30 rows per case applies at full scale.
 - 2026-10-30 `docs(scope)` scope correction: working workflow + minimal expose layer is core (SPEC deliverable 11, IMP-001); build order export -> metrics -> view; reviewer only for design review and final audit.
 - 2026-10-30 `feat(inject)` six labelled cases on isolated targets, engine re-run for business cases and post-engine patches for the two defects, single-map ID finalize, ground_truth. Result: 1,000 claims, validator failing ids == the 30 integrity defects exactly. Notes: inject, finalize, ground_truth, generate.

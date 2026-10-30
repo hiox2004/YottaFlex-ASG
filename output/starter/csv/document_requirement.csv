@@ -1,0 +1,14 @@
+requirement_id,claim_type,doc_type,mandatory
+DRQ-AUTO-PHOTO,AUTO,photo,Y
+DRQ-AUTO-POLICE_REPORT,AUTO,police_report,Y
+DRQ-AUTO-REPAIR_ESTIMATE,AUTO,repair_estimate,N
+DRQ-HOME-PHOTO,HOME,photo,Y
+DRQ-HOME-REPAIR_ESTIMATE,HOME,repair_estimate,Y
+DRQ-HOME-PROOF_OF_OWNERSHIP,HOME,proof_of_ownership,N
+DRQ-HLTH-MEDICAL_REPORT,HLTH,medical_report,Y
+DRQ-HLTH-INVOICE,HLTH,invoice,Y
+DRQ-TRVL-ITINERARY,TRVL,itinerary,Y
+DRQ-TRVL-INVOICE,TRVL,invoice,Y
+DRQ-TRVL-INCIDENT_STATEMENT,TRVL,incident_statement,N
+DRQ-LIAB-INCIDENT_STATEMENT,LIAB,incident_statement,Y
+DRQ-LIAB-POLICE_REPORT,LIAB,police_report,Y

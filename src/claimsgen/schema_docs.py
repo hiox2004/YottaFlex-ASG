@@ -32,9 +32,9 @@ def render_dictionary_md() -> str:
     return "\n".join(out)
 
 
-def render_ddl() -> str:
+def render_ddl(names: set | None = None) -> str:
     out = ["-- Generated from src/claimsgen/schema.py; do not edit by hand."]
-    for t in TABLES:
+    for t in (t for t in TABLES if names is None or t.name in names):
         cols = [
             f"  {f.name} {_SQL_TYPE[f.type]}{' NOT NULL' if f.required else ''}" for f in t.fields
         ]

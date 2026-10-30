@@ -1,0 +1,18 @@
+[
+{"coverage_id":"COV-AUTO-001","product":"AUTO","name":"Collision","default_limit":"25000.00","default_deductible":"500.00","exclusion_codes":"cosmetic"},
+{"coverage_id":"COV-AUTO-002","product":"AUTO","name":"Theft","default_limit":"30000.00","default_deductible":"500.00","exclusion_codes":""},
+{"coverage_id":"COV-AUTO-003","product":"AUTO","name":"Third-party liability","default_limit":"50000.00","default_deductible":"0.00","exclusion_codes":""},
+{"coverage_id":"COV-AUTO-004","product":"AUTO","name":"Towing and rental","default_limit":"3000.00","default_deductible":"100.00","exclusion_codes":""},
+{"coverage_id":"COV-HOME-001","product":"HOME","name":"Fire","default_limit":"200000.00","default_deductible":"1000.00","exclusion_codes":"cosmetic"},
+{"coverage_id":"COV-HOME-002","product":"HOME","name":"Water damage","default_limit":"50000.00","default_deductible":"1000.00","exclusion_codes":""},
+{"coverage_id":"COV-HOME-003","product":"HOME","name":"Burglary","default_limit":"30000.00","default_deductible":"500.00","exclusion_codes":""},
+{"coverage_id":"COV-HOME-004","product":"HOME","name":"Contents","default_limit":"40000.00","default_deductible":"500.00","exclusion_codes":"cosmetic"},
+{"coverage_id":"COV-HLTH-001","product":"HLTH","name":"Outpatient","default_limit":"10000.00","default_deductible":"250.00","exclusion_codes":"cosmetic"},
+{"coverage_id":"COV-HLTH-002","product":"HLTH","name":"Hospital stay","default_limit":"100000.00","default_deductible":"1000.00","exclusion_codes":"cosmetic"},
+{"coverage_id":"COV-HLTH-003","product":"HLTH","name":"Emergency care","default_limit":"50000.00","default_deductible":"500.00","exclusion_codes":""},
+{"coverage_id":"COV-TRVL-001","product":"TRVL","name":"Trip cancellation","default_limit":"8000.00","default_deductible":"100.00","exclusion_codes":""},
+{"coverage_id":"COV-TRVL-002","product":"TRVL","name":"Baggage loss","default_limit":"3000.00","default_deductible":"50.00","exclusion_codes":""},
+{"coverage_id":"COV-TRVL-003","product":"TRVL","name":"Medical abroad","default_limit":"50000.00","default_deductible":"250.00","exclusion_codes":""},
+{"coverage_id":"COV-LIAB-001","product":"LIAB","name":"Third-party injury","default_limit":"100000.00","default_deductible":"1000.00","exclusion_codes":""},
+{"coverage_id":"COV-LIAB-002","product":"LIAB","name":"Third-party property","default_limit":"75000.00","default_deductible":"1000.00","exclusion_codes":""}
+]

@@ -1,0 +1,11 @@
+adjuster_id,full_name,region,specialty,max_open_claims
+ADJ-001,Carla Patel,Northwest,AUTO,40
+ADJ-002,Jamal Okafor,Northeast,HOME,23
+ADJ-003,Rosa Nguyen,Northwest,HLTH,35
+ADJ-004,Zane Larsen,East,TRVL,28
+ADJ-005,Quinn Okafor,South,LIAB,39
+ADJ-006,Carla Haddad,Central,AUTO,39
+ADJ-007,Dmitri Larsen,South,HOME,34
+ADJ-008,Elena Ivanov,Northwest,HLTH,27
+ADJ-009,Ines Tanaka,Southeast,TRVL,21
+ADJ-010,Carla Kim,Central,LIAB,20

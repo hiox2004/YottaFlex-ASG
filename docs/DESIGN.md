@@ -140,3 +140,10 @@ share of settlements above threshold must land ~5-15% (tune lognormal) so the ap
 - finalize re-sorts policy_event so injected cancellations are not identifiable by row position; the export step must keep table order and not re-sort by primary key.
 - ground_truth expected_decision starts with a decision word from EXPECTED_WORDS; metrics match on (word, rule_id) or a per-label predicate.
 - DO LATER: before/after test that non-target claims are unchanged; hand-computed payable fixtures (the validator and engine share rules.payable); README note that 10-30 rows per case applies at full scale (starter has 2).
+
+## Export decisions (export step)
+- Package layout: csv/, json/, seed.sql, schema.sql, ground_truth.{csv,json,sql}, DATA_DICTIONARY.md, SOURCE_MANIFEST.md, validation_summary.md, manifest.json, README.md, checksums.sha256.
+- Byte stability: dataset row order kept, schema column order, exact decimal text for money and ratios, ISO dates, LF/UTF-8, SQL text (not .db) is the checksummed artifact, manifest command uses `<DIR>`.
+- `build` exports twice (second copy in a temp dir) and writes the comparison into validation_summary.md; `scripts/verify.py` additionally compares every file of two full builds.
+- Only the fixed seed is accepted; exit code is non-zero if validation does not flag exactly the planted defects or the rerun differs.
+- output/starter is committed for quick inspection; output/full is gitignored (regenerate with the CLI).

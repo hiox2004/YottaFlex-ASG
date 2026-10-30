@@ -1,0 +1,15 @@
+[
+{"requirement_id":"DRQ-AUTO-PHOTO","claim_type":"AUTO","doc_type":"photo","mandatory":"Y"},
+{"requirement_id":"DRQ-AUTO-POLICE_REPORT","claim_type":"AUTO","doc_type":"police_report","mandatory":"Y"},
+{"requirement_id":"DRQ-AUTO-REPAIR_ESTIMATE","claim_type":"AUTO","doc_type":"repair_estimate","mandatory":"N"},
+{"requirement_id":"DRQ-HOME-PHOTO","claim_type":"HOME","doc_type":"photo","mandatory":"Y"},
+{"requirement_id":"DRQ-HOME-REPAIR_ESTIMATE","claim_type":"HOME","doc_type":"repair_estimate","mandatory":"Y"},
+{"requirement_id":"DRQ-HOME-PROOF_OF_OWNERSHIP","claim_type":"HOME","doc_type":"proof_of_ownership","mandatory":"N"},
+{"requirement_id":"DRQ-HLTH-MEDICAL_REPORT","claim_type":"HLTH","doc_type":"medical_report","mandatory":"Y"},
+{"requirement_id":"DRQ-HLTH-INVOICE","claim_type":"HLTH","doc_type":"invoice","mandatory":"Y"},
+{"requirement_id":"DRQ-TRVL-ITINERARY","claim_type":"TRVL","doc_type":"itinerary","mandatory":"Y"},
+{"requirement_id":"DRQ-TRVL-INVOICE","claim_type":"TRVL","doc_type":"invoice","mandatory":"Y"},
+{"requirement_id":"DRQ-TRVL-INCIDENT_STATEMENT","claim_type":"TRVL","doc_type":"incident_statement","mandatory":"N"},
+{"requirement_id":"DRQ-LIAB-INCIDENT_STATEMENT","claim_type":"LIAB","doc_type":"incident_statement","mandatory":"Y"},
+{"requirement_id":"DRQ-LIAB-POLICE_REPORT","claim_type":"LIAB","doc_type":"police_report","mandatory":"Y"}
+]

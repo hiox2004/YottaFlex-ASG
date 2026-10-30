@@ -1,0 +1,12 @@
+[
+{"adjuster_id":"ADJ-001","full_name":"Carla Patel","region":"Northwest","specialty":"AUTO","max_open_claims":40},
+{"adjuster_id":"ADJ-002","full_name":"Jamal Okafor","region":"Northeast","specialty":"HOME","max_open_claims":23},
+{"adjuster_id":"ADJ-003","full_name":"Rosa Nguyen","region":"Northwest","specialty":"HLTH","max_open_claims":35},
+{"adjuster_id":"ADJ-004","full_name":"Zane Larsen","region":"East","specialty":"TRVL","max_open_claims":28},
+{"adjuster_id":"ADJ-005","full_name":"Quinn Okafor","region":"South","specialty":"LIAB","max_open_claims":39},
+{"adjuster_id":"ADJ-006","full_name":"Carla Haddad","region":"Central","specialty":"AUTO","max_open_claims":39},
+{"adjuster_id":"ADJ-007","full_name":"Dmitri Larsen","region":"South","specialty":"HOME","max_open_claims":34},
+{"adjuster_id":"ADJ-008","full_name":"Elena Ivanov","region":"Northwest","specialty":"HLTH","max_open_claims":27},
+{"adjuster_id":"ADJ-009","full_name":"Ines Tanaka","region":"Southeast","specialty":"TRVL","max_open_claims":21},
+{"adjuster_id":"ADJ-010","full_name":"Carla Kim","region":"Central","specialty":"LIAB","max_open_claims":20}
+]

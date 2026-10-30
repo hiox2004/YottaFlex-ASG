@@ -32,6 +32,9 @@ A living guide to understand every file, function and decision in this repo. Upd
 | finalize | `src/claimsgen/finalize.py` | [modules/finalize.md](modules/finalize.md) | done |
 | ground truth | `src/claimsgen/ground_truth.py` | [modules/ground_truth.md](modules/ground_truth.md) | done |
 | generate | `src/claimsgen/generate.py` | [modules/generate.md](modules/generate.md) | done |
+| export | `src/claimsgen/export.py` | [modules/export.md](modules/export.md) | done |
+| dataset docs | `src/claimsgen/dataset_docs.py` | [modules/dataset_docs.md](modules/dataset_docs.md) | done |
+| command line | `src/claimsgen/__main__.py` | [modules/__main__.md](modules/__main__.md) | done |
 | tooling | `scripts/*.py` | [scripts.md](scripts.md) | done |
 | backlog | n/a | [IMPROVEMENTS.md](IMPROVEMENTS.md) teacher findings for the builder | living |
 
