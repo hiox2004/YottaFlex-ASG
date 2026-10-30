@@ -4,8 +4,8 @@ This directory is the transparency record required by the submission guidelines:
 what the candidate reviewed, and the prompts submitted. Facts below come from the project history; items marked **TO COMPLETE**
 can only be written by the candidate and are left open on purpose.
 
-**Status of the prompt history: PENDING EXPORT.** Generate it with `python scripts/export_prompts.py` (details below), review the
-output, then commit `prompt-history/`.
+**Status of the prompt history: EXPORTED.** `prompt-history/` holds all three Claude Code sessions of this project (63 user prompts,
+21 subagent prompts and 2 helper-model prompts at export time). Re-run `python scripts/export_prompts.py` before the final push so it is current.
 
 ## Tools and models used
 | Tool | Model(s) | Used for |
@@ -14,7 +14,7 @@ output, then commit `prompt-history/`.
 | Subagents inside the build session | Claude Opus (4 read-only reviews: the design review, then checkpoints on generation, rules engine and injection) | Finding defects and ranking fixes by return on effort |
 | Claude Code workers (subagents) for the improvements backlog | Claude Sonnet 5.5 (three workers) and Haiku (one worker) | Independent tests, business metrics and the sensitivity sweep, the view panels, README limits. Each worker edited separate files and did not commit; the orchestrating session ran ruff and the tests, spot-checked outputs and committed |
 | Claude Code, teaching session | Sonnet (briefly switched to Haiku, then back) | Explaining the code and the insurance domain; logging ideas in `docs/study/IMPROVEMENTS.md` |
-| Claude Code, GitHub research session | Sonnet and Haiku workers | Searching public GitHub for related projects (see the note under TO COMPLETE) |
+| Claude Code, GitHub research session | Sonnet orchestrator with Haiku `Explore` workers | Searching public GitHub for related generators and claims engines and for other people's entries for this task (see "The research session" below) |
 | Claude chat on claude.ai | Claude | Produced the "Understanding Brief" PDF and the initial setup pitch that this repo's setup followed. **Its prompts are not in this repo** (see limits) |
 | GitHub CLI | none | Creating the repository and pushing; not an AI tool |
 
@@ -49,11 +49,23 @@ python scripts/export_prompts.py            # reads this project's Claude Code t
 Re-run it before the final push so the history is current. The script exits non-zero if a secret-like pattern remains. Always read
 the output before committing: it is a public repository.
 
+## The research session (disclosure)
+Facts from the prompt history (`prompt-history/session-3.md` and the Session 3 entries of `prompt-history/subagent-and-helper-prompts.md`):
+- The session was asked to find relevant GitHub repositories, and later to "search for the task as it must have multiple people's entries
+  ... so we can try to improve using those". Twelve Haiku workers looked into named public repositories (they are listed in the subagent
+  prompts), searched for newer claims-engine and synthetic-claims repositories, and searched for entries to this task by distinctive IDs,
+  workflow wording and on other platforms. The same session then discussed whether the product should use an LLM.
+- Use in this project: no prompt in the build session (session 1) or the teaching session (session 2) mentions those repositories or
+  their content, and this repository's code, tests and documents were written in the build session. According to the prompt history,
+  nothing from the research session's reports was passed into the build, and no code from those repositories was imported or copied into this repository.
+- What the history cannot show is anything done outside Claude Code (for example reading those repositories yourself). That is for the candidate to state below.
+
 ## TO COMPLETE (candidate)
 1. **What you personally reviewed, changed and validated.** Be specific (which modules you read, what you ran, what you changed or rejected).
-2. **claude.ai prompts.** Add the prompts you sent in the claude.ai chat (or state that they could not be exported).
-3. **The GitHub research session.** It searched public repositories. Say what, if anything, informed this project, and confirm that no
-   third-party solution or core code was imported or copied (FAQ 7 and 10). If you looked at other people's entries for this task, say so plainly.
+2. **claude.ai prompts.** The chat that produced the Understanding Brief and the setup pitch is not exportable from here; only its share link
+   appears (session 1, prompt 1). Add its prompts, or state that they could not be exported.
+3. **The research session.** Confirm the section above is complete: say whether any idea from those repositories or entries influenced a
+   decision in this project, whether you read them yourself, and that no third-party solution or core code was imported or copied (FAQ 7 and 10).
 4. **Be ready to explain** these decisions: the rule order and why the first failing rule ends a claim; the per-claim random streams;
    injecting business cases before the engine re-run but integrity defects after it; the single-map ID renumbering after injection;
    the replay validator and its shared-formula limit; predicted labels never reading ground truth; byte-stable export.
