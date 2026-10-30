@@ -25,7 +25,7 @@ def _validation_checks(checks: list) -> None:
         }
         for c in checks
     ]
-    st.dataframe(rows, hide_index=True, use_container_width=True)
+    st.dataframe(rows, hide_index=True, width="stretch")
     st.caption(
         "The failures are the two planted integrity defects: paid twice and settlement above the replayed limit."
     )
@@ -52,13 +52,13 @@ def _edge_cases(ground_truth: list) -> None:
         {"label": label, "origin": origin, "kind": kind, "rows": n}
         for (label, origin, kind), n in sorted(counts.items())
     ]
-    st.dataframe(rows, hide_index=True, use_container_width=True)
+    st.dataframe(rows, hide_index=True, width="stretch")
 
 
 def _answer_key(ground_truth: list) -> None:
     st.subheader("Answer key (ground_truth)")
     st.caption("Used for scoring only; decisions and exceptions never read it")
-    st.dataframe(ground_truth, hide_index=True, use_container_width=True)
+    st.dataframe(ground_truth, hide_index=True, width="stretch")
 
 
 def _data_dictionary() -> None:
@@ -79,13 +79,13 @@ def _data_dictionary() -> None:
         }
         for f in table.fields
     ]
-    st.dataframe(rows, hide_index=True, use_container_width=True)
+    st.dataframe(rows, hide_index=True, width="stretch")
 
 
 def _rule_catalogue() -> None:
     st.subheader("Rule catalogue")
     rows = [{"rule id": k, "description": v} for k, v in rules.RULES.items()]
-    st.dataframe(rows, hide_index=True, use_container_width=True)
+    st.dataframe(rows, hide_index=True, width="stretch")
 
 
 def _table_browser(tables: dict) -> None:
@@ -93,7 +93,7 @@ def _table_browser(tables: dict) -> None:
     name = st.selectbox("Dataset table", list(tables), key="q_browse")
     rows = tables[name][:BROWSE_LIMIT]
     st.caption(f"First {len(rows)} of {len(tables[name])} rows.")
-    st.dataframe(view_data.display(name, rows), hide_index=True, use_container_width=True)
+    st.dataframe(view_data.display(name, rows), hide_index=True, width="stretch")
 
 
 def render(tables, ground_truth, checks, decisions=None):

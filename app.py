@@ -93,7 +93,7 @@ with tab_decisions:
         and (not ctype or d["claim_type"] in ctype)
     ]
     st.write(f"{len(shown)} of {len(decisions)} claims")
-    st.dataframe(shown, hide_index=True, use_container_width=True)
+    st.dataframe(shown, hide_index=True, width="stretch")
 
 with tab_exceptions:
     st.caption("Derived from engine output and validator failures, never from ground truth.")
@@ -101,10 +101,10 @@ with tab_exceptions:
     st.dataframe(
         [{"exception": k, "rows": len(v)} for k, v in found.items()],
         hide_index=True,
-        use_container_width=True,
+        width="stretch",
     )
     pick = st.selectbox("Show", list(found), key="exception")
-    st.dataframe(found[pick], hide_index=True, use_container_width=True)
+    st.dataframe(found[pick], hide_index=True, width="stretch")
 
 with tab_claim:
     claim_id = st.selectbox("Claim", [d["claim_id"] for d in decisions], key="claim")
@@ -116,9 +116,9 @@ with tab_claim:
     c.metric("Rule", row["rule_id"] or "-")
     d.metric("Payable (USD)", f"{row['payable_usd']:,.2f}")
     st.subheader("Status timeline (append-only history)")
-    st.dataframe(detail["timeline"], hide_index=True, use_container_width=True)
+    st.dataframe(detail["timeline"], hide_index=True, width="stretch")
     st.subheader("Rule trace (decision path)")
-    st.dataframe(view_data.rule_trace(tables, claim_id), hide_index=True, use_container_width=True)
+    st.dataframe(view_data.rule_trace(tables, claim_id), hide_index=True, width="stretch")
     st.subheader("What would make it payable")
     st.markdown("\n".join(f"- {t}" for t in view_data.counterfactual(tables, claim_id)))
     for name in (
@@ -130,9 +130,7 @@ with tab_claim:
         "settlement",
     ):
         with st.expander(f"{name} ({len(detail[name])})"):
-            st.dataframe(
-                view_data.display(name, detail[name]), hide_index=True, use_container_width=True
-            )
+            st.dataframe(view_data.display(name, detail[name]), hide_index=True, width="stretch")
 
 with tab_metrics:
     panel = metrics_panel(scale)
@@ -148,7 +146,7 @@ with tab_metrics:
     st.dataframe(
         [{"measure": k, "usd": v / 100} for k, v in op["amounts_cents"].items()],
         hide_index=True,
-        use_container_width=True,
+        width="stretch",
     )
     rv = op["reserve_vs_final"]
     st.write(
@@ -158,7 +156,7 @@ with tab_metrics:
     st.dataframe(
         [{"type": t, **v} for t, v in op["by_claim_type"].items()],
         hide_index=True,
-        use_container_width=True,
+        width="stretch",
     )
     st.subheader("Rule impact (final assessment per claim, USD)")
     st.caption("Blocked and held amounts are the claimed amount; reduced is claimed minus payable.")
@@ -172,7 +170,7 @@ with tab_metrics:
             for k, v in op["by_rule"].items()
         ],
         hide_index=True,
-        use_container_width=True,
+        width="stretch",
     )
     tl = op["touchless"]
     st.write(
@@ -186,7 +184,7 @@ with tab_metrics:
             for r, v in op["approver_workload"].items()
         ],
         hide_index=True,
-        use_container_width=True,
+        width="stretch",
     )
     ag = op["docs_pending_aging"]
     st.write(
@@ -197,7 +195,7 @@ with tab_metrics:
     st.dataframe(
         [{"type": t, **v} for t, v in op["cycle_by_claim_type"].items()],
         hide_index=True,
-        use_container_width=True,
+        width="stretch",
     )
     sens = panel["sensitivity"]
     st.subheader("Threshold sensitivity")
@@ -215,7 +213,7 @@ with tab_metrics:
             for r in sens["approver"]
         ],
         hide_index=True,
-        use_container_width=True,
+        width="stretch",
     )
     st.dataframe(
         [
@@ -230,13 +228,13 @@ with tab_metrics:
             for r in sens["fraud"]
         ],
         hide_index=True,
-        use_container_width=True,
+        width="stretch",
     )
     st.subheader("Precision and recall vs ground truth")
     st.caption(
         "Predictions come from engine output, input data and validator failures only. Unassessed recent claims count as misses."
     )
-    st.dataframe(panel["scoring"], hide_index=True, use_container_width=True)
+    st.dataframe(panel["scoring"], hide_index=True, width="stretch")
 
 with tab_realism:
     real = view_data.realism(tables)
@@ -254,14 +252,14 @@ with tab_realism:
         st.dataframe(
             [{"type": k, "claims": v} for k, v in real["claim_type_mix"].items()],
             hide_index=True,
-            use_container_width=True,
+            width="stretch",
         )
     with right:
         st.subheader("Policy status at the as-of date")
         st.dataframe(
             [{"status": k, "policies": v} for k, v in real["policy_status"].items()],
             hide_index=True,
-            use_container_width=True,
+            width="stretch",
         )
     st.subheader("Days from incident to submission")
     st.bar_chart(real["lag_days"], x="bin_days", y="count")
