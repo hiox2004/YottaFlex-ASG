@@ -25,6 +25,9 @@ A living guide to understand every file, function and decision in this repo. Upd
 | claims | `src/claimsgen/claims.py` | [modules/claims.md](modules/claims.md) | done |
 | rules | `src/claimsgen/rules.py` | [modules/rules.md](modules/rules.md) | done |
 | engine | `src/claimsgen/engine.py` | [modules/engine.md](modules/engine.md) | done |
+| structural checks | `src/claimsgen/checks_structure.py` | [modules/checks_structure.md](modules/checks_structure.md) | done |
+| business checks | `src/claimsgen/checks_business.py` | [modules/checks_business.md](modules/checks_business.md) | done |
+| validate | `src/claimsgen/validate.py` | [modules/validate.md](modules/validate.md) | done |
 | tooling | `scripts/*.py` | [scripts.md](scripts.md) | done |
 | backlog | n/a | [IMPROVEMENTS.md](IMPROVEMENTS.md) teacher findings for the builder | living |
 

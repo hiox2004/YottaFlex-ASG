@@ -110,3 +110,9 @@ share of settlements above threshold must land ~5-15% (tune lognormal) so the ap
 - fraud_score is written only for claims that reach the fraud step (R-FRD); earlier COV/duplicate/doc decisions store 0.0.
 - An assessment is never dated before the in-window documents have arrived; reassignment never falls after AS_OF.
 - DO LATER: validator replays rules.payable in processing order and compares recommended_amount; reconcile reserves to assessment payable; key every settlement failure on settlement_id; strengthen test_engine (per-scenario checked counts, all five tables in the determinism test).
+
+## Validation decisions (validate step)
+- Failures are keyed by the offending row id. The settlement replay (rules.payable in processing order, committing expected amounts) flags a corrupted settlement alone.
+- The AS_OF check covers event/transaction dates only; term end dates and coverage effective dates are exempt.
+- The only pre-start activity allowed is for claims whose history shows denial by R-COV-01.
+- Injection must keep ground_truth entity ids aligned with failure keys: the settlement row for settlement_exceeds_limit and paid_twice (second settlement).
