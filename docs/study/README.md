@@ -24,6 +24,7 @@ A living guide to understand every file, function and decision in this repo. Upd
 | claim building blocks | `src/claimsgen/claim_build.py` | [modules/claim_build.md](modules/claim_build.md) | done |
 | claims | `src/claimsgen/claims.py` | [modules/claims.md](modules/claims.md) | done |
 | tooling | `scripts/*.py` | [scripts.md](scripts.md) | done |
+| backlog | n/a | [IMPROVEMENTS.md](IMPROVEMENTS.md) teacher findings for the builder | living |
 
 Add one row per new file as it is created. Status: `todo` / `draft` / `done`.
 

@@ -109,13 +109,23 @@ BUILDERS = {
         rng, ctx, "incomplete_evidence", incomplete=True
     ),
     "claim_over_limit": lambda rng, ctx: normal_spec(
-        rng, ctx, "claim_over_limit", lambda r, c: int(c["limit_amount"] * r.uniform(1.1, 1.6))
+        rng,
+        ctx,
+        "claim_over_limit",
+        lambda r, c: int(c["limit_amount"] * r.uniform(1.1, 1.6)),
+        after_start_days=config.FRAUD_F1_DAYS,
+        cosmetic=False,
     ),
     "suspected_fraud": _fraud,
     "boundary_incident_on_start": _on_start,
     "boundary_incident_on_end": _on_end,
     "boundary_amount_at_limit": lambda rng, ctx: normal_spec(
-        rng, ctx, "boundary_amount_at_limit", lambda r, c: c["limit_amount"]
+        rng,
+        ctx,
+        "boundary_amount_at_limit",
+        lambda r, c: c["limit_amount"],
+        after_start_days=config.FRAUD_F1_DAYS,
+        cosmetic=False,
     ),
     "boundary_amount_at_deductible": lambda rng, ctx: normal_spec(
         rng, ctx, "boundary_amount_at_deductible", _at_deductible, cosmetic=False
@@ -123,10 +133,12 @@ BUILDERS = {
 }
 
 
-def _draw(rng: Random, ctx: Ctx, scenario: str) -> Spec:
+def _draw(rng: Random, ctx: Ctx, scenario: str, seen: set) -> Spec:
+    """Draw a spec whose (policy, incident date) is new, so no unlabelled duplicate can appear."""
     for _ in range(2000):
         spec = BUILDERS[scenario](rng, ctx)
-        if spec:
+        if spec and (key := (spec.policy["policy_id"], spec.incident_date)) not in seen:
+            seen.add(key)
             return spec
     raise RuntimeError(f"cannot build scenario {scenario}")
 
@@ -215,13 +227,14 @@ def generate(master: dict, pol: dict, scale: float) -> tuple[dict[str, list[dict
     n = config.counts(scale).claims - config.inject_rows(scale)
     counts = config.scenario_counts(n)
     ctx, rng = make_ctx(master, pol), config.rng("claims")
-    specs = [_draw(rng, ctx, "normal") for _ in range(n - sum(counts.values()))]
+    seen: set = set()
+    specs = [_draw(rng, ctx, "normal", seen) for _ in range(n - sum(counts.values()))]
     normals = list(specs)
     for scenario, k in counts.items():
         for _ in range(k):
             specs.append(
                 _duplicate(rng, ctx, normals)
                 if scenario == "duplicate_incident"
-                else _draw(rng, ctx, scenario)
+                else _draw(rng, ctx, scenario, seen)
             )
     return _assemble(specs)

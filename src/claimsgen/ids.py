@@ -1,4 +1,7 @@
-"""Deterministic, zero-padded ID formatters. Child IDs embed their parent ID; IDs are never re-numbered."""
+"""Deterministic, zero-padded ID formatters. Child IDs embed their parent ID.
+
+Generation assigns provisional sort-order IDs; the finalize step remaps every claim-derived ID once through a single
+old->new dict after injection. After finalize, IDs are immutable."""
 
 
 def cus(n: int) -> str:

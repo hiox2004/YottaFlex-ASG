@@ -14,6 +14,8 @@
 | `SCENARIO_RATES`, `scenario_counts(n)` | share of baseline claims planted per condition | min 1 each, so tiny starters still show every case |
 | `inject_rows(scale)` | rows per injected edge case (15 at full scale) | injected duplicates are carved out of the 1,000 |
 
+| `DOC_WINDOW_DAYS`, `FRAUD_*` | document cutoff and fraud-flag windows/threshold | defined once here; rules and tests read them |
+
 ## Worked example
 `rng("customers")` always yields the same sequence for seed 20261022.
 ## Tests

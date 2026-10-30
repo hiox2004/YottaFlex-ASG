@@ -18,6 +18,8 @@ A claim is first a `Spec` (policy, incident date/type, submission date, items, d
 
 Shared helpers (`Spec`, `Ctx`, windows, items, docs) live in `claim_build.py`; this module has the scenario builders, duplicates and assembly.
 
+Uniqueness: `_draw` keeps a `seen` set of (policy, incident date) so only labelled duplicates ever share them. Over-limit and at-limit claims avoid F1 and cosmetic items so they test the limit rule alone.
+
 ## Key functions
 | Function | Role | Gotcha |
 |---|---|---|

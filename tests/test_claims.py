@@ -93,7 +93,7 @@ def test_planted_scenarios_hold(data, planted):
         elif sc == "claim_over_limit":
             assert amount > row["limit_amount"]
         elif sc == "suspected_fraud":
-            assert c["submission_date"] <= p["start_date"] + timedelta(days=30)
+            assert c["submission_date"] <= p["start_date"] + timedelta(days=config.FRAUD_F1_DAYS)
             assert amount >= 0.95 * row["limit_amount"]
         elif sc == "boundary_incident_on_start":
             assert inc["incident_date"] == p["start_date"] == row["effective_start"]
@@ -118,7 +118,8 @@ def test_planted_scenarios_hold(data, planted):
             gaps = [
                 t
                 for t in required[c["claim_type"]]
-                if t not in have or (have[t]["received_date"] - c["submission_date"]).days > 5
+                if t not in have
+                or (have[t]["received_date"] - c["submission_date"]).days > config.DOC_WINDOW_DAYS
             ]
             assert len(gaps) == 1, (pl, gaps)
 
@@ -149,3 +150,29 @@ def test_distribution_is_right_skewed_with_uneven_mix(data):
     mix = Counter(c["claim_type"] for c in data["claim"])
     assert set(mix) == {"AUTO", "HOME", "HLTH", "TRVL", "LIAB"}
     assert max(mix.values()) > 2 * min(mix.values())
+
+
+def test_only_labelled_duplicates_share_policy_and_incident_date(data, planted):
+    incident = _by(data, "incident", "incident_id")
+    groups = defaultdict(list)
+    for c in data["claim"]:
+        groups[(c["policy_id"], incident[c["incident_id"]]["incident_date"])].append(c["claim_id"])
+    pairs = {tuple(sorted(g)) for g in groups.values() if len(g) > 1}
+    expected = {
+        tuple(sorted((p["claim_id"], p["detail"])))
+        for p in planted
+        if p["scenario"] == "duplicate_incident"
+    }
+    assert pairs == expected
+
+
+def test_limit_cases_do_not_trip_other_fraud_flags_or_exclusions(data, planted):
+    claim = _by(data, "claim", "claim_id")
+    policy = _by(data, "policy", "policy_id")
+    items = _group(data["claim_item"])
+    for pl in planted:
+        if pl["scenario"] in ("claim_over_limit", "boundary_amount_at_limit"):
+            c = claim[pl["claim_id"]]
+            start = policy[c["policy_id"]]["start_date"]
+            assert c["submission_date"] > start + timedelta(days=config.FRAUD_F1_DAYS)
+            assert all(i["item_type"] != "cosmetic" for i in items[pl["claim_id"]])

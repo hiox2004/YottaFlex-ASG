@@ -165,10 +165,13 @@ def build_spec(
     )
 
 
-def normal_spec(rng, ctx, scenario="", cents=None, **kw):
+def normal_spec(rng, ctx, scenario="", cents=None, after_start_days=0, **kw):
+    """after_start_days > 0 forces submission to be more than that many days after policy start (no F1 flag)."""
     p = ctx.policies[rng.choice(ctx.ids)]
     pcv, lag = rng.choice(ctx.pcvs[p["policy_id"]]), draw_lag(rng)
     lo, hi = max(p["start_date"], pcv["effective_start"]), latest_incident(ctx, p, lag)
+    if after_start_days:
+        lo = max(lo, p["start_date"] + timedelta(days=after_start_days + 1 - lag))
     if lo > hi:
         return None
     fixed = cents(rng, pcv) if cents else None

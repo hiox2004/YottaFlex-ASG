@@ -9,6 +9,12 @@ from claimsgen import SEED
 AS_OF = date(2026, 10, 22)
 CURRENCY = "USD"
 APPROVER_THRESHOLD_CENTS = 1_000_000  # payable above this needs the approver role
+DOC_WINDOW_DAYS = 5  # R-DOC-01: a document counts only if received_date <= submission_date + this
+FRAUD_F1_DAYS = 30  # F1: submission within this many days after policy start (inclusive)
+FRAUD_F2_DAYS = 90  # F2: window for earlier claims by the same customer (inclusive)
+FRAUD_F2_MIN = 3  # F2 fires with at least this many EARLIER claims in the window
+FRAUD_F4_DAYS = 60  # F4: reported more than this many days after the incident
+FRAUD_THRESHOLD = 0.5  # fraud_score = flags / 4; at or above this the claim goes to review
 
 
 @dataclass(frozen=True)

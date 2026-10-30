@@ -82,3 +82,17 @@ payable; no reserve unless assessed); lifecycle (legal transitions, approved bef
 Baseline: zero failures. After injection: set of failing entity_ids == set of integrity-defect ground_truth entity_ids (not a failure count).
 Metrics: precision/recall per label vs ground_truth; approval/denial rates, docs-pending rate, days submission->settlement, amount blocked, reserve vs final;
 share of settlements above threshold must land ~5-15% (tune lognormal) so the approver path is exercised.
+
+## Reviewer checkpoint 1 decisions (generation step)
+- R-COV-02: policy is in force on date d iff start_date <= d <= end_date AND no lapsed/cancelled event with event_date <= d. The
+  `expired` event (dated end_date) is informational and does not end coverage early, so boundary_incident_on_end is covered.
+- R-DOC-01: a document counts only if received_date <= submission_date + DOC_WINDOW_DAYS (5). Late docs arrive 10-30 days after.
+- Fraud constants live in config: F1 submission within 30 days of start (inclusive); F2 at least 3 EARLIER claims by the customer
+  in the prior 90 days (inclusive window, current claim excluded); F3 any coverage claimed >= 95% of its limit; F4 reported > 60 days after
+  the incident; score = flags/4, review at >= 0.5.
+- Over-limit and at-limit claims are generated without F1 and without excluded (cosmetic) items so the rules decide them as capped payments.
+- Normal and planted claims never share (policy, incident_date); only labelled duplicates do.
+- DO LATER (logged): finalize(tables, planted, ground_truth) remaps all claim-derived IDs through one old->new dict with FK and
+  ground_truth remap tests (injection step); the AS_OF date check applies to event/transaction dates only, not term end dates
+  (validator step); settlement_exceeds_limit targets single-coverage paid claims and compares to policy_coverage.limit_amount (injection);
+  fraud_score exported as a fixed 2-dp string (export).
