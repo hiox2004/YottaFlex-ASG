@@ -2,6 +2,7 @@
 
 Add a line per step: date, commit scope, what it taught or changed, which notes were updated.
 
+- 2026-10-30 `feat(view)` Quality and data tab (`app_quality.py`) and `docs/CLAIM_INPUT.md` (template, validation table, what is not rejected, what-if and horizon notes, no AI in intake). Headless render test added. Worker: Haiku.
 - 2026-10-30 `feat(intake)` `intake.parse_and_validate`: structure and format checks only (policy exists, ISO dates, incident <= submission <= horizon, enums per product, coverage on the policy, Decimal amounts) returning field errors; it deliberately does NOT reject what the rules decide (coverage dates, before start, lapse, exclusions, limits, deductible). 47 tests. Worker: Haiku.
 - 2026-10-30 `feat(intake)` what-if evaluation: `engine.run(tables, as_of=None)` (default byte-identical; never patches config) and `whatif.py` (evaluate a draft on a copy of the dataset under provisional ids, request missing documents, evaluation horizon = dataset date + 30 days). Opus design review shaped it: the dataset date is already in the past, so without a later horizon a new claim would stay 'submitted'. Worker: Sonnet.
 - 2026-10-30 `test(validate)` IMP-002: independent payable reference (`tests/payable_reference.py`, written from the spec, no import of rules.py) + hand-computed fixtures; the full-scale replay matches every approving assessment and every non-defect settlement. Worker: Sonnet.
