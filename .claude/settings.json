@@ -12,9 +12,7 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(gh repo view:*)",
-      "Bash(gh auth status:*)"
-    ],
-    "ask": [
+      "Bash(gh auth status:*)",
       "Bash(git push:*)",
       "Bash(gh repo create:*)",
       "Bash(pip install:*)",
