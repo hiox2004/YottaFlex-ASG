@@ -21,6 +21,7 @@ TOP_FILES = {
     "ground_truth.json",
     "ground_truth.sql",
     "manifest.json",
+    "metrics.md",
     "schema.sql",
     "seed.sql",
     "validation_summary.md",

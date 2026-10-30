@@ -9,6 +9,7 @@
 | integrity defects | defect rows in ground_truth vs ids flagged by the validator, exact match |
 | edge cases | label, origin, kind and count for every planted case |
 | distributions | claimed-amount median/mean/p90/max, claim-type mix, policy status, final claim status |
+| (separate file) metrics.md | operational metrics and precision/recall from `metrics.py` |
 | reproducibility | two same-seed builds: row counts and SHA-256 per file, run 1 vs run 2 |
 
 `write_docs` returns `ok` = validator flags exactly the defects AND the two runs are identical. The manifest stores the command with `<DIR>` (not the real path) so two builds into different folders stay byte-identical.

@@ -35,6 +35,8 @@ A living guide to understand every file, function and decision in this repo. Upd
 | export | `src/claimsgen/export.py` | [modules/export.md](modules/export.md) | done |
 | dataset docs | `src/claimsgen/dataset_docs.py` | [modules/dataset_docs.md](modules/dataset_docs.md) | done |
 | command line | `src/claimsgen/__main__.py` | [modules/__main__.md](modules/__main__.md) | done |
+| metrics | `src/claimsgen/metrics.py` | [modules/metrics.md](modules/metrics.md) | done |
+| scoring | `src/claimsgen/scoring.py` | [modules/scoring.md](modules/scoring.md) | done |
 | tooling | `scripts/*.py` | [scripts.md](scripts.md) | done |
 | backlog | n/a | [IMPROVEMENTS.md](IMPROVEMENTS.md) teacher findings for the builder | living |
 

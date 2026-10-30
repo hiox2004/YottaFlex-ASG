@@ -147,3 +147,9 @@ share of settlements above threshold must land ~5-15% (tune lognormal) so the ap
 - `build` exports twice (second copy in a temp dir) and writes the comparison into validation_summary.md; `scripts/verify.py` additionally compares every file of two full builds.
 - Only the fixed seed is accepted; exit code is non-zero if validation does not flag exactly the planted defects or the rerun differs.
 - output/starter is committed for quick inspection; output/full is gitignored (regenerate with the CLI).
+
+## Metrics decisions (metrics step)
+- predictions() takes (tables, checks) only; ground_truth is used solely to build truth sets in score().
+- Document labels share one predicted class (R-DOC-01 pended); injected-vs-baseline cannot be told apart from the decision, so they are scored as a class and per label for recall.
+- Claims not yet assessed at AS_OF count as misses; claim_over_limit precision is below 1 because organic claims also reach `limit_reached`. These are reported as they are, not tuned away.
+- Every dataset package includes metrics.md; the view will reuse metrics.operational and scoring.score.

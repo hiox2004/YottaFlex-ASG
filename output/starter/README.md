@@ -7,6 +7,7 @@ Fully synthetic insurance claims data (see SOURCE_MANIFEST.md). Regenerate with 
 - `ground_truth.csv|json|sql`: the separate answer key (labels, origin, kind, expected decision, rule). Never join it into inputs.
 - `DATA_DICTIONARY.md`: every field with type, required, allowed values, unit, uniqueness, rule.
 - `validation_summary.md`: checks, row counts, injected cases, distributions and the same-seed reproducibility proof.
+- `metrics.md`: operational metrics (outcome rates, cycle times, amounts blocked, reserve vs final) and precision/recall of the engine and validator vs ground_truth.
 - `manifest.json`, `checksums.sha256`: seed, scale, as-of date and SHA-256 of every file.
 
 Money is USD with two decimals. Dates are ISO. All "today" logic uses AS_OF 2026-10-22, never the system clock.

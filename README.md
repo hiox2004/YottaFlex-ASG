@@ -31,5 +31,6 @@ The starter dataset is in `output/starter/` (see its README.md and validation_su
 ## Status
 Built and tested: generator, rules engine (workflow), validation, injection and ground truth (60 tests).
 Also built: export (CSV/JSON/SQL + docs), CLI and the same-seed reproducibility proof.
-Next: metrics (operational + precision/recall), then the minimal view (decisions, exceptions, timeline, metrics).
+Also built: metrics (operational + precision/recall vs ground_truth, in each package's `metrics.md`).
+Next: the minimal view (decisions, exceptions, timeline, metrics).
 See `docs/SPEC.md` for scope and `docs/study/LOG.md` for progress.
