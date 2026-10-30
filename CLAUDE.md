@@ -23,7 +23,9 @@ Plain Python 3.11+, stdlib (`csv`, `json`, `sqlite3`, `hashlib`), pytest, ruff. 
 - State changes append to claim_status_history; never overwrite.
 - No label/answer columns (is_fraud, anomaly_type...) in input tables. Labels live only in ground_truth.
 - Inject anomalies AFTER the clean baseline, without orphan FKs or touching unrelated rows.
-- Subagents: never use `general-purpose` for reviews. Use `reviewer` (Opus, read-only) only for the design review and the final audit.
+- Subagents: never use `general-purpose` for reviews. Use `reviewer` (Opus, read-only) after each major step (generation, rules engine, injection, export) and for the final audit.
+  If `reviewer` is not registered (agent files load at session start), call a general agent with `model: opus` and the body of `.claude/agents/reviewer.md` as the prompt.
+  Its findings are ranked by ROI (quality gain vs token/time cost); apply DO NOW items, log DO LATER ones in docs/study/LOG.md, skip the rest.
   Mechanical jobs go to `mechanical` (Haiku). Any other subagent call sets `model: sonnet` or `haiku` explicitly.
 - Never read raw `output/` CSV/DB files; use `scripts/summarize_data.py`.
 - One git commit per step. Keep diffs small. Public repo: no secrets, ever.
