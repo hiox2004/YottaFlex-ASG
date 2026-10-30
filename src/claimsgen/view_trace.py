@@ -9,7 +9,7 @@ import math
 from claimsgen import config, rules
 
 PRE = ["R-COV-01", "R-COV-02", "R-COV-03", "R-ELG-03", "R-DOC-01"]
-POST = ["R-FRD-05", "R-ELG-02", "R-PAY-01"]
+POST = ["R-FRD-05", "R-ELG-01", "R-ELG-02", "R-PAY-01"]
 ORDER = PRE + POST + ["R-RSV-01", "R-APR-01"]
 PASSED, STOPPED, SKIPPED = "passed", "failed-and-stopped", "not evaluated"
 
@@ -170,6 +170,22 @@ def _fraud(x: _Ctx, a: dict) -> str:
     )
 
 
+def _not_covered(x: _Ctx) -> str:
+    names = {c["coverage_id"]: c["name"] for c in x.t["coverage"]}
+    cov = {c["coverage_id"]: c for c in x.t["coverage"]}
+    inc = next(i for i in x.t["incident"] if i["incident_id"] == x.claim["incident_id"])
+    parts = [
+        f"{i['item_type']} under {names[i['coverage_id']]} (covers incidents "
+        f"{cov[i['coverage_id']]['covered_incident_types'].replace('|', ', ')}; items "
+        f"{cov[i['coverage_id']]['covered_item_types'].replace('|', ', ')})"
+        for i in x.items
+    ]
+    return (
+        f"no item is covered for incident type {inc['incident_type']}: {'; '.join(parts)}; "
+        "at least one item must be of a type the coverage pays for, for an incident type it covers"
+    )
+
+
 def _excluded(x: _Ctx) -> str:
     types = sorted({i["item_type"] for i in x.items})
     return f"all items are excluded types ({', '.join(types)}); at least one non-excluded item is needed"
@@ -180,7 +196,17 @@ def _pay(x: _Ctx, a: dict) -> str:
         c["coverage_id"]: set(filter(None, c["exclusion_codes"].split("|")))
         for c in x.t["coverage"]
     }
-    elig = rules.eligible_by_coverage(x.items, codes)
+    terms = {
+        c["coverage_id"]: (
+            set(c["covered_incident_types"].split("|")),
+            set(c["covered_item_types"].split("|")),
+        )
+        for c in x.t["coverage"]
+    }
+    incident_type = next(
+        i["incident_type"] for i in x.t["incident"] if i["incident_id"] == x.claim["incident_id"]
+    )
+    elig = rules.eligible_by_coverage(rules.covered_items(x.items, incident_type, terms), codes)
     if a["reason_code"] == "within_deductible":
         parts = [
             f"{cov}: claimed {_usd(e)} must exceed deductible {_usd(x.pcv[cov]['deductible'])}"
@@ -220,6 +246,7 @@ def counterfactual(tables: dict, claim_id: str) -> list[str]:
         "R-ELG-03": lambda: _dup(x),
         "R-DOC-01": lambda: _docs(x),
         "R-FRD-05": lambda: _fraud(x, a),
+        "R-ELG-01": lambda: _not_covered(x),
         "R-ELG-02": lambda: _excluded(x),
         "R-PAY-01": lambda: _pay(x, a),
     }

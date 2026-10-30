@@ -116,6 +116,8 @@ def coverage() -> list[dict]:
                     "default_limit": limit * 100,
                     "default_deductible": deductible * 100,
                     "exclusion_codes": exclusions,
+                    "covered_incident_types": "|".join(COVERAGE_PROFILE[name][0]),
+                    "covered_item_types": "|".join(COVERAGE_PROFILE[name][1]),
                 }
             )
     return rows

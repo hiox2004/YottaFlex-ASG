@@ -11,7 +11,7 @@
 ## Key functions
 | Function | What it does | Why it exists / gotcha |
 |---|---|---|
-| `rule_trace(tables, claim_id)` | Ordered path R-COV-01, 02, 03, R-ELG-03, R-DOC-01, R-FRD-05, R-ELG-02, R-PAY-01, R-RSV-01, R-APR-01 with passed / failed-and-stopped / not evaluated | Derived only from the claim's assessments and status history. A docs_pending claim that resumed shows R-DOC-01 and later steps with the re-run date |
+| `rule_trace(tables, claim_id)` | Ordered path R-COV-01, 02, 03, R-ELG-03, R-DOC-01, R-FRD-05, R-ELG-01, R-ELG-02, R-PAY-01, R-RSV-01, R-APR-01 with passed / failed-and-stopped / not evaluated | Derived only from the claim's assessments and status history. A docs_pending claim that resumed shows R-DOC-01 and later steps with the re-run date |
 | `counterfactual(tables, claim_id)` | What would unblock the claim, from input rows and `rules.*` functions | Approved claims say they are already payable; unassessed claims say the assessment is still due |
 
 ## Rules / invariants it must keep

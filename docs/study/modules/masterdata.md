@@ -6,7 +6,7 @@
 | Function | What it does | Gotcha |
 |---|---|---|
 | `customers(n)` | names/dob/region/created_date | `created_date` is always before 2024 so any policy start follows it; dob gives age 19-85 |
-| `coverage()` | 16 catalogue rows (2-4 per product) from `CATALOGUE` | money in integer cents; exclusion codes are `ITEM_TYPES` (`cosmetic`) |
+| `coverage()` | 16 catalogue rows (2-4 per product) from `CATALOGUE` | money in integer cents; exclusion codes are `ITEM_TYPES` (`cosmetic`); `covered_incident_types` / `covered_item_types` are pipe lists filled from `COVERAGE_PROFILE` (R-ELG-01) |
 | `adjusters(n)` | specialty cycles through products so every product is covered | |
 | `document_requirements()` | 2+ mandatory doc types per claim type | `drq` ID uses the upper-cased doc type |
 | `generate(scale)` | returns `{table: rows}` | rows are dicts keyed by schema field names; dates are `date`, money is int cents |

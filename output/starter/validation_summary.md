@@ -8,18 +8,18 @@ Checks: 12 | passed: 10 | failed: 2 | failing ids: 4
 
 | Category | Check | Rows checked | Failures | Result |
 |---|---|---|---|---|
-| keys | primary key uniqueness | 1177 | 0 | PASS |
-| keys | ID format | 1177 | 0 | PASS |
-| joins | foreign key integrity | 1539 | 0 | PASS |
-| domain | enum values | 1502 | 0 | PASS |
-| domain | required fields present | 6773 | 0 | PASS |
-| domain | money is a non-negative integer (cents) | 1012 | 0 | PASS |
-| dates | event dates not after AS_OF | 953 | 0 | PASS |
+| keys | primary key uniqueness | 1164 | 0 | PASS |
+| keys | ID format | 1164 | 0 | PASS |
+| joins | foreign key integrity | 1526 | 0 | PASS |
+| domain | enum values | 1470 | 0 | PASS |
+| domain | required fields present | 6743 | 0 | PASS |
+| domain | money is a non-negative integer (cents) | 992 | 0 | PASS |
+| dates | event dates not after AS_OF | 934 | 0 | PASS |
 | leakage | no label or unexpected columns in input tables | 16 | 0 | PASS |
-| dates | date order across the claim lifecycle | 184 | 0 | PASS |
-| arithmetic | totals, payable, reserve and settlement reconcile | 116 | 2 | FAIL |
-| lifecycle | legal transitions, approval before payment, roles | 84 | 3 | FAIL |
-| duplicates | duplicate claims are referred; no duplicate documents | 164 | 0 | PASS |
+| dates | date order across the claim lifecycle | 179 | 0 | PASS |
+| arithmetic | totals, payable, reserve and settlement reconcile | 106 | 2 | FAIL |
+| lifecycle | legal transitions, approval before payment, roles | 79 | 4 | FAIL |
+| duplicates | duplicate claims are referred; no duplicate documents | 170 | 0 | PASS |
 
 ## Row counts
 
@@ -34,25 +34,26 @@ Checks: 12 | passed: 10 | failed: 2 | failing ids: 4
 | policy_coverage | 237 |
 | incident | 50 |
 | claim | 50 |
-| claim_item | 78 |
-| document | 114 |
-| claim_adjuster_assignment | 50 |
-| assessment | 48 |
-| reserve | 32 |
-| settlement | 34 |
-| claim_status_history | 162 |
+| claim_item | 73 |
+| document | 120 |
+| claim_adjuster_assignment | 53 |
+| assessment | 50 |
+| reserve | 27 |
+| settlement | 29 |
+| claim_status_history | 153 |
 | ground_truth | 25 |
 
 ### Failures: totals, payable, reserve and settlement reconcile
 
-- `SET-CLM-2026-000033-001` recommended 16453246 != replayed 2404449
-- `SET-CLM-2026-000046-001` recommended 13915084 != replayed 706922
+- `SET-CLM-2026-000024-001` recommended 8775064 != replayed 840221
+- `SET-CLM-2026-000039-001` recommended 3478771 != replayed 210505
 
 ### Failures: legal transitions, approval before payment, roles
 
-- `SET-CLM-2026-000024-002` more than one settlement for a claim
-- `SET-CLM-2026-000031-002` more than one settlement for a claim
-- `SET-CLM-2026-000046-001` approver role does not match R-APR-01
+- `SET-CLM-2026-000008-002` more than one settlement for a claim
+- `SET-CLM-2026-000023-002` more than one settlement for a claim
+- `SET-CLM-2026-000024-001` approver role does not match R-APR-01
+- `SET-CLM-2026-000039-001` approver role does not match R-APR-01
 
 ## Integrity defects
 
@@ -82,10 +83,10 @@ The failures above are the two planted integrity defects (settlement_exceeds_lim
 
 ## Distributions (review point a)
 
-- Claimed amount (USD): median 4,980.30, mean 11,008.20, p90 21,745.62, max 124,790.38 (right-skewed: mean > median)
-- Claim types: AUTO: 19 | HLTH: 3 | HOME: 19 | LIAB: 6 | TRVL: 3
+- Claimed amount (USD): median 2,398.79, mean 7,951.47, p90 13,620.77, max 109,164.33 (right-skewed: mean > median)
+- Claim types: AUTO: 15 | HLTH: 6 | HOME: 15 | LIAB: 7 | TRVL: 7
 - Policy status at AS_OF: cancelled: 2 | expired: 11 | in force: 79 | lapsed: 8
-- Final claim status: denied: 8 | docs_pending: 3 | paid: 32 | submitted: 4 | under_review: 3
+- Final claim status: approved: 1 | denied: 14 | docs_pending: 3 | paid: 26 | submitted: 2 | under_review: 4
 
 ## Reproducibility (same seed, two runs)
 
@@ -94,38 +95,38 @@ Two independent builds with seed 20261022 produced identical row counts and SHA-
 | File | Rows | SHA-256 (run 1) | Same in run 2 |
 |---|---|---|---|
 | csv/adjuster.csv | 10 | 195496bea0d1a0d2... | True |
-| csv/assessment.csv | 48 | c9f9601a86245494... | True |
-| csv/claim.csv | 50 | 3111f8fbddb6fb0c... | True |
-| csv/claim_adjuster_assignment.csv | 50 | b43dc57fb9739a35... | True |
-| csv/claim_item.csv | 78 | fea3e3abc5567ce5... | True |
-| csv/claim_status_history.csv | 162 | 990fd0da83af1be3... | True |
-| csv/coverage.csv | 16 | 36a63e9f28d6b855... | True |
+| csv/assessment.csv | 50 | 5775fd7a3952104f... | True |
+| csv/claim.csv | 50 | f064d0b1202d74c3... | True |
+| csv/claim_adjuster_assignment.csv | 53 | 9a59d7b61fd48068... | True |
+| csv/claim_item.csv | 73 | 4091f794fb93a074... | True |
+| csv/claim_status_history.csv | 153 | 6c631a262208953e... | True |
+| csv/coverage.csv | 16 | bf0f56c31d0c488b... | True |
 | csv/customer.csv | 62 | af82ccfa70eb2dfb... | True |
-| csv/document.csv | 114 | cd01fc947cf9ae42... | True |
+| csv/document.csv | 120 | 3a84c640774a99d9... | True |
 | csv/document_requirement.csv | 13 | 5c414630c1339248... | True |
-| csv/incident.csv | 50 | ff10c184a3a344f6... | True |
+| csv/incident.csv | 50 | 6d7e35385d8bba0f... | True |
 | csv/policy.csv | 100 | d7c158c0434dbd41... | True |
 | csv/policy_coverage.csv | 237 | b28cc2529a201c1a... | True |
-| csv/policy_event.csv | 121 | 83afba635fa61642... | True |
-| csv/reserve.csv | 32 | 347e8449d3a9fcae... | True |
-| csv/settlement.csv | 34 | eda364bc4404bc93... | True |
-| ground_truth.csv | 25 | f37728aa91b50067... | True |
-| ground_truth.json | 25 | f2f11e854d0c3cf2... | True |
-| ground_truth.sql | 25 | 5de48e81ad5c469a... | True |
+| csv/policy_event.csv | 121 | 2e8f9b6119985945... | True |
+| csv/reserve.csv | 27 | 3f974e9d1ed0c489... | True |
+| csv/settlement.csv | 29 | 2bf8ca7285fdf23f... | True |
+| ground_truth.csv | 25 | d7e7629fce71cfcb... | True |
+| ground_truth.json | 25 | 42c1b37ac65b6002... | True |
+| ground_truth.sql | 25 | 7fd0f2cd54a2ee62... | True |
 | json/adjuster.json | 10 | 6b5be53a0e76275b... | True |
-| json/assessment.json | 48 | 2f6554182137e80f... | True |
-| json/claim.json | 50 | 59d827bcdca767ca... | True |
-| json/claim_adjuster_assignment.json | 50 | f6d3584450b3ed31... | True |
-| json/claim_item.json | 78 | 2bee1885306e123c... | True |
-| json/claim_status_history.json | 162 | b9abf545b9b2a0c0... | True |
-| json/coverage.json | 16 | 0975df2afd9cf6ae... | True |
+| json/assessment.json | 50 | e74c7469423de754... | True |
+| json/claim.json | 50 | d22f63e6b1f6be72... | True |
+| json/claim_adjuster_assignment.json | 53 | cac7eb3f43de81c4... | True |
+| json/claim_item.json | 73 | da95d401b66feb4c... | True |
+| json/claim_status_history.json | 153 | 74c1069b90ae1789... | True |
+| json/coverage.json | 16 | c43d1af030655dc5... | True |
 | json/customer.json | 62 | d4c867510719e676... | True |
-| json/document.json | 114 | 39990eac20b8106d... | True |
+| json/document.json | 120 | a2a8745541e8b5a2... | True |
 | json/document_requirement.json | 13 | bc2937023ade2830... | True |
-| json/incident.json | 50 | 719c28ed0729e03e... | True |
+| json/incident.json | 50 | 4d01388f5062ca13... | True |
 | json/policy.json | 100 | 3670c49467250e14... | True |
 | json/policy_coverage.json | 237 | ccb75369c29fe3a5... | True |
-| json/policy_event.json | 121 | 6f852b5381eef238... | True |
-| json/reserve.json | 32 | 247c747802441ee8... | True |
-| json/settlement.json | 34 | 571793c15e4c1f41... | True |
-| seed.sql | 1177 | 1cfe8cc5be185b88... | True |
+| json/policy_event.json | 121 | 362e3d49cacc0b83... | True |
+| json/reserve.json | 27 | 2eb15813b8bfedc5... | True |
+| json/settlement.json | 29 | d9ec2afb82fdcd0e... | True |
+| seed.sql | 1164 | 7e159b2d07f1cf56... | True |

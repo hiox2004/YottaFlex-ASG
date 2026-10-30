@@ -2,7 +2,9 @@
 
 Per coverage: payable = min(max(0, eligible - deductible), remaining limit).
 remaining = limit minus the amounts already committed on earlier claims for that policy_coverage.
-Eligible = claimed amount of items whose type is not in the coverage's exclusion_codes.
+Eligible = claimed amount of items that are covered and not excluded. An item is covered when the claim's incident type is in
+the coverage's covered_incident_types and the item type is in its covered_item_types (rule R-ELG-01); it is excluded when the
+item type is in the coverage's exclusion_codes (rule R-ELG-02). Uncovered items contribute nothing.
 Claims are processed in (submission_date, incident_date, policy_id, claim_id) order. All money is integer cents.
 """
 
@@ -43,6 +45,14 @@ def replay(tables, approved_claim_ids):
         c["coverage_id"]: set(filter(None, c["exclusion_codes"].split("|")))
         for c in tables["coverage"]
     }
+    cover = {
+        c["coverage_id"]: (
+            set(c["covered_incident_types"].split("|")),
+            set(c["covered_item_types"].split("|")),
+        )
+        for c in tables["coverage"]
+    }
+    incident_type = {i["incident_id"]: i["incident_type"] for i in tables["incident"]}
     terms = {}
     for r in tables["policy_coverage"]:
         terms[(r["policy_id"], r["coverage_id"])] = (
@@ -60,7 +70,10 @@ def replay(tables, approved_claim_ids):
             continue
         pid = c["policy_id"]
         rows = [
-            (i["coverage_id"], i["item_type"], i["claimed_amount"]) for i in items[c["claim_id"]]
+            (i["coverage_id"], i["item_type"], i["claimed_amount"])
+            for i in items[c["claim_id"]]
+            if incident_type[c["incident_id"]] in cover[i["coverage_id"]][0]
+            and i["item_type"] in cover[i["coverage_id"]][1]
         ]
         local_terms = {cov: terms[(pid, cov)] for cov, _, _ in rows}
         local_committed = {cov: committed.get((pid, cov), 0) for cov in local_terms}

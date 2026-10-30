@@ -11,7 +11,7 @@ Claim types = products: AUTO, HOME, HLTH, TRVL, LIAB. Money = integer cents inte
 | customer | CUS-000001 | - | full_name, dob, region, created_date |
 | policy | POL-AUTO-2026-000001 | customer_id | product, start_date, end_date, premium |
 | policy_event | PEV-<policyid>-001 | policy_id | event_type(issued/lapsed/cancelled/expired), event_date |
-| coverage | COV-AUTO-001 | - | product, name, default_limit, default_deductible, exclusion_codes(pipe list) |
+| coverage | COV-AUTO-001 | - | product, name, default_limit, default_deductible, exclusion_codes(pipe list), covered_incident_types(pipe list), covered_item_types(pipe list) |
 | policy_coverage | PCV-<policyid>-001 | policy_id, coverage_id | limit_amount, deductible, effective_start, effective_end |
 | incident | INC-2026-000001 | policy_id | incident_date, incident_type |
 | claim | CLM-2026-000001 | policy_id, incident_id | claim_type, submission_date, claimed_amount(=sum items) |
@@ -43,7 +43,7 @@ Processing order fixed: claims sorted by (submission_date, incident_date, policy
 4. R-ELG-03 duplicate: same policy, incident_date, claim_type as an earlier claim, then under_review `duplicate_claim`
 5. R-DOC-01 mandatory doc types present and not rejected, else docs_pending `missing_document` (no payout; ~50% of natural cases receive docs later and re-run steps 6-10; the reserve is set at that approving assessment)
 6. R-FRD flags (any claim reaching this step): F1 submitted within 30 d of policy start; F2 >= 3 claims by the customer in prior 90 d; F3 claimed amount on any coverage >= 95% of its limit; F4 reported > 60 d after incident. fraud_score = flags/4; >= 0.5 -> under_review `suspected_fraud`
-7. (R-ELG-01 is specified here but was not implemented until T2 of the review backlog.) R-ELG-01 item's coverage is on the policy; R-ELG-02 item_type not in coverage exclusions; failing items contribute 0 eligible
+7. R-ELG-01 item type and incident type are covered by the item's coverage (`coverage.covered_item_types` / `covered_incident_types`; implemented in review task T2, deny `not_covered` when no covered item remains); R-ELG-02 item_type not in coverage exclusions; failing items contribute 0 eligible
 8. R-PAY-01 per coverage c: payable_c = min(max(0, eligible_c - deductible_c), remaining_limit_c); remaining_limit_c = limit_c - recommended amounts already committed on earlier claims for that policy_coverage, replayed in processing order (not by date); payable = sum payable_c; deductible_applied = sum min(eligible_c, deductible_c)
 9. R-RSV-01 preliminary reserve = payable at first assessment; revised reserve = new row only if a later re-run changes it (none in the baseline)
 10. R-APR-01 payable > APPROVER_THRESHOLD needs approver role else process_owner; paid only after approved; payable 0 -> no settlement

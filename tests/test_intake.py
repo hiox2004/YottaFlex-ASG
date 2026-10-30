@@ -5,7 +5,7 @@ from datetime import date, datetime, timedelta
 
 import pytest
 
-from claimsgen import config, generate, masterdata, vocab
+from claimsgen import config, generate, intake, masterdata, vocab
 from claimsgen.draft import Doc, Draft, Item
 from claimsgen.intake import parse_and_validate
 
@@ -471,5 +471,21 @@ def test_claim_with_dates_exactly_on_the_1900_bound_is_accepted(tables):
     raw["incident_date"] = "1900-01-01"
     raw["submission_date"] = "1900-01-01"
     raw["documents"][0]["received_date"] = "1900-01-01"
+    draft, errors = parse_and_validate(raw, tables)
+    assert errors == [] and draft is not None
+
+
+def test_coverage_item_types_lists_what_the_coverage_pays_for(tables):
+    cov = tables["coverage"][0]
+    types = intake.coverage_item_types(tables, cov["coverage_id"])
+    assert types == tuple(masterdata.COVERAGE_PROFILE[cov["name"]][1])
+    assert intake.coverage_item_types(tables, "COV-NOPE-999") == ()
+
+
+def test_uncovered_item_type_is_accepted_and_left_to_rule_r_elg_01(tables):
+    raw = _valid(tables)
+    cov = raw["items"][0]["coverage_id"]
+    covered = intake.coverage_item_types(tables, cov)
+    raw["items"][0]["item_type"] = next(t for t in vocab.ITEM_TYPES if t not in covered)
     draft, errors = parse_and_validate(raw, tables)
     assert errors == [] and draft is not None

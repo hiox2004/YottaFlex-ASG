@@ -37,8 +37,10 @@ def test_fraud_threshold_argument_equals_patched_config(inputs, default_out, mon
 
 
 def test_approver_argument_equals_patched_config(inputs, default_out, monkeypatch):
-    arg = engine.run(inputs, approver_threshold_cents=2_000_000)
-    monkeypatch.setattr(config, "APPROVER_THRESHOLD_CENTS", 2_000_000)
+    # 500,000 (5,000 USD), not 2,000,000: at scale 0.05 no settlement falls between 10k and 20k USD after the
+    # R-ELG-01 data change, so only a threshold well below the default is guaranteed to change the output.
+    arg = engine.run(inputs, approver_threshold_cents=500_000)
+    monkeypatch.setattr(config, "APPROVER_THRESHOLD_CENTS", 500_000)
     assert engine.run(inputs) == arg
     assert arg != default_out
 

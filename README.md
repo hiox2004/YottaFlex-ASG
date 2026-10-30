@@ -60,7 +60,7 @@ the planted defects or a same-seed rerun differs.
 
 Decision order (first failing step ends the path): coverage (R-COV-01 claim after start, R-COV-02 policy in force,
 R-COV-03 incident inside coverage dates) -> duplicate (R-ELG-03) -> documents (R-DOC-01, pend until received) ->
-fraud flags (R-FRD-05, score >= 0.5 goes to review) -> exclusions (R-ELG-02) -> payable per coverage
+fraud flags (R-FRD-05, score >= 0.5 goes to review) -> coverage terms (R-ELG-01: item and incident type must be covered by the item's coverage) -> exclusions (R-ELG-02) -> payable per coverage
 (R-PAY-01: eligible minus deductible, capped at the remaining limit) -> reserve (R-RSV-01) -> approval authority
 (R-APR-01: above 10,000 USD needs the approver). Every state change is a new row in `claim_status_history` with actor role,
 rule ID and reason. The catalogue is `src/claimsgen/rules.py`.

@@ -81,7 +81,12 @@ def business_checks(t: dict) -> list[Check]:
         approved = last is not None and last["decision"] == "approve"
         if approved:
             exp = rules.payable(
-                rules.eligible_by_coverage(w.items[cid], w.exclusions),
+                rules.eligible_by_coverage(
+                    rules.covered_items(
+                        w.items[cid], w.incident[c["incident_id"]]["incident_type"], w.terms
+                    ),
+                    w.exclusions,
+                ),
                 w.pcv[p["policy_id"]],
                 committed,
             )

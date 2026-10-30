@@ -70,6 +70,7 @@ Validation checks structure, format and sanity bounds only. Every business outco
 | Coverage not effective on the incident date | R-COV-03 |
 | Incident before policy start, or after lapse or cancellation | R-COV-02 |
 | Submission before policy start | R-COV-01 |
+| Item type or incident type not covered by the item's coverage (for example a `hospital_stay` under an auto Theft coverage) | R-ELG-01 |
 | Excluded item types | R-ELG-02 |
 | Amount over the limit | R-PAY-01 |
 | Amount within the deductible | R-PAY-01 |

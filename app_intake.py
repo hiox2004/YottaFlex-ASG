@@ -130,8 +130,12 @@ def _form(tables):
         c1.date_input("Incident date", value=lo, max_value=hi, key="intake_f_incident")
         c2.date_input("Submission date", value=lo, max_value=hi, key="intake_f_submitted")
         st.selectbox("Incident type", intake.incident_types(tables, product), key="intake_f_type")
-        st.selectbox("Coverage", coverages, key="intake_f_coverage")
-        st.selectbox("Item type", vocab.ITEM_TYPES, key="intake_f_item")
+        coverage = st.selectbox("Coverage", coverages, key="intake_f_coverage")
+        st.selectbox(
+            "Item type (types this coverage pays for)",
+            intake.coverage_item_types(tables, coverage) or vocab.ITEM_TYPES,
+            key="intake_f_item",
+        )
         st.number_input("Amount (USD)", 0.01, 10_000_000.0, 500.0, 0.01, key="intake_f_amount")
         st.multiselect(
             "Documents received on the submission date", vocab.DOC_TYPES, key="intake_f_docs"

@@ -86,6 +86,7 @@ If the `policy_id` is unknown, the policy-dependent checks (incident type, cover
 |---|---|---|
 | `parse_and_validate(raw, tables)` | Returns `(draft, [])` or `(None, errors)` | The single entry point |
 | `_parse_amount(value)` | Exact decimal parse to integer cents, or a problem message | Never float math. `Decimal(str(12.5))` is exact; the quantize check rejects `0.001` |
+| `coverage_item_types(tables, coverage_id)` | Item types a coverage pays for (from `covered_item_types`); the form offers only these | Intake still accepts any valid item type: R-ELG-01 decides a mismatch |
 | `_incident_types(tables, product)` | Sorted union of the incident types of the product's coverages | Uses `masterdata.COVERAGE_PROFILE` |
 | `_check_keys(obj, required, optional, prefix, errors)` | Missing and unknown keys | Gives the `claim_type` message |
 | `_no_duplicate_keys(pairs)` | `json.loads` object hook that raises on a repeated key | Without it, the last duplicate silently wins |

@@ -91,11 +91,15 @@ def _item_type(rng: Random, ctx: Ctx, row: dict, allow_cosmetic: bool = True) ->
     return rng.choice(main)
 
 
-def _items(rng: Random, ctx: Ctx, pcv: dict, incident: date, only_primary: bool) -> list:
+def _items(
+    rng: Random, ctx: Ctx, pcv: dict, incident: date, only_primary: bool, incident_type: str
+) -> list:
+    # a secondary coverage is only used when it covers this incident type (R-ELG-01)
     covered = [
         r
         for r in ctx.pcvs[pcv["policy_id"]]
         if r["effective_start"] <= incident <= r["effective_end"]
+        and incident_type in COVERAGE_PROFILE[ctx.names[r["coverage_id"]]][0]
     ]
     items = []
     for _ in range(rng.choices((1, 2, 3), weights=(55, 30, 15))[0]):
@@ -143,8 +147,9 @@ def build_spec(
 ):
     p = ctx.policies[pcv["policy_id"]]
     submission = incident + timedelta(days=lag)
+    incident_type = rng.choice(COVERAGE_PROFILE[ctx.names[pcv["coverage_id"]]][0])  # drawn first
     if cents is None:
-        items = _items(rng, ctx, pcv, incident, only_primary)
+        items = _items(rng, ctx, pcv, incident, only_primary, incident_type)
     else:
         items = [(pcv["coverage_id"], _item_type(rng, ctx, pcv, cosmetic), cents)]
     omit, late, detail = "", False, ""
@@ -152,7 +157,6 @@ def build_spec(
         omit = rng.choice([d for d, m in ctx.required[p["product"]] if m == "Y"])
         late = rng.random() < 0.5 and submission + timedelta(days=30) <= config.AS_OF
         detail = "late" if late else "absent"
-    incident_type = rng.choice(COVERAGE_PROFILE[ctx.names[pcv["coverage_id"]]][0])
     return Spec(
         p,
         incident,

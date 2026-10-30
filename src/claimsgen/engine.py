@@ -67,6 +67,13 @@ class World:
             c["coverage_id"]: set(filter(None, c["exclusion_codes"].split("|")))
             for c in t["coverage"]
         }
+        self.terms = {
+            c["coverage_id"]: (
+                set(c["covered_incident_types"].split("|")),
+                set(c["covered_item_types"].split("|")),
+            )
+            for c in t["coverage"]
+        }
         self.ends: dict = {}
         for e in sorted(t["policy_event"], key=lambda e: e["event_date"]):
             if e["event_type"] in ("lapsed", "cancelled"):
@@ -164,7 +171,10 @@ def evaluate(w: World, c: dict, duplicate: bool, resumed: bool) -> Decision:
             return out("pend_docs", "R-DOC-01", "missing_document", scored=False)
     if score >= w.fraud_threshold:
         return out("refer_review", "R-FRD-05", "suspected_fraud")
-    eligible = rules.eligible_by_coverage(items, w.exclusions)
+    covered = rules.covered_items(items, inc["incident_type"], w.terms)
+    if not covered:
+        return out("deny", "R-ELG-01", "not_covered")
+    eligible = rules.eligible_by_coverage(covered, w.exclusions)
     if not eligible:
         return out("deny", "R-ELG-02", "item_excluded")
     payout = rules.payable(eligible, pcv, w.committed)

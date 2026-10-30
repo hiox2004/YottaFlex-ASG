@@ -14,6 +14,8 @@ CREATE TABLE coverage (
   default_limit NUMERIC NOT NULL,
   default_deductible NUMERIC NOT NULL,
   exclusion_codes TEXT,
+  covered_incident_types TEXT NOT NULL,
+  covered_item_types TEXT NOT NULL,
   PRIMARY KEY (coverage_id)
 );
 CREATE TABLE adjuster (

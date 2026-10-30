@@ -156,6 +156,14 @@ def policy_coverages(tables: dict, policy_id: str) -> tuple[str, ...]:
     )
 
 
+def coverage_item_types(tables: dict, coverage_id: str) -> tuple[str, ...]:
+    """Item types the coverage pays for (R-ELG-01), for the form's item picker; empty if unknown."""
+    for cov in tables["coverage"]:
+        if cov["coverage_id"] == coverage_id:
+            return tuple(cov["covered_item_types"].split("|"))
+    return ()
+
+
 def incident_types(tables: dict, product: str) -> tuple[str, ...]:
     """Union of the incident types of every coverage sold under this product, sorted."""
     types: set[str] = set()

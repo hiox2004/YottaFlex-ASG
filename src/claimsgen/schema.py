@@ -97,6 +97,8 @@ TABLES: tuple[Table, ...] = (
             _money("default_limit", "> 0"),
             _money("default_deductible", "< default_limit"),
             _text("exclusion_codes", "pipe-separated ITEM_TYPES, may be empty", False),
+            _text("covered_incident_types", "pipe-separated INCIDENT_TYPES the coverage pays for"),
+            _text("covered_item_types", "pipe-separated ITEM_TYPES the coverage pays for"),
         ),
     ),
     Table(

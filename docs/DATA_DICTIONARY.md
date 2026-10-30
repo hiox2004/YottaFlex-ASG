@@ -25,6 +25,8 @@ Catalogue of protections. PK `coverage_id` pattern `COV-(AUTO|HOME|HLTH|TRVL|LIA
 | default_limit | money | Y | >= 0 | USD | N |  | > 0 |
 | default_deductible | money | Y | >= 0 | USD | N |  | < default_limit |
 | exclusion_codes | text | N |  |  | N |  | pipe-separated ITEM_TYPES, may be empty |
+| covered_incident_types | text | Y |  |  | N |  | pipe-separated INCIDENT_TYPES the coverage pays for |
+| covered_item_types | text | Y |  |  | N |  | pipe-separated ITEM_TYPES the coverage pays for |
 
 ## adjuster
 Claims handler. PK `adjuster_id` pattern `ADJ-\d{3}`.

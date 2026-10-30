@@ -4,7 +4,7 @@
 **Brief items:** decisions derived from rules (rule 5), append-only history, reserve and settlement recommendations, adjuster assignment.
 
 ## Decision order (first failing step ends the path)
-R-COV-01 -> R-COV-02 -> R-COV-03 -> R-ELG-03 duplicate -> R-DOC-01 -> R-FRD-05 -> R-ELG-02 -> R-PAY-01.
+R-COV-01 -> R-COV-02 -> R-COV-03 -> R-ELG-03 duplicate -> R-DOC-01 -> R-FRD-05 -> R-ELG-01 (coverage terms, `not_covered`) -> R-ELG-02 -> R-PAY-01.
 Outcomes: `deny`, `refer_review` (terminal), `pend_docs`, `approve`. Approved claims get a reserve, a settlement and approval/payment events.
 
 | Function | Role | Gotcha |

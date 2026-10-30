@@ -9,6 +9,7 @@ RULES = {
     "R-COV-01": "Claim is submitted on or after the policy start date",
     "R-COV-02": "Policy is in force on the incident date (start <= d <= end, no lapse/cancel on or before d)",
     "R-COV-03": "Incident date is inside the effective dates of every claimed coverage",
+    "R-ELG-01": "Item type and incident type must be covered by the item's coverage; others contribute nothing",
     "R-ELG-02": "Excluded item types contribute no eligible amount",
     "R-ELG-03": "Same policy, incident date and claim type as an earlier claim is a duplicate",
     "R-DOC-01": "Mandatory documents must be received within the document window of submission",
@@ -74,6 +75,16 @@ def fraud_flags(
         "F3": any(total >= 0.95 * limits[cov] for cov, total in claimed_by_cov.items()),
         "F4": (sub - incident_date).days > config.FRAUD_F4_DAYS,
     }
+
+
+def covered_items(items: list, incident_type: str, terms: dict) -> list:
+    """terms maps coverage_id -> (covered incident types, covered item types); R-ELG-01 keeps covered items."""
+    return [
+        i
+        for i in items
+        if incident_type in terms[i["coverage_id"]][0]
+        and i["item_type"] in terms[i["coverage_id"]][1]
+    ]
 
 
 def eligible_by_coverage(items: list, exclusions: dict) -> dict:

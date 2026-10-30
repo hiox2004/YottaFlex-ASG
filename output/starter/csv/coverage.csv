@@ -1,17 +1,17 @@
-coverage_id,product,name,default_limit,default_deductible,exclusion_codes
-COV-AUTO-001,AUTO,Collision,25000.00,500.00,cosmetic
-COV-AUTO-002,AUTO,Theft,30000.00,500.00,
-COV-AUTO-003,AUTO,Third-party liability,50000.00,0.00,
-COV-AUTO-004,AUTO,Towing and rental,3000.00,100.00,
-COV-HOME-001,HOME,Fire,200000.00,1000.00,cosmetic
-COV-HOME-002,HOME,Water damage,50000.00,1000.00,
-COV-HOME-003,HOME,Burglary,30000.00,500.00,
-COV-HOME-004,HOME,Contents,40000.00,500.00,cosmetic
-COV-HLTH-001,HLTH,Outpatient,10000.00,250.00,cosmetic
-COV-HLTH-002,HLTH,Hospital stay,100000.00,1000.00,cosmetic
-COV-HLTH-003,HLTH,Emergency care,50000.00,500.00,
-COV-TRVL-001,TRVL,Trip cancellation,8000.00,100.00,
-COV-TRVL-002,TRVL,Baggage loss,3000.00,50.00,
-COV-TRVL-003,TRVL,Medical abroad,50000.00,250.00,
-COV-LIAB-001,LIAB,Third-party injury,100000.00,1000.00,
-COV-LIAB-002,LIAB,Third-party property,75000.00,1000.00,
+coverage_id,product,name,default_limit,default_deductible,exclusion_codes,covered_incident_types,covered_item_types
+COV-AUTO-001,AUTO,Collision,25000.00,500.00,cosmetic,collision,repair|towing|cosmetic
+COV-AUTO-002,AUTO,Theft,30000.00,500.00,,theft,replacement
+COV-AUTO-003,AUTO,Third-party liability,50000.00,0.00,,third_party_property,liability_payment
+COV-AUTO-004,AUTO,Towing and rental,3000.00,100.00,,collision,towing|rental_car
+COV-HOME-001,HOME,Fire,200000.00,1000.00,cosmetic,fire,repair|replacement|cosmetic
+COV-HOME-002,HOME,Water damage,50000.00,1000.00,,water_damage,repair|replacement
+COV-HOME-003,HOME,Burglary,30000.00,500.00,,burglary,replacement
+COV-HOME-004,HOME,Contents,40000.00,500.00,cosmetic,fire|burglary|water_damage,replacement|cosmetic
+COV-HLTH-001,HLTH,Outpatient,10000.00,250.00,cosmetic,illness|injury,medical_treatment|cosmetic
+COV-HLTH-002,HLTH,Hospital stay,100000.00,1000.00,cosmetic,illness|injury,hospital_stay
+COV-HLTH-003,HLTH,Emergency care,50000.00,500.00,,injury|illness,medical_treatment|hospital_stay
+COV-TRVL-001,TRVL,Trip cancellation,8000.00,100.00,,trip_cancellation,cancellation_fee
+COV-TRVL-002,TRVL,Baggage loss,3000.00,50.00,,baggage_loss,baggage
+COV-TRVL-003,TRVL,Medical abroad,50000.00,250.00,,illness|injury,medical_treatment|hospital_stay
+COV-LIAB-001,LIAB,Third-party injury,100000.00,1000.00,,third_party_injury,liability_payment|medical_treatment
+COV-LIAB-002,LIAB,Third-party property,75000.00,1000.00,,third_party_property,liability_payment|repair
