@@ -34,9 +34,18 @@ class Decision:
 
 class World:
     def __init__(self, t: dict):
-        self.claims = sorted(t["claim"], key=lambda c: c["claim_id"])
         self.policy = {p["policy_id"]: p for p in t["policy"]}
         self.incident = {i["incident_id"]: i for i in t["incident"]}
+        # processing order is by dates, never by (provisional) claim_id
+        self.claims = sorted(
+            t["claim"],
+            key=lambda c: (
+                c["submission_date"],
+                self.incident[c["incident_id"]]["incident_date"],
+                c["policy_id"],
+                c["claim_id"],
+            ),
+        )
         self.items, self.docs = defaultdict(list), defaultdict(list)
         for i in t["claim_item"]:
             self.items[i["claim_id"]].append(i)
@@ -60,7 +69,6 @@ class World:
         self.adjusters = defaultdict(list)
         for a in sorted(t["adjuster"], key=lambda a: a["adjuster_id"]):
             self.adjusters[a["specialty"]].append(a["adjuster_id"])
-        self.load = defaultdict(int)
         self.committed: dict = defaultdict(int)
         self.customer_subs = defaultdict(list)
         self.seen_keys: set = set()
@@ -93,10 +101,10 @@ def _event(w, cid, frm, to, day, role, rule, reason):
     )
 
 
-def _assign(w, c, day, reason, exclude=None) -> str:
+def _assign(w, c, day, reason, pick: float, exclude=None) -> str:
+    """Pick an adjuster of the claim's specialty from a per-claim random number (no shared load state)."""
     pool = [a for a in w.adjusters[c["claim_type"]] if a != exclude]
-    adjuster = min(pool, key=lambda a: (w.load[a], a))
-    w.load[adjuster] += 1
+    adjuster = pool[int(pick * len(pool))]
     rows = w.out["claim_adjuster_assignment"]
     n = 1 + sum(r["claim_id"] == c["claim_id"] for r in rows[-3:])
     rows.append(
@@ -128,23 +136,23 @@ def evaluate(w: World, c: dict, duplicate: bool, resumed: bool) -> Decision:
     )
     score = sum(flags.values()) / 4
 
-    def out(decision, rule, reason, payout=None):
+    def out(decision, rule, reason, payout=None, scored=True):
         e, d, a = (payout.eligible, payout.deductible, payout.payable) if payout else (0, 0, 0)
-        return Decision(decision, rule, reason, e, d, a, score, payout)
+        return Decision(decision, rule, reason, e, d, a, score if scored else 0.0, payout)
 
     if not resumed:
         if c["submission_date"] < p["start_date"]:
-            return out("deny", "R-COV-01", "before_policy_start")
+            return out("deny", "R-COV-01", "before_policy_start", scored=False)
         if not rules.in_force(p, w.ends, day):
-            return out("deny", "R-COV-02", "policy_not_in_force")
+            return out("deny", "R-COV-02", "policy_not_in_force", scored=False)
         if not rules.covered([pcv[k] for k in claimed], day):
-            return out("deny", "R-COV-03", "outside_coverage_period")
+            return out("deny", "R-COV-03", "outside_coverage_period", scored=False)
         if duplicate:
-            return out("refer_review", "R-ELG-03", "duplicate_claim")
+            return out("refer_review", "R-ELG-03", "duplicate_claim", scored=False)
         if rules.missing_docs(
             w.required[c["claim_type"]], w.docs[c["claim_id"]], c["submission_date"]
         ):
-            return out("pend_docs", "R-DOC-01", "missing_document")
+            return out("pend_docs", "R-DOC-01", "missing_document", scored=False)
     if score >= config.FRAUD_THRESHOLD:
         return out("refer_review", "R-FRD-05", "suspected_fraud")
     eligible = rules.eligible_by_coverage(items, w.exclusions)
@@ -230,16 +238,30 @@ def _settle(w, c, d: Decision, day, delays):
         _event(w, cid, "approved", "paid", paid, "administrator", "R-APR-01", "payment_recorded")
 
 
-def _process(w: World, c: dict, delays: tuple, reassign: bool):
+def _ready_date(w, c):
+    """Earliest date all in-window documents have arrived (an assessment cannot precede them)."""
+    sub = c["submission_date"]
+    window = [
+        d["received_date"]
+        for d in w.docs[c["claim_id"]]
+        if (d["received_date"] - sub).days <= config.DOC_WINDOW_DAYS
+    ]
+    return max(window, default=sub)
+
+
+def _process(w: World, c: dict, rng):
+    # fixed draw order per claim; the stream depends only on the claim's own stable fields
+    delays = (rng.randint(1, 5), rng.randint(1, 3), rng.randint(1, 5))
+    reassign, pick1, pick2 = rng.random() < 0.05, rng.random(), rng.random()
     cid, sub, as_of = c["claim_id"], c["submission_date"], config.AS_OF
     key = (c["policy_id"], w.incident[c["incident_id"]]["incident_date"], c["claim_type"])
     duplicate = key in w.seen_keys
     w.seen_keys.add(key)
     _event(w, cid, "", "submitted", sub, "requester", "", "submitted")
-    adjuster = _assign(w, c, sub, "initial")
-    if reassign and len(w.adjusters[c["claim_type"]]) > 1:
-        adjuster = _assign(w, c, sub + timedelta(days=1), "reassigned", exclude=adjuster)
-    day = sub + timedelta(days=delays[0])
+    adjuster = _assign(w, c, sub, "initial", pick1)
+    if reassign and sub < as_of and len(w.adjusters[c["claim_type"]]) > 1:
+        adjuster = _assign(w, c, sub + timedelta(days=1), "reassigned", pick2, exclude=adjuster)
+    day = max(sub + timedelta(days=delays[0]), _ready_date(w, c))
     if day > as_of:
         return
     d = evaluate(w, c, duplicate, resumed=False)
@@ -255,9 +277,10 @@ def _process(w: World, c: dict, delays: tuple, reassign: bool):
 
 
 def run(tables: dict) -> dict[str, list[dict]]:
-    w, rng = World(tables), config.rng("engine")
+    w = World(tables)
     for c in w.claims:
-        delays = (rng.randint(1, 5), rng.randint(1, 3), rng.randint(1, 5))
-        _process(w, c, delays, rng.random() < 0.05)
+        incident_date = w.incident[c["incident_id"]]["incident_date"]
+        stream = f"engine:{c['policy_id']}:{incident_date}:{c['submission_date']}:{c['claim_type']}"
+        _process(w, c, config.rng(stream))
         w.customer_subs[w.policy[c["policy_id"]]["customer_id"]].append(c["submission_date"])
     return w.out

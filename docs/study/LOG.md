@@ -2,6 +2,7 @@
 
 Add a line per step: date, commit scope, what it taught or changed, which notes were updated.
 
+- 2026-10-30 `fix(rules)` Opus checkpoint 2 (DO NOW): date-ordered processing, per-claim RNG (decouples claims for injection), reassignment guard, assessment after in-window docs, fraud_score only at the fraud step, DESIGN corrections. DO LATER items in DESIGN 'Reviewer checkpoint 2'.
 - 2026-10-30 `feat(rules)` rules catalogue + engine: decisions, history, assignments, reserves, settlements derived from rules. Learned: claimed == limit is paid below the limit (deductible); a capped over-limit claim can be denied when earlier claims used the limit. Notes: rules, engine.
 - 2026-10-30 `fix(gen)` Opus checkpoint 1 (DO NOW): R-COV-02 semantics, DOC_WINDOW_DAYS, fraud constants, flag-isolated limit cases, unique (policy, incident_date). DO LATER items are in DESIGN 'Reviewer checkpoint 1'.
 - 2026-10-30 `feat(gen)` claims: incidents, claims, items, documents + planted baseline scenarios (returned separately, never in input tables). Notes: claims, config, masterdata.

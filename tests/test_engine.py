@@ -38,8 +38,8 @@ def test_determinism(data):
         }
     )
     again = engine.run(base)
-    assert again["settlement"] == data["settlement"]
-    assert again["claim_status_history"] == data["claim_status_history"]
+    for table, rows in again.items():
+        assert rows == data[table], table
 
 
 def test_history_is_append_only_legal_and_ordered(data):
@@ -189,3 +189,52 @@ def test_inputs_are_not_mutated_and_no_labels_leak(data):
         "claim_adjuster_assignment",
     ):
         assert not leak & set(data[table][0])
+
+
+def test_every_planted_scenario_is_actually_checked(data, planted):
+    assessed = {a["claim_id"] for a in data["assessment"]}
+    checked = Counter(p["scenario"] for p in planted if p["claim_id"] in assessed)
+    assert set(checked) == set(config.SCENARIO_RATES), set(config.SCENARIO_RATES) - set(checked)
+
+
+def test_dates_documents_and_fraud_score_consistency(data):
+    claim = _by(data["claim"], "claim_id")
+    assess = _group(data["assessment"])
+    docs = _group(data["document"])
+    assert all(a["assigned_date"] <= config.AS_OF for a in data["claim_adjuster_assignment"])
+    for cid, rows in assess.items():
+        sub = claim[cid]["submission_date"]
+        for d in docs[cid]:
+            if (d["received_date"] - sub).days <= config.DOC_WINDOW_DAYS:
+                assert d["received_date"] <= rows[0]["assessment_date"]
+    for rows in assess.values():
+        for a in rows:
+            if a["rule_id"] in ("R-COV-01", "R-COV-02", "R-COV-03", "R-ELG-03", "R-DOC-01"):
+                assert a["fraud_score"] == 0.0
+
+
+def test_engine_is_decoupled_per_claim(data):
+    """Removing a claim that shares no policy or customer with others leaves every other claim's rows unchanged."""
+    claim = data["claim"]
+    policy = _by(data["policy"], "policy_id")
+    per_customer = Counter(policy[c["policy_id"]]["customer_id"] for c in claim)
+    target = next(c for c in claim if per_customer[policy[c["policy_id"]]["customer_id"]] == 1)
+    cid = target["claim_id"]
+    inputs = {
+        k: data[k]
+        for k in (
+            "policy",
+            "policy_coverage",
+            "policy_event",
+            "coverage",
+            "adjuster",
+            "document_requirement",
+        )
+    }
+    for name in ("claim", "claim_item", "document"):
+        inputs[name] = [r for r in data[name] if r["claim_id"] != cid]
+    inputs["incident"] = [i for i in data["incident"] if i["incident_id"] != target["incident_id"]]
+    again = engine.run(inputs)
+    for table in again:
+        kept = [r for r in data[table] if r["claim_id"] != cid]
+        assert again[table] == kept, table

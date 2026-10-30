@@ -41,11 +41,11 @@ Processing order fixed: claims sorted by (submission_date, incident_date, policy
 2. R-COV-02 policy in force on incident_date, else deny `policy_not_in_force`
 3. R-COV-03 incident_date within policy_coverage effective dates (inclusive), else deny `outside_coverage_period`
 4. R-ELG-03 duplicate: same policy, incident_date, claim_type as an earlier claim, then under_review `duplicate_claim`
-5. R-DOC-01 mandatory doc types present and not rejected, else docs_pending `missing_document` (no payout; ~50% of natural cases receive docs later and re-run steps 6-10 with a revised reserve)
+5. R-DOC-01 mandatory doc types present and not rejected, else docs_pending `missing_document` (no payout; ~50% of natural cases receive docs later and re-run steps 6-10; the reserve is set at that approving assessment)
 6. R-FRD flags (any claim reaching this step): F1 submitted within 30 d of policy start; F2 >= 3 claims by the customer in prior 90 d; F3 claimed amount on any coverage >= 95% of its limit; F4 reported > 60 d after incident. fraud_score = flags/4; >= 0.5 -> under_review `suspected_fraud`
 7. R-ELG-01 item's coverage is on the policy; R-ELG-02 item_type not in coverage exclusions; failing items contribute 0 eligible
-8. R-PAY-01 per coverage c: payable_c = min(max(0, eligible_c - deductible_c), remaining_limit_c); remaining_limit_c = limit_c - paid so far on that policy_coverage; payable = sum payable_c; deductible_applied = sum min(eligible_c, deductible_c)
-9. R-RSV-01 preliminary reserve = payable at first assessment; revised reserve = new row when a re-run changes it
+8. R-PAY-01 per coverage c: payable_c = min(max(0, eligible_c - deductible_c), remaining_limit_c); remaining_limit_c = limit_c - recommended amounts already committed on earlier claims for that policy_coverage, replayed in processing order (not by date); payable = sum payable_c; deductible_applied = sum min(eligible_c, deductible_c)
+9. R-RSV-01 preliminary reserve = payable at first assessment; revised reserve = new row only if a later re-run changes it (none in the baseline)
 10. R-APR-01 payable > APPROVER_THRESHOLD needs approver role else process_owner; paid only after approved; payable 0 -> no settlement
 First failing step ends the path (later rules not evaluated). under_review is terminal in this dataset (documented); docs_pending may resume as above.
 
@@ -103,3 +103,10 @@ share of settlements above threshold must land ~5-15% (tune lognormal) so the ap
 - A claim whose next step would fall after AS_OF stays in its earlier status; docs_pending claims with a late document resume on its received date (second assessment); claims with no such document stay docs_pending.
 - Preliminary reserve is set only at an approving assessment, so `revised` reserves do not occur in the baseline (enum kept for later use).
 - Adjusters: at least 10 (two per product) so a 5% reassignment is always possible; initial assignment is least-loaded by specialty.
+
+## Reviewer checkpoint 2 decisions (rules step)
+- Processing order is (submission_date, incident_date, policy_id, claim_id), never the provisional claim_id.
+- Each claim's engine RNG is seeded from its own stable fields (policy, incident date, submission date, type); adjusters are chosen from that stream, not by shared load. Re-running the full engine after injection therefore changes only claims coupled to the target by policy_coverage limits, same-policy duplicates, or the customer's 90-day F2 window; injection targets must avoid such coupling (single-claim policies, customers with no other claim in the window).
+- fraud_score is written only for claims that reach the fraud step (R-FRD); earlier COV/duplicate/doc decisions store 0.0.
+- An assessment is never dated before the in-window documents have arrived; reassignment never falls after AS_OF.
+- DO LATER: validator replays rules.payable in processing order and compares recommended_amount; reconcile reserves to assessment payable; key every settlement failure on settlement_id; strengthen test_engine (per-scenario checked counts, all five tables in the determinism test).
