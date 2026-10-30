@@ -23,6 +23,8 @@ Plain Python 3.11+, stdlib (`csv`, `json`, `sqlite3`, `hashlib`), pytest, ruff. 
 - State changes append to claim_status_history; never overwrite.
 - No label/answer columns (is_fraud, anomaly_type...) in input tables. Labels live only in ground_truth.
 - Inject anomalies AFTER the clean baseline, without orphan FKs or touching unrelated rows.
+- Subagents: never use `general-purpose` for reviews. Use `reviewer` (Opus, read-only) only for the design review and the final audit.
+  Mechanical jobs go to `mechanical` (Haiku). Any other subagent call sets `model: sonnet` or `haiku` explicitly.
 - Never read raw `output/` CSV/DB files; use `scripts/summarize_data.py`.
 - One git commit per step. Keep diffs small. Public repo: no secrets, ever.
 - Study guide: for every new/changed module, update `docs/study/modules/<name>.md`, the index in `docs/study/README.md`, and `docs/study/LOG.md` in the same commit (a test enforces the note exists).
