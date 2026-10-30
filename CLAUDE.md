@@ -8,7 +8,7 @@ Full spec: `docs/SPEC.md` (source of truth, incl. data dictionary).
 
 ## Stack and commands
 Plain Python 3.11+, stdlib (`csv`, `json`, `sqlite3`, `hashlib`), pytest, ruff. View = single-file Streamlit `app.py` (rendering only; logic lives in tested modules), built after export and metrics. No Faker.
-- Install: `pip install -e ".[dev]"`
+- Install: `pip install -e ".[dev,ui]"`
 - Test: `pytest -q` · Lint: `ruff check . && ruff format --check .`
 - Proof: `python scripts/verify.py` (or `/verify`) · Inspect data: `python scripts/summarize_data.py`
 

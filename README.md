@@ -11,7 +11,9 @@ All data is fully synthetic ([SOURCE_MANIFEST.md](SOURCE_MANIFEST.md)). Scope an
 
 ## Five-minute tour
 ```
-pip install -e ".[dev,ui]"
+git clone https://github.com/hiox2004/YottaFlex-ASG && cd YottaFlex-ASG
+python -m venv .venv && . .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -e ".[dev,ui]"                     # needs Python 3.11+ (CI uses 3.12)
 pytest -q                                   # tests incl. a headless run of the app
 python scripts/verify.py                    # builds twice, compares every file (rows + SHA-256)
 streamlit run app.py                        # the view
@@ -39,6 +41,13 @@ fraud flags (R-FRD-05, score >= 0.5 goes to review) -> exclusions (R-ELG-02) -> 
 (R-APR-01: above 10,000 USD needs the approver). Every state change is a new row in `claim_status_history` with actor role,
 rule ID and reason. The catalogue is `src/claimsgen/rules.py`.
 
+## How we know it works
+- **Validation:** 12 checks over about 290,000 rows; zero failures on the clean baseline, and after injection the failing ids are exactly the planted integrity defects.
+- **Independent payable check:** `tests/payable_reference.py` re-implements the payable rule from the spec text (it does not import `rules.py`) and is compared with the engine on hand-computed cases and on every approving claim.
+- **The evaluation can fail:** mutation tests (`tests/test_mutation.py`) break one rule at a time and assert that recall, precision or amounts move.
+- **Injection is contained:** every non-target claim is identical before and after injection (`tests/test_injection_isolation.py`).
+- **No leakage, byte-stable output:** label columns are rejected in inputs, and two same-seed builds are byte-identical (`scripts/verify.py`, run in CI).
+
 ## Where to verify the review points
 | Point | Evidence |
 |---|---|
@@ -63,7 +72,8 @@ validator against the answer key) are in each package's `metrics.md` and the vie
 
 ## Known limits (stated, not hidden)
 - The validator replays derived amounts through the same `rules.payable` function the engine uses: it is an independent
-  replay of the inputs, not an independent implementation of the formula.
+  replay of the inputs, not an independent implementation of the formula. `tests/payable_reference.py` is the independent
+  reimplementation from the spec text, checked against the engine on hand-computed fixtures and on the full dataset.
 - Very recent claims are honestly left in an earlier status when the next step would fall after the as-of date, and count as
   misses in recall. `claim_over_limit` precision is below 1 because organic claims also exhaust a limit.
 - `under_review` is terminal in this dataset, and reserves are not revised in the baseline.

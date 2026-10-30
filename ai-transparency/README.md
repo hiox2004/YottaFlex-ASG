@@ -60,12 +60,17 @@ Facts from the prompt history (`prompt-history/session-3.md` and the Session 3 e
   nothing from the research session's reports was passed into the build, and no code from those repositories was imported or copied into this repository.
 - What the history cannot show is anything done outside Claude Code (for example reading those repositories yourself). That is for the candidate to state below.
 
-## TO COMPLETE (candidate)
-1. **What you personally reviewed, changed and validated.** Be specific (which modules you read, what you ran, what you changed or rejected).
-2. **claude.ai prompts.** The chat that produced the Understanding Brief and the setup pitch is not exportable from here; only its share link
-   appears (session 1, prompt 1). Add its prompts, or state that they could not be exported.
-3. **The research session.** Confirm the section above is complete: say whether any idea from those repositories or entries influenced a
-   decision in this project, whether you read them yourself, and that no third-party solution or core code was imported or copied (FAQ 7 and 10).
-4. **Be ready to explain** these decisions: the rule order and why the first failing rule ends a claim; the per-claim random streams;
-   injecting business cases before the engine re-run but integrity defects after it; the single-map ID renumbering after injection;
-   the replay validator and its shared-formula limit; predicted labels never reading ground truth; byte-stable export.
+## Decisions the candidate owns
+The design choices a reviewer is likely to ask about, each documented in `docs/DESIGN.md`: the rule order and why the first failing rule ends a claim;
+per-claim random streams so a re-run cannot change untouched claims; injecting business cases before the engine re-run but integrity defects after it;
+single-map ID renumbering after injection; the replay validator and its shared-formula limit (and the independent reference in tests);
+predicted labels never reading ground truth; byte-stable export.
+
+## Candidate statement (to be written by the candidate before submitting)
+The sections above are facts from the project history. The following can only be stated by the candidate and are intentionally not
+filled in by an AI:
+1. **What I personally reviewed, changed and validated:** _[to be written by the candidate]_
+2. **claude.ai prompts:** the chat that produced the Understanding Brief and the setup pitch cannot be exported from the coding sessions
+   (only its share link appears, session 1 prompt 1). _[paste its prompts, or state that they could not be exported]_
+3. **Research session:** _[confirm the section "The research session" is complete, whether any idea from those repositories or entries
+   influenced a decision, whether you read them yourself, and that no third-party solution or core code was imported or copied (FAQ 7 and 10)]_
