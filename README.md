@@ -22,6 +22,17 @@ streamlit run app.py                        # the view
 2. Run the view. Tabs: Submit a claim (fill in a form or load one of seven examples, watch the whole workflow decide it, request missing documents; template in [docs/CLAIM_INPUT.md](docs/CLAIM_INPUT.md)), Decisions (rule, reason, actor per claim), Exceptions, Claim timeline (append-only history, a rule trace showing where a claim stopped and why, and what would make it payable), Metrics (rates, cycle times, amounts blocked, money effect by rule, touchless rate, approver workload, docs-pending aging, reserve vs final, threshold sensitivity, precision/recall), Realism (distributions) and Reproducibility (fixed seed, dataset checksum, rebuild-and-compare) and Quality and data (validation checks, planted defects vs flagged, answer key, data dictionary, rule catalogue, table browser).
 3. Regenerate anything with the command below; the same seed always gives byte-identical files.
 
+## Run it in a container (no Python setup)
+```
+docker build -t yottaflex-asg .
+docker run --rm -p 8501:8501 yottaflex-asg                 # the view at http://localhost:8501
+docker run --rm yottaflex-asg pytest -q                    # the tests
+docker run --rm yottaflex-asg python scripts/verify.py     # the reproducibility proof
+```
+CI builds this image on every push, runs the proof inside it and checks that the view serves. The image installs the optional extras
+(Streamlit and the test tools), so it is larger than the core, which has no third-party runtime dependencies. There is no hosted demo: the
+project runs locally or in this container, and the starter dataset and its reports are committed in `output/starter/`.
+
 ## Generate data
 ```
 python -m claimsgen build --scale 1.0 --out output/full      # 2,000 policies / 1,000 claims (gitignored)

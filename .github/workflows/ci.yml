@@ -15,3 +15,16 @@ jobs:
       - run: ruff format --check .
       - run: pytest -q
       - run: python scripts/verify.py 0.05
+  container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t yottaflex-asg .
+      - name: Reproducibility proof inside the container
+        run: docker run --rm yottaflex-asg python scripts/verify.py 0.05
+      - name: The view serves from the container
+        run: |
+          docker run -d --name app -p 8501:8501 yottaflex-asg
+          timeout 120 bash -c 'until curl -fsS http://localhost:8501/_stcore/health; do sleep 2; done'
+          curl -fsS -o /dev/null http://localhost:8501/
+          docker logs app | tail -5
