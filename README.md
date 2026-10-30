@@ -10,6 +10,7 @@ All data is fully synthetic ([SOURCE_MANIFEST.md](SOURCE_MANIFEST.md)). Scope an
 [docs/DESIGN.md](docs/DESIGN.md), [docs/BRIEF_VS_PLAN.md](docs/BRIEF_VS_PLAN.md).
 
 ## Five-minute tour
+
 ```
 git clone https://github.com/hiox2004/YottaFlex-ASG && cd YottaFlex-ASG
 python -m venv .venv && . .venv/bin/activate   # Windows: .venv\Scripts\activate
@@ -18,27 +19,32 @@ pytest -q                                   # tests incl. a headless run of the 
 python scripts/verify.py                    # builds twice, compares every file (rows + SHA-256)
 streamlit run app.py                        # the view
 ```
+
 1. Open `output/starter/` (small, committed): `README.md`, `validation_summary.md`, `metrics.md`, `ground_truth.csv`.
 2. Run the view. Tabs: Submit a claim (fill in a form or load one of seven examples, watch the whole workflow decide it, request missing documents; template in [docs/CLAIM_INPUT.md](docs/CLAIM_INPUT.md)), Decisions (rule, reason, actor per claim), Exceptions, Claim timeline (append-only history, a rule trace showing where a claim stopped and why, and what would make it payable), Metrics (rates, cycle times, amounts blocked, money effect by rule, touchless rate, approver workload, docs-pending aging, reserve vs final, threshold sensitivity, precision/recall), Realism (distributions) and Reproducibility (fixed seed, dataset checksum, rebuild-and-compare) and Quality and data (validation checks, planted defects vs flagged, answer key, data dictionary, rule catalogue, table browser).
 3. Regenerate anything with the command below; the same seed always gives byte-identical files.
 
 ## Run it in a container (no Python setup)
+
 ```
 docker build -t yottaflex-asg .
 docker run --rm -p 8501:8501 yottaflex-asg                 # the view at http://localhost:8501
 docker run --rm yottaflex-asg pytest -q                    # the tests
 docker run --rm yottaflex-asg python scripts/verify.py     # the reproducibility proof
 ```
+
 CI builds this image on every push, runs the proof inside it and checks that the view serves. The image installs the optional extras
 (Streamlit and the test tools), so it is larger than the core, which has no third-party runtime dependencies. There is no hosted demo: the
 project runs locally or in this container, and the starter dataset and its reports are committed in `output/starter/`.
 
 ## Generate data
+
 ```
 python -m claimsgen build --scale 1.0 --out output/full      # 2,000 policies / 1,000 claims (gitignored)
 python -m claimsgen build --scale 0.05 --out output/starter  # starter: 100 policies / 50 claims (committed)
 python -m claimsgen all --out output                          # both
 ```
+
 Lightweight path: the generator, engine, validation and metrics have no third-party runtime dependencies (`pip install -e .` is enough; the Streamlit view and the tests are optional extras `ui` and `dev`), so everything above runs without the UI.
 
 Seed fixed at 20261022, "today" fixed at 2026-10-22 (never the system clock), currency USD. Each package contains CSV and
@@ -47,6 +53,7 @@ schema, validation summary, metrics, manifest and checksums. The exit code is no
 the planted defects or a same-seed rerun differs.
 
 ## How the workflow decides
+
 Decision order (first failing step ends the path): coverage (R-COV-01 claim after start, R-COV-02 policy in force,
 R-COV-03 incident inside coverage dates) -> duplicate (R-ELG-03) -> documents (R-DOC-01, pend until received) ->
 fraud flags (R-FRD-05, score >= 0.5 goes to review) -> exclusions (R-ELG-02) -> payable per coverage
@@ -55,6 +62,7 @@ fraud flags (R-FRD-05, score >= 0.5 goes to review) -> exclusions (R-ELG-02) -> 
 rule ID and reason. The catalogue is `src/claimsgen/rules.py`.
 
 ## How we know it works
+
 - **Validation:** 12 checks over about 290,000 rows; zero failures on the clean baseline, and after injection the failing ids are exactly the planted integrity defects.
 - **Independent payable check:** `tests/payable_reference.py` re-implements the payable rule from the spec text (it does not import `rules.py`) and is compared with the engine on hand-computed cases and on every approving claim.
 - **The evaluation can fail:** mutation tests (`tests/test_mutation.py`) break one rule at a time and assert that recall, precision or amounts move.
@@ -63,20 +71,22 @@ rule ID and reason. The catalogue is `src/claimsgen/rules.py`.
 - **No leakage, byte-stable output:** label columns are rejected in inputs, and two same-seed builds are byte-identical (`scripts/verify.py`, run in CI).
 
 ## Where to verify the review points
-| Point | Evidence |
-|---|---|
-| a. Distributions | `validation_summary.md` distributions section; `tests/test_claims.py` |
-| b. IDs and joins | `tests/test_ids.py`; validation checks (ID format, foreign keys) |
-| c. Lifecycle | validation date-order and lifecycle checks; `rules.TRANSITIONS` |
-| d. Derived values | validation arithmetic replay (`checks_business.py`) |
-| e. Normal, boundary, failure, exception | six injected cases and four boundary cases, counted in `validation_summary.md`; `tests/test_inject.py` |
-| f. Ground truth separate | `ground_truth.*` at the top level; inputs carry schema columns only (`tests/test_inject.py`, leakage check) |
-| g. Reproducibility and provenance | `python scripts/verify.py`; reproducibility table in `validation_summary.md`; `checksums.sha256`; SOURCE_MANIFEST.md |
+
+| Point                                   | Evidence                                                                                                                   |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| a. Distributions                        | `validation_summary.md` distributions section; `tests/test_claims.py`                                                  |
+| b. IDs and joins                        | `tests/test_ids.py`; validation checks (ID format, foreign keys)                                                         |
+| c. Lifecycle                            | validation date-order and lifecycle checks; `rules.TRANSITIONS`                                                          |
+| d. Derived values                       | validation arithmetic replay (`checks_business.py`)                                                                      |
+| e. Normal, boundary, failure, exception | six injected cases and four boundary cases, counted in `validation_summary.md`; `tests/test_inject.py`                 |
+| f. Ground truth separate                | `ground_truth.*` at the top level; inputs carry schema columns only (`tests/test_inject.py`, leakage check)            |
+| g. Reproducibility and provenance       | `python scripts/verify.py`; reproducibility table in `validation_summary.md`; `checksums.sha256`; SOURCE_MANIFEST.md |
 
 Evaluation metrics (outcome rates, cycle times, amounts blocked, reserve vs final, precision/recall of the engine and the
 validator against the answer key) are in each package's `metrics.md` and the view's Metrics tab.
 
 ## Assumptions we made explicit
+
 - Product codes AUTO, HOME, HLTH, TRVL, LIAB, one per claim type. `ASN` is read as the adjuster assignment record;
   Assessment is `ASM-...`. `DOC-<claim-id>-001` is literal: `DOC-CLM-2026-000001-001`.
 - Claim date means submission date; the incident date is separate. The 1,000 claims include duplicates and anomalies.
@@ -85,6 +95,7 @@ validator against the answer key) are in each package's `metrics.md` and the vie
   by the rules and labelled `origin=baseline`; the six mandatory cases are `origin=injected`.
 
 ## Known limits (stated, not hidden)
+
 - Intake accepts structured claims only (a form or JSON in the documented template). There is no free-text or document extraction, by choice: intake and the decision path are fully deterministic, so accuracy cannot drop at the intake step; the cost is that messy real-world input would need a separate adapter.
 - The validator replays derived amounts through the same `rules.payable` function the engine uses: it is an independent
   replay of the inputs, not an independent implementation of the formula. `tests/payable_reference.py` is the independent
@@ -99,10 +110,12 @@ validator against the answer key) are in each package's `metrics.md` and the vie
 - The four fraud flags (early claim, repeated claims, amount near the limit, late reporting) are simple heuristics, combined as flags divided by 4, not a trained model.
 
 ## AI use and prompt history
+
 `ai-transparency/` records which AI tools and models were used, where they helped, what was verified, and the limits of that record;
 `ai-transparency/prompt-history/` holds the prompts (generated by `python scripts/export_prompts.py`, redacted for paths, e-mails and tokens).
 
 ## Repository map
+
 `src/claimsgen/` generator, rules engine, validation, injection, export, metrics, view data · `app.py` the view ·
 `scripts/` verify and helpers · `tests/` · `docs/` spec, design, data dictionary, schema · `docs/study/` a living study
 guide (one note per module, glossary, an end-to-end claim walk-through, change log) · `CONTRIBUTING.md` commit format.
