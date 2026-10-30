@@ -13,7 +13,11 @@ All data is fully synthetic ([SOURCE_MANIFEST.md](SOURCE_MANIFEST.md)). Scope an
 
 ```
 git clone https://github.com/hiox2004/YottaFlex-ASG && cd YottaFlex-ASG
-python -m venv .venv && . .venv/bin/activate   # Windows: .venv\Scripts\activate
+python -m venv .venv                           # create it once
+# then activate it:
+#   macOS/Linux:        . .venv/bin/activate
+#   Windows PowerShell: .\.venv\Scripts\Activate.ps1   (if scripts are blocked: Set-ExecutionPolicy -Scope Process Bypass)
+#   Windows cmd:        .venv\Scripts\activate.bat
 pip install -e ".[dev,ui]"                     # needs Python 3.11+ (CI uses 3.12)
 pytest -q                                   # tests incl. a headless run of the app
 python scripts/verify.py                    # builds twice, compares every file (rows + SHA-256)
