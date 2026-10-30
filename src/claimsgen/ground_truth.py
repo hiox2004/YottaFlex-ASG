@@ -15,22 +15,22 @@ BASELINE = {
     "incomplete_evidence": (
         "business_outcome",
         "R-DOC-01",
-        "request the missing mandatory document; no payout until it arrives",
+        "pend_docs: request the missing mandatory document; no payout until it arrives",
     ),
     "claim_over_limit": (
         "business_outcome",
         "R-PAY-01",
-        "pay no more than the remaining coverage limit (reason limit_reached)",
+        "approve: pay no more than the remaining coverage limit (reason limit_reached)",
     ),
     "suspected_fraud": (
         "business_outcome",
         "R-FRD-05",
-        "refer for review: fraud score at or above the threshold",
+        "refer_review: fraud score at or above the threshold",
     ),
     "duplicate_incident": (
         "business_outcome",
         "R-ELG-03",
-        "flag the later claim as a duplicate and refer for review",
+        "refer_review: flag the later claim as a duplicate",
     ),
     "boundary_incident_on_start": (
         "boundary",
@@ -53,6 +53,7 @@ BASELINE = {
         "deny: amount equal to the deductible leaves a payable of zero",
     ),
 }
+EXPECTED_WORDS = ("deny", "refer_review", "pend_docs", "approve", "covered", "flag")
 FIELDS = ("entity_id", "entity_type", "label", "origin", "kind", "expected_decision", "rule_id")
 
 

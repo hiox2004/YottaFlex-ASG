@@ -17,8 +17,10 @@ changing one claim cannot alter limits, duplicate detection or the customer's F2
 | settlement_exceeds_limit | integrity | settlement amounts raised to 105-140% of the limit AFTER the engine | validator flags the SET row |
 | paid_twice | integrity | second paid settlement `SET-...-002` appended AFTER the engine | validator flags the second SET row |
 
+Duplicate targets need 15 days of room before AS_OF so the clone is always assessed. Injected cancellations are re-ordered in `policy_event` by `finalize`.
+
 Business cases mutate inputs then re-run the whole engine; integrity cases patch outputs and are never re-run (a re-run would repair them).
 Injected duplicates have temporary ids (900001+); `finalize` renumbers everything. `inject()` returns labels separately as `injected` entries.
 
 ## Tests
-`tests/test_inject.py`: counts, label shape, validator flags exactly the defects, rules decide the business cases, engine reproduces outputs except the patched rows, ids final and contiguous, targets isolated and unique, determinism, starter scale.
+`tests/test_inject.py` (runs at starter 0.05 and full 1.0): counts, label shape, validator flags exactly the defects, rules decide the business cases, engine reproduces outputs except the patched rows, ids final and contiguous, targets isolated and unique, determinism, starter scale.

@@ -9,6 +9,8 @@
 | children | item, document, assignment, assessment, reserve, settlement and history rows renumbered per claim in their existing order |
 | map | every renamed id is recorded in `idmap`; ground_truth is translated by lookup, never sequentially (an old id may equal another row's new id) |
 
+Also re-sorts `policy_event` by (policy row order, date, id) so injected cancellations are not a block at the end of the table, and asserts no child row points to an unknown claim and no row is lost.
+
 Gotchas: deleted documents leave no gaps; the appended `SET-...-002` stays second for its claim (the unavoidable paid-twice tell, documented). After finalize, ids are immutable.
 
 ## Tests

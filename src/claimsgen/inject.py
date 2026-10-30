@@ -13,12 +13,12 @@ from datetime import timedelta
 from claimsgen import config, engine, ids
 
 BUSINESS = {
-    "claim_before_policy_start": ("R-COV-01", "deny at intake: coverage not yet effective"),
+    "claim_before_policy_start": ("R-COV-01", "deny: at intake, coverage not yet effective"),
     "cancelled_before_incident": ("R-COV-02", "deny: policy was cancelled before the incident"),
-    "duplicate_incident": ("R-ELG-03", "flag the later claim as a duplicate and refer for review"),
+    "duplicate_incident": ("R-ELG-03", "refer_review: flag the later claim as a duplicate"),
     "missing_mandatory_doc": (
         "R-DOC-01",
-        "request the document, hold in docs_pending, no settlement",
+        "pend_docs: request the document, hold in docs_pending, no settlement",
     ),
 }
 LIVE = ("assessed", "approved", "paid")
@@ -172,7 +172,7 @@ def _exceed_limit(rng, data, c) -> dict:
         "settlement",
         s["settlement_id"],
         "R-PAY-01",
-        f"settlement should be {correct} cents (capped at the remaining limit)",
+        f"flag: settlement should be {correct} cents (R-PAY-01 payable, at most the limit {limit})",
     )
 
 
@@ -190,7 +190,7 @@ def _paid_twice(rng, data, c) -> dict:
         "settlement",
         second["settlement_id"],
         "R-PAY-01",
-        "a claim is paid once; the second payment must be flagged",
+        "flag: a claim is paid once; the second payment must be flagged",
     )
 
 
@@ -227,7 +227,7 @@ def inject(
             ),
         ),
         "duplicate_incident": _take(
-            rng, pool, k, used, lambda c: c["submission_date"] + timedelta(days=10) <= config.AS_OF
+            rng, pool, k, used, lambda c: c["submission_date"] + timedelta(days=15) <= config.AS_OF
         ),
         "claim_before_policy_start": _take(rng, pool, k, used),
     }

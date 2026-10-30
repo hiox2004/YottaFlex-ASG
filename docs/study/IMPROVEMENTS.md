@@ -20,6 +20,10 @@ until it moves into `docs/DESIGN.md` or `docs/SPEC.md`. `docs/SPEC.md` stays the
 
 ## Open
 
+_(none)_
+
+## Done
+
 ### IMP-001 Treat "expose decisions and exceptions" as core, not an optional UI
 - Area: design
 - Source: CLAUDE.md ("UI = single-file Streamlit, built last"), docs/BRIEF_VS_PLAN.md section 2
@@ -30,10 +34,7 @@ until it moves into `docs/DESIGN.md` or `docs/SPEC.md`. `docs/SPEC.md` stays the
   over-limit, paid twice), per-claim history view, metrics panel. Confirm scope against the original brief text.
 - Why it matters: a reviewer may open the repo expecting to see the workflow running, not only CSVs.
 - Priority: high
-
-## Done
-
-_(none yet)_
+- Resolution: done in commit 864bc54 (docs(scope)); SPEC deliverable 11 added, view is core scope, build order export -> metrics -> view.
 
 ## Rejected
 

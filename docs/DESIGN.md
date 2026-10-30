@@ -134,3 +134,9 @@ share of settlements above threshold must land ~5-15% (tune lognormal) so the ap
   DOC class (incomplete_evidence + missing_mandatory_doc share one prediction, pended R-DOC-01) is scored as one class and reported per label for recall;
   settlement_exceeds_limit and paid_twice = validator failing ids; boundary labels = recall of "decided as expected".
 - Operational metrics: approval/denial/docs-pending rates, days submission to settlement, amount blocked by rules (claimed minus payable on decided claims), reserve vs final settlement.
+
+## Reviewer checkpoint 3 decisions (injection step)
+- Duplicate targets require submission + 15 days <= AS_OF so the clone is always assessed.
+- finalize re-sorts policy_event so injected cancellations are not identifiable by row position; the export step must keep table order and not re-sort by primary key.
+- ground_truth expected_decision starts with a decision word from EXPECTED_WORDS; metrics match on (word, rule_id) or a per-label predicate.
+- DO LATER: before/after test that non-target claims are unchanged; hand-computed payable fixtures (the validator and engine share rules.payable); README note that 10-30 rows per case applies at full scale (starter has 2).

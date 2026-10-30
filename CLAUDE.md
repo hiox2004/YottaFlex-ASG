@@ -29,7 +29,6 @@ Plain Python 3.11+, stdlib (`csv`, `json`, `sqlite3`, `hashlib`), pytest, ruff. 
   for boilerplate; any other subagent call sets `model` explicitly. Reviewer findings are ranked by ROI (quality gain vs token/time cost):
   apply DO NOW, log DO LATER in docs/study/LOG.md, skip the rest. Agent files load at session start, so run the final audit in a fresh session.
 - ground_truth is for scoring only: the exceptions list and decisions come from engine output, never from labels.
-  Mechanical jobs go to `mechanical` (Haiku). Any other subagent call sets `model: sonnet` or `haiku` explicitly.
 - Never read raw `output/` CSV/DB files; use `scripts/summarize_data.py`.
 - One git commit per step. Keep diffs small. Public repo: no secrets, ever.
 - Study guide: for every new/changed module, update `docs/study/modules/<name>.md`, the index in `docs/study/README.md`, and `docs/study/LOG.md` in the same commit (a test enforces the note exists).
