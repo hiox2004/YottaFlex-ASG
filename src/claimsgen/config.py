@@ -1,12 +1,15 @@
 """Run-wide constants and the seeded RNG factory. AS_OF replaces the system clock everywhere."""
 
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, timedelta
 from random import Random
 
 from claimsgen import SEED
 
 AS_OF = date(2026, 10, 22)
+INTAKE_HORIZON_DAYS = (
+    30  # a submitted claim is evaluated up to AS_OF + this, so its whole workflow is visible
+)
 CURRENCY = "USD"
 APPROVER_THRESHOLD_CENTS = 1_000_000  # payable above this needs the approver role
 DOC_WINDOW_DAYS = 5  # R-DOC-01: a document counts only if received_date <= submission_date + this
@@ -63,3 +66,8 @@ def scenario_counts(n_claims: int) -> dict[str, int]:
 def inject_rows(scale: float) -> int:
     """Rows per injected edge case (10-30 at full scale); injected duplicates are carved out of the claim total."""
     return max(2, round(15 * scale))
+
+
+def intake_horizon() -> date:
+    """Last date a what-if evaluation may reach (the dataset itself still ends at AS_OF)."""
+    return AS_OF + timedelta(days=INTAKE_HORIZON_DAYS)

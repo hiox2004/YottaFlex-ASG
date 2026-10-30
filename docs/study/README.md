@@ -38,6 +38,7 @@ A living guide to understand every file, function and decision in this repo. Upd
 | metrics | `src/claimsgen/metrics.py` | [modules/metrics.md](modules/metrics.md) | done |
 | sensitivity | `src/claimsgen/sensitivity.py` | [modules/sensitivity.md](modules/sensitivity.md) | done |
 | scoring | `src/claimsgen/scoring.py` | [modules/scoring.md](modules/scoring.md) | done |
+| claim draft | `src/claimsgen/draft.py` | [modules/draft.md](modules/draft.md) | done |
 | view data | `src/claimsgen/view_data.py` | [modules/view_data.md](modules/view_data.md) | done |
 | view trace | `src/claimsgen/view_trace.py` | [modules/view_trace.md](modules/view_trace.md) | done |
 | view (app) | `app.py` | [scripts.md](scripts.md) | done |
