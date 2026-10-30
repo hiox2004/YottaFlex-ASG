@@ -9,7 +9,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-from claimsgen import SEED, generate
+from claimsgen import SEED, config, generate
 
 
 def digest(out: Path) -> dict:
@@ -26,7 +26,14 @@ def digest(out: Path) -> dict:
 
 
 def main() -> int:
-    scale = float(sys.argv[1]) if len(sys.argv) > 1 else 0.05
+    try:
+        scale = config.check_scale(float(sys.argv[1])) if len(sys.argv) > 1 else 0.05
+    except ValueError as e:
+        print(
+            f"error: {e}" if "scale must" in str(e) else f"error: {config.scale_message()}",
+            file=sys.stderr,
+        )
+        return 2
     with tempfile.TemporaryDirectory() as a, tempfile.TemporaryDirectory() as b:
         first = generate.build(Path(a), seed=SEED, scale=scale)
         second = generate.build(Path(b), seed=SEED, scale=scale)

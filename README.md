@@ -49,6 +49,8 @@ python -m claimsgen build --scale 0.05 --out output/starter  # starter: 100 poli
 python -m claimsgen all --out output                          # both
 ```
 
+Supported scales: 0.05 (the starter) or 0.075 to 5.0. Anything else is refused with a one-line error (exit code 2): below that range the injected test cases cannot be placed (0.051, 0.055 and 0.07 fail too), and above it the build gets slow.
+
 Lightweight path: the generator, engine, validation and metrics have no third-party runtime dependencies (`pip install -e .` is enough; the Streamlit view and the tests are optional extras `ui` and `dev`), so everything above runs without the UI.
 
 Seed fixed at 20261022, "today" fixed at 2026-10-22 (never the system clock), currency USD. Each package contains CSV and

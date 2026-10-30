@@ -7,6 +7,7 @@ from pathlib import Path
 from claimsgen import (
     SEED,
     claims,
+    config,
     dataset_docs,
     export,
     ground_truth,
@@ -20,6 +21,7 @@ from claimsgen.finalize import finalize
 
 def build_dataset(scale: float = 1.0) -> tuple[dict, list]:
     """Return (input and event tables, ground_truth rows). ground_truth is never joined into the tables."""
+    config.check_scale(scale)
     master = masterdata.generate(scale)
     pol = policies.generate(master, scale)
     claim_tables, planted = claims.generate(master, pol, scale)

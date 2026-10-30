@@ -1,5 +1,6 @@
 """Run-wide constants and the seeded RNG factory. AS_OF replaces the system clock everywhere."""
 
+import math
 from dataclasses import dataclass
 from datetime import date, timedelta
 from random import Random
@@ -18,6 +19,26 @@ FRAUD_F2_DAYS = 90  # F2: window for earlier claims by the same customer (inclus
 FRAUD_F2_MIN = 3  # F2 fires with at least this many EARLIER claims in the window
 FRAUD_F4_DAYS = 60  # F4: reported more than this many days after the incident
 FRAUD_THRESHOLD = 0.5  # fraud_score = flags / 4; at or above this the claim goes to review
+
+
+# Supported scales. Below MIN_SCALE the pools of single-claim policies that injection needs are too thin: measured at
+# T9, 0.051, 0.055 and 0.07 fail with "not enough injection targets" and everything below 0.05 does too, while every
+# tested value from 0.071 up to 3.0 builds with all scenarios present. The starter (0.05) builds and is allowed by name.
+STARTER_SCALE = 0.05
+MIN_SCALE = 0.075
+MAX_SCALE = 5.0
+
+
+def scale_message() -> str:
+    return f"scale must be {STARTER_SCALE} (the starter) or between {MIN_SCALE} and {MAX_SCALE}"
+
+
+def check_scale(scale: float) -> float:
+    """Return scale if it can be built, else raise ValueError with the supported range."""
+    ok = math.isfinite(scale) and (scale == STARTER_SCALE or MIN_SCALE <= scale <= MAX_SCALE)
+    if not ok:
+        raise ValueError(f"{scale_message()} (got {scale})")
+    return scale
 
 
 @dataclass(frozen=True)
