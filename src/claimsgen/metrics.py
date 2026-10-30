@@ -4,7 +4,7 @@ markdown report that combines them with the precision/recall scoring."""
 from collections import Counter, defaultdict
 from statistics import mean, median
 
-from claimsgen import scoring
+from claimsgen import config, scoring, sensitivity
 
 
 def usd(cents: int) -> str:
@@ -18,6 +18,75 @@ def _pct(n: int, d: int) -> float:
 def _p90(values: list) -> float:
     ordered = sorted(values)
     return float(ordered[int(0.9 * (len(ordered) - 1))]) if ordered else 0.0
+
+
+EFFECT = {"deny": "blocked", "approve": "reduced", "pend_docs": "held", "refer_review": "held"}
+
+
+def _business(tables: dict, claims: dict, status: dict, first_settlement: dict) -> dict:
+    """IMP-007 metrics from each claim's FINAL assessment and the first settlement (dataset tables only)."""
+    final, reviewed = {}, set()
+    for a in tables["assessment"]:
+        final[a["claim_id"]] = a
+        if a["decision"] in ("pend_docs", "refer_review"):
+            reviewed.add(a["claim_id"])
+    by_rule: dict = {}
+    for cid, a in final.items():
+        amount = claims[cid]["claimed_amount"]
+        if a["decision"] == "approve":
+            amount -= a["payable_amount"]
+        cell = by_rule.setdefault(
+            f"{a['rule_id']}/{EFFECT[a['decision']]}",
+            {"effect": EFFECT[a["decision"]], "claims": 0, "amount_cents": 0},
+        )
+        cell["claims"] += 1
+        cell["amount_cents"] += amount
+    touchless = sum(
+        1
+        for cid in final
+        if cid not in reviewed and status[cid] in ("assessed", "approved", "paid")
+    )
+    workload: dict = {}
+    for s in first_settlement.values():
+        if s["approver_role"]:
+            w = workload.setdefault(s["approver_role"], {"settlements": 0, "amount_cents": 0})
+            w["settlements"] += 1
+            w["amount_cents"] += s["approved_amount"]
+    history: dict = {}
+    for e in tables["claim_status_history"]:
+        history[e["claim_id"]] = e["event_date"]
+    ages = [
+        (config.AS_OF - history[c]).days for c, s in sorted(status.items()) if s == "docs_pending"
+    ]
+    cycle: dict = defaultdict(list)
+    for cid, s in first_settlement.items():
+        if s["paid_date"]:
+            cycle[claims[cid]["claim_type"]].append(
+                (s["paid_date"] - claims[cid]["submission_date"]).days
+            )
+    return {
+        "by_rule": dict(sorted(by_rule.items())),
+        "touchless": {
+            "assessed": len(final),
+            "touchless": touchless,
+            "reviewed": len(final) - touchless,
+            "human_step": len(reviewed),
+            "touchless_rate": _pct(touchless, len(final)),
+        },
+        "approver_workload": dict(sorted(workload.items())),
+        "docs_pending_aging": {
+            "count": len(ages),
+            "mean_days": round(mean(ages), 2) if ages else 0.0,
+            "median_days": float(median(ages)) if ages else 0.0,
+            "p90_days": _p90(ages),
+            "max_days": max(ages, default=0),
+            "older_than_14_days": sum(a > 14 for a in ages),
+        },
+        "cycle_by_claim_type": {
+            t: {"paid_claims": len(v), "median_days": float(median(v)), "p90_days": _p90(v)}
+            for t, v in sorted(cycle.items())
+        },
+    }
 
 
 def operational(tables: dict) -> dict:
@@ -63,7 +132,9 @@ def operational(tables: dict) -> dict:
     by_type: dict = defaultdict(Counter)
     for cid, c in claims.items():
         by_type[c["claim_type"]][status[cid]] += 1
+    business = _business(tables, claims, status, first_settlement)
     return {
+        **business,
         "claims": total,
         "status_counts": dict(counts),
         "rates": {k: _pct(v, total) for k, v in groups.items()},
@@ -115,6 +186,44 @@ def _fmt(value) -> str:
     return "n/a" if value is None else f"{value:.2f}"
 
 
+def _business_markdown(op: dict) -> list[str]:
+    t, g = op["touchless"], op["docs_pending_aging"]
+    return [
+        "## Money effect by rule (final assessment, USD)",
+        "",
+        "| Rule / effect | Claims | Amount |",
+        "|---|---|---|",
+        *[f"| {k} | {v['claims']} | {usd(v['amount_cents'])} |" for k, v in op["by_rule"].items()],
+        "",
+        "## Touchless processing",
+        "",
+        f"- Assessed claims: {t['assessed']} | touchless (no pend or review step, ended assessed/approved/paid): {t['touchless']} ({t['touchless_rate']:.1%}) | other: {t['reviewed']} (of which with a human step: {t['human_step']})",
+        "",
+        "## Approver workload",
+        "",
+        "| Role | Settlements | Amount |",
+        "|---|---|---|",
+        *[
+            f"| {k} | {v['settlements']} | {usd(v['amount_cents'])} |"
+            for k, v in op["approver_workload"].items()
+        ],
+        "",
+        "## Documents pending: aging at the as-of date",
+        "",
+        f"- Claims: {g['count']} | mean {g['mean_days']} days, median {g['median_days']}, p90 {g['p90_days']}, max {g['max_days']} | older than 14 days: {g['older_than_14_days']}",
+        "",
+        "## Cycle time by claim type (submission to paid, days)",
+        "",
+        "| Type | Paid claims | Median | p90 |",
+        "|---|---|---|---|",
+        *[
+            f"| {k} | {v['paid_claims']} | {v['median_days']} | {v['p90_days']} |"
+            for k, v in op["cycle_by_claim_type"].items()
+        ],
+        "",
+    ]
+
+
 def to_markdown(tables: dict, ground_truth: list, checks: list) -> str:
     op, rows = operational(tables), scoring.score(tables, ground_truth, checks)
     a, r = op["amounts_cents"], op["reserve_vs_final"]
@@ -154,6 +263,8 @@ def to_markdown(tables: dict, ground_truth: list, checks: list) -> str:
             for t, v in op["by_claim_type"].items()
         ],
         "",
+        *_business_markdown(op),
+        *sensitivity.to_markdown_section(sensitivity.sweep(tables, ground_truth)),
         "## Precision and recall vs ground_truth",
         "",
         "Predicted labels come from engine output, input data and validator failures only. Unassessed (very recent) claims count as misses.",

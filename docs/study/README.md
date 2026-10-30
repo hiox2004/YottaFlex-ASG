@@ -36,6 +36,7 @@ A living guide to understand every file, function and decision in this repo. Upd
 | dataset docs | `src/claimsgen/dataset_docs.py` | [modules/dataset_docs.md](modules/dataset_docs.md) | done |
 | command line | `src/claimsgen/__main__.py` | [modules/__main__.md](modules/__main__.md) | done |
 | metrics | `src/claimsgen/metrics.py` | [modules/metrics.md](modules/metrics.md) | done |
+| sensitivity | `src/claimsgen/sensitivity.py` | [modules/sensitivity.md](modules/sensitivity.md) | done |
 | scoring | `src/claimsgen/scoring.py` | [modules/scoring.md](modules/scoring.md) | done |
 | view data | `src/claimsgen/view_data.py` | [modules/view_data.md](modules/view_data.md) | done |
 | view (app) | `app.py` | [scripts.md](scripts.md) | done |
