@@ -51,6 +51,15 @@ Implied extra tables: policy_coverage, claim_adjuster_assignment (ASN-<claimid>-
 Also: lapsed policies, incidents outside coverage, incomplete evidence, amounts over limits, fraud indicators.
 Boundary cases: incident on start/end date, amount exactly at limit, amount at deductible.
 
+## Settled decisions (2026-10-30)
+- Baseline conditions from brief step 4 (lapsed policies, duplicate claims, outside-coverage incidents, incomplete evidence,
+  over-limit amounts, fraud indicators) are produced by the rules and recorded in ground_truth with
+  `origin=baseline`, `kind=business_outcome`. The six step-5 cases use `origin=injected`.
+- One label per concept: organic duplicate claims and the injected duplicate incident share `duplicate_incident`,
+  told apart by `origin`. Injected cases get 10-30 rows each; baseline rows are counted separately.
+- ground_truth columns: entity_id, entity_type, label, origin, kind (business_outcome | integrity_defect), expected_decision, rule_id.
+- Starter = scale 0.05 (100 policies, 50 claims); full = scale 1.0 (2,000 policies, 1,000 claims). Same generator.
+
 ## Review points (a-g)
 a. Realistic distributions (right-skewed amounts, uneven type mix) · b. ID regex + 100% FK match ·
 c. Lifecycle order (policy start, incident, claim, assessment, settlement; no payment w/o approval) ·
