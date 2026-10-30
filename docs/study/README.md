@@ -17,6 +17,10 @@ A living guide to understand every file, function and decision in this repo. Upd
 | vocabulary | `src/claimsgen/vocab.py` | [modules/vocab.md](modules/vocab.md) | done |
 | schema | `src/claimsgen/schema.py` | [modules/schema.md](modules/schema.md) | done |
 | schema docs | `src/claimsgen/schema_docs.py` | [modules/schema_docs.md](modules/schema_docs.md) | done |
+| config | `src/claimsgen/config.py` | [modules/config.md](modules/config.md) | done |
+| ids | `src/claimsgen/ids.py` | [modules/ids.md](modules/ids.md) | done |
+| master data | `src/claimsgen/masterdata.py` | [modules/masterdata.md](modules/masterdata.md) | done |
+| policies | `src/claimsgen/policies.py` | [modules/policies.md](modules/policies.md) | done |
 | tooling | `scripts/*.py` | [scripts.md](scripts.md) | done |
 
 Add one row per new file as it is created. Status: `todo` / `draft` / `done`.

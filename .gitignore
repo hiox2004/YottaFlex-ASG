@@ -12,3 +12,6 @@ __pycache__/
 output/full/
 *.db
 *.sqlite
+
+# Local agent definitions (not shared)
+.claude/agents/
