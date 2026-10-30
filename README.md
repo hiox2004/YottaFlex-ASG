@@ -62,7 +62,7 @@ Decision order (first failing step ends the path): coverage (R-COV-01 claim afte
 R-COV-03 incident inside coverage dates) -> duplicate (R-ELG-03) -> documents (R-DOC-01, pend until received) ->
 fraud flags (R-FRD-05, score >= 0.5 goes to review) -> coverage terms (R-ELG-01: item and incident type must be covered by the item's coverage) -> exclusions (R-ELG-02) -> payable per coverage
 (R-PAY-01: eligible minus deductible, capped at the remaining limit) -> reserve (R-RSV-01) -> approval authority
-(R-APR-01: above 10,000 USD needs the approver). Every state change is a new row in `claim_status_history` with actor role,
+(R-APR-01: above 25,000 USD needs the approver). Every state change is a new row in `claim_status_history` with actor role,
 rule ID and reason. The catalogue is `src/claimsgen/rules.py`.
 
 ## How we know it works
@@ -112,7 +112,7 @@ validator against the answer key) are in each package's `metrics.md` and the vie
 - Duplicate detection matches the exact incident date only; a copy with the date shifted by one day is not caught (real carriers match within a window).
 - The `SET-...-002` second payment is an unavoidable marker of the paid-twice case.
 - The optional LLM extension is not built; the dataset and workflow are fully deterministic.
-- The approver threshold (10,000 USD), fraud cutoff (score 0.5), the 30/90/60-day fraud windows and the document window (5 days) are hand-chosen constants in `src/claimsgen/config.py`, not fitted to data.
+- The approver threshold (25,000 USD), fraud cutoff (score 0.5), the 30/90/60-day fraud windows and the document window (5 days) are hand-chosen constants in `src/claimsgen/config.py`, not fitted to data.
 - There is no reopen or appeal flow: `denied` and `under_review` claims are final in this dataset.
 - The four fraud flags (early claim, repeated claims, amount near the limit, late reporting) are simple heuristics, combined as flags divided by 4, not a trained model.
 

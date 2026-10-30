@@ -11,7 +11,7 @@
 | `document_requirements()` | 2+ mandatory doc types per claim type | `drq` ID uses the upper-cased doc type |
 | `generate(scale)` | returns `{table: rows}` | rows are dicts keyed by schema field names; dates are `date`, money is int cents |
 
-`COVERAGE_PROFILE` maps each coverage name to its incident types and item types (used by claims).
+`COVERAGE_PROFILE` maps each coverage name to its incident types and item types (used by claims). `SEVERITY` maps each coverage name to (median USD, lognormal sigma) for claimed item amounts; orders of magnitude follow public benchmarks (approximate), not fitted data.
 
 Name lists are our own, so no Faker and no outside data (see SOURCE_MANIFEST).
 ## Tests

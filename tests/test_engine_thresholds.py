@@ -48,7 +48,7 @@ def test_approver_argument_equals_patched_config(inputs, default_out, monkeypatc
 def test_arguments_do_not_touch_config(inputs):
     engine.run(inputs, fraud_threshold=0.25, approver_threshold_cents=500_000)
     assert config.FRAUD_THRESHOLD == 0.5
-    assert config.APPROVER_THRESHOLD_CENTS == 1_000_000
+    assert config.APPROVER_THRESHOLD_CENTS == 2_500_000
 
 
 def test_sweep_never_mutates_config_during_any_engine_run(starter, monkeypatch):

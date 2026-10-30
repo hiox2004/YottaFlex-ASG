@@ -1,7 +1,7 @@
 # DESIGN v2 (revised after Opus review): schema, rules, pipeline
 
 Config constants (one `config.py`): SEED=20261022, AS_OF=2026-10-22 (fixed, never the system clock), CURRENCY=USD,
-APPROVER_THRESHOLD=10000, FRAUD windows (30 d, 90 d, 60 d), `scale` (1.0 = 2,000 policies / 1,000 claims; starter 0.05).
+APPROVER_THRESHOLD=25000, FRAUD windows (30 d, 90 d, 60 d), `scale` (1.0 = 2,000 policies / 1,000 claims; starter 0.05).
 Claim types = products: AUTO, HOME, HLTH, TRVL, LIAB. Money = integer cents internally, Decimal ROUND_HALF_UP, 2-dp text.
 "2026" in IDs is the ID series year, not a start year; policies may start 2024-2026.
 
@@ -53,7 +53,7 @@ First failing step ends the path (later rules not evaluated). under_review is te
 Per-module RNG: `random.Random(f"{SEED}:{module}")`, fixed call order, sort before any choice, never iterate sets.
 1. customers, adjusters, coverage catalogue, document_requirement
 2. policies + policy_event + policy_coverage (in-force ~75%, expired ~13%, lapsed ~8%, cancelled ~4%)
-3. (claims.py; returns planted scenarios separately; the injection step renumbers IDs in a finalize step) incidents, claims (uneven type mix, ~35% AUTO), claim_items (lognormal), documents (~8% naturally incomplete); deliberate boundary cases
+3. (claims.py; returns planted scenarios separately; the injection step renumbers IDs in a finalize step) incidents, claims (uneven type mix, ~35% AUTO), claim_items (lognormal, per-coverage median and sigma in `masterdata.SEVERITY`, T5), documents (~8% naturally incomplete); deliberate boundary cases
 4. rules engine per claim: history, assignment, assessment, reserve, settlement
 5. baseline validation must show zero failures
 6. injection (below), ground_truth written
@@ -81,7 +81,7 @@ R-COV-01 with no assessment/settlement (keyed on input data, never on labels); a
 payable; no reserve unless assessed); lifecycle (legal transitions, approved before paid, role matches R-APR-01); duplicates; label-leakage test; determinism.
 Baseline: zero failures. After injection: set of failing entity_ids == set of integrity-defect ground_truth entity_ids (not a failure count).
 Metrics: precision/recall per label vs ground_truth; approval/denial rates, docs-pending rate, days submission->settlement, amount blocked, reserve vs final;
-the target was ~5-15% of settlements above the approver threshold so the approver path is exercised. Measured at 274a7d1: 20.3% of first settlements (126/621), so the target was missed; T5 retunes severity and the threshold.
+the target is ~5-15% of settlements above the approver threshold so the approver path is exercised. Measured at 274a7d1: 20.3% of first settlements (126/621), a miss. T5 replaced "4% of the limit" by a per-coverage severity table (`masterdata.SEVERITY`) and moved the threshold to 25,000 USD; measured share of approved first settlements after T5: 14.2% (96/677). Candidates {15k, 20k, 25k, 30k} gave about 28%, 20%, 16% and 12% of recommended settlements in a scratch measurement, so 25k is the lowest candidate that lands inside the band by the metric; the band and the threshold are hand-chosen, not fitted.
 
 ## Reviewer checkpoint 1 decisions (generation step)
 - R-COV-02: policy is in force on date d iff start_date <= d <= end_date AND no lapsed/cancelled event with event_date <= d. The

@@ -11,7 +11,7 @@ INTAKE_HORIZON_DAYS = (
     30  # a submitted claim is evaluated up to AS_OF + this, so its whole workflow is visible
 )
 CURRENCY = "USD"
-APPROVER_THRESHOLD_CENTS = 1_000_000  # payable above this needs the approver role
+APPROVER_THRESHOLD_CENTS = 2_500_000  # payable above this needs the approver role
 DOC_WINDOW_DAYS = 5  # R-DOC-01: a document counts only if received_date <= submission_date + this
 FRAUD_F1_DAYS = 30  # F1: submission within this many days after policy start (inclusive)
 FRAUD_F2_DAYS = 90  # F2: window for earlier claims by the same customer (inclusive)

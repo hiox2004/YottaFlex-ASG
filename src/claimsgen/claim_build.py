@@ -7,7 +7,7 @@ from datetime import date, timedelta
 from random import Random
 
 from claimsgen import config
-from claimsgen.masterdata import COVERAGE_PROFILE, rand_date
+from claimsgen.masterdata import COVERAGE_PROFILE, SEVERITY, rand_date
 
 LAGS = (0, 1, 2, 3, 5, 7, 10, 14)
 LAG_WEIGHTS = (25, 20, 15, 12, 10, 8, 6, 4)
@@ -106,16 +106,21 @@ def _items(
         row = (
             pcv if only_primary or len(covered) < 2 or rng.random() < 0.85 else rng.choice(covered)
         )
-        cents = max(5000, int(rng.lognormvariate(math.log(0.04 * row["limit_amount"]), 0.9)))
+        median_usd, sigma = SEVERITY[ctx.names[row["coverage_id"]]]
+        cents = max(5000, int(rng.lognormvariate(math.log(median_usd * 100), sigma)))
         items.append([row["coverage_id"], _item_type(rng, ctx, row), cents])
     limits = {r["coverage_id"]: r["limit_amount"] for r in ctx.pcvs[pcv["policy_id"]]}
     totals = defaultdict(int)
     for cov_id, _, cents in items:
         totals[cov_id] += cents
-    for item in items:  # ordinary claims stay under 90% of each coverage limit
-        cap = int(0.9 * limits[item[0]])
-        if totals[item[0]] > cap:
-            item[2] = max(5000, item[2] * cap // totals[item[0]])
+    shrink = {}
+    for cov_id, total in totals.items():  # ordinary claims stay under 90% of each coverage limit
+        cap = int(0.9 * limits[cov_id])
+        if total > cap:  # a random share of the cap, so totals do not pile up at 90%
+            shrink[cov_id] = cap * rng.uniform(0.4, 1.0) / total
+    for item in items:
+        if item[0] in shrink:
+            item[2] = max(5000, int(item[2] * shrink[item[0]]))
     return [tuple(i) for i in items]
 
 

@@ -6,7 +6,7 @@ ground_truth is read only to build the suspected_fraud truth set that precision 
 
 from claimsgen import config, engine, scoring
 
-APPROVER_VALUES = [500_000, 1_000_000, 2_000_000, 5_000_000]
+APPROVER_VALUES = [1_000_000, 2_500_000, 5_000_000, 10_000_000]
 FRAUD_VALUES = [0.25, 0.5, 0.75, 1.0]
 OUTPUT_TABLES = (
     "claim_adjuster_assignment",

@@ -15,7 +15,7 @@ def test_sweep_is_deterministic(built):
 
 
 def test_config_is_restored(built):
-    assert config.APPROVER_THRESHOLD_CENTS == 1_000_000
+    assert config.APPROVER_THRESHOLD_CENTS == 2_500_000
     assert config.FRAUD_THRESHOLD == 0.5
 
 

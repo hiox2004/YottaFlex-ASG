@@ -71,6 +71,27 @@ COVERAGE_PROFILE = {
     "Third-party property": (("third_party_property",), ("liability_payment", "repair")),
 }
 
+# coverage name -> (median claimed item in USD, lognormal sigma); independent of the coverage limit (T5).
+# Orders of magnitude follow public insurance benchmarks (snippet-level, approximate); see docs/DESIGN.md.
+SEVERITY = {
+    "Collision": (3500, 0.8),
+    "Theft": (7000, 0.7),
+    "Third-party liability": (5000, 1.1),
+    "Towing and rental": (350, 0.5),
+    "Fire": (18000, 1.0),
+    "Water damage": (8000, 0.9),
+    "Burglary": (3500, 0.8),
+    "Contents": (4000, 0.9),
+    "Outpatient": (450, 0.8),
+    "Hospital stay": (9000, 0.9),
+    "Emergency care": (2500, 0.9),
+    "Trip cancellation": (1200, 0.6),
+    "Baggage loss": (400, 0.6),
+    "Medical abroad": (3000, 1.1),
+    "Third-party injury": (12000, 1.1),
+    "Third-party property": (5000, 1.0),
+}
+
 # claim_type -> ((doc_type, mandatory), ...)
 REQUIREMENTS = {
     "AUTO": (("photo", "Y"), ("police_report", "Y"), ("repair_estimate", "N")),
