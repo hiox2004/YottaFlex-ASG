@@ -9,13 +9,20 @@ def op():
     return tables, metrics.operational(tables)
 
 
-def test_touchless_counts_are_consistent(op):
+def test_straight_through_counts_are_consistent(op):
     _, o = op
-    t = o["touchless"]
-    assert t["touchless"] + t["reviewed"] == t["assessed"]
-    assert 0 < t["touchless_rate"] <= 1
+    t = o["straight_through"]
+    assert t["straight_through"] + t["reviewed"] == t["assessed"]
+    assert 0 < t["straight_through_rate"] <= 1
     assert t["human_step"] <= t["reviewed"]
-    assert abs(t["touchless_rate"] - t["touchless"] / t["assessed"]) < 1e-4
+    assert abs(t["straight_through_rate"] - t["straight_through"] / t["assessed"]) < 1e-4
+
+
+def test_approver_share_is_the_approver_part_of_the_workload(op):
+    _, o = op
+    w = o["approver_workload"]
+    total = sum(v["settlements"] for v in w.values())
+    assert abs(o["approver_share"] - w["approver"]["settlements"] / total) < 1e-4
 
 
 def test_by_rule_adds_up_to_the_totals(op):
@@ -56,7 +63,9 @@ def test_markdown_has_new_sections():
     text = metrics.to_markdown(tables, gt, [])
     for h in (
         "## Money effect by rule",
-        "## Touchless",
+        "## Straight-through",
+        "Fraud caveat",
+        "Share of approved settlements that needed the approver",
         "## Approver workload",
         "## Documents pending",
         "## Cycle time by claim type",

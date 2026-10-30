@@ -11,7 +11,7 @@
 | reserve vs final | per settled claim, latest reserve vs first settlement's recommended amount; mismatches are listed (the planted limit defects) |
 | by claim type | claims, approval rate, denial rate |
 | money effect by rule | `by_rule`: from each claim's FINAL assessment, key `RULE/effect`: denied = blocked (claimed amount), approved = reduced (claimed minus payable), pend/refer = held (claimed amount); values `{effect, claims, amount_cents}` |
-| touchless | `touchless`: `assessed`, `touchless` (no pend_docs/refer_review assessment ever and final status assessed/approved/paid), `reviewed` (= assessed minus touchless), `human_step` (claims with a pend or refer assessment), `touchless_rate` (0..1) |
+| straight-through | `straight_through`: `assessed`, `straight_through` (no pend_docs/refer_review assessment ever and final status assessed/approved/paid), `reviewed` (= assessed minus straight_through), `human_step` (claims with a pend or refer assessment), `straight_through_rate` (0..1); defined as "no exception", every decision being automated; also `approver_share` (share of approved settlements routed to the approver) |
 | approver workload | `approver_workload`: `{role: {settlements, amount_cents}}`, first settlement per claim, only approved ones |
 | docs pending aging | `docs_pending_aging`: `count, mean_days, median_days, p90_days, max_days, older_than_14_days, older_than_30_days, older_than_90_days`; age = AS_OF minus the date the claim entered its final status |
 | cycle by claim type | `cycle_by_claim_type`: `{type: {paid_claims, median_days, p90_days}}`, submission to paid |
@@ -22,4 +22,4 @@ These keys are added next to the existing ones; all are plain dicts of ints, flo
 
 ## Tests
 `tests/test_metrics.py`: counts and rates add up, cycle times ordered, amounts consistent, reserve mismatches equal the planted defects, every claim type present.
-`tests/test_metrics_business.py`: touchless + reviewed = assessed, by_rule sums equal the matching totals, approver workload, aging and cycle times, new report sections.
+`tests/test_metrics_business.py`: straight_through + reviewed = assessed, by_rule sums equal the matching totals, approver workload, aging and cycle times, new report sections.

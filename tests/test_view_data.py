@@ -91,7 +91,7 @@ def test_metrics_panel_includes_sensitivity_and_new_metrics(full):
     assert len(sens["approver"]) == 4 and len(sens["fraud"]) == 4
     assert sum(r["current"] for r in sens["fraud"]) == 1
     op = panel["operational"]
-    assert {"by_rule", "touchless", "approver_workload", "docs_pending_aging"} <= set(op)
+    assert {"by_rule", "straight_through", "approver_workload", "docs_pending_aging"} <= set(op)
     assert view_data.metrics_panel(tables, gt, checks, sens)["sensitivity"] is sens
 
 

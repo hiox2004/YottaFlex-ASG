@@ -172,10 +172,11 @@ with tab_metrics:
         hide_index=True,
         width="stretch",
     )
-    tl = op["touchless"]
+    tl = op["straight_through"]
     st.write(
-        f"Touchless: {tl['touchless']} of {tl['assessed']} assessed claims ({tl['touchless_rate']:.1%}); "
-        f"{tl['reviewed']} others, of which {tl['human_step']} needed a human step."
+        f"Straight-through (no exception) rate: {tl['straight_through']} of {tl['assessed']} assessed claims "
+        f"({tl['straight_through_rate']:.1%}); {tl['reviewed']} others, of which {tl['human_step']} pended for "
+        "documents or went to review. Every decision is automated here; actor roles show who would own the step in a real operation."
     )
     st.subheader("Approver workload")
     st.dataframe(

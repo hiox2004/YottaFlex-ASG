@@ -20,6 +20,12 @@ def _p90(values: list) -> float:
     return float(ordered[int(0.9 * (len(ordered) - 1))]) if ordered else 0.0
 
 
+STRAIGHT_THROUGH_NOTE = (
+    "Straight-through means the claim never pended for documents or went to review and ended assessed, approved or paid. "
+    "Every decision in this dataset is automated; the actor roles show who would own each step in a real operation. "
+    "It is not comparable with an industry touchless rate."
+)
+
 EFFECT = {"deny": "blocked", "approve": "reduced", "pend_docs": "held", "refer_review": "held"}
 
 
@@ -41,7 +47,7 @@ def _business(tables: dict, claims: dict, status: dict, first_settlement: dict) 
         )
         cell["claims"] += 1
         cell["amount_cents"] += amount
-    touchless = sum(
+    straight = sum(
         1
         for cid in final
         if cid not in reviewed and status[cid] in ("assessed", "approved", "paid")
@@ -66,13 +72,17 @@ def _business(tables: dict, claims: dict, status: dict, first_settlement: dict) 
             )
     return {
         "by_rule": dict(sorted(by_rule.items())),
-        "touchless": {
+        "straight_through": {
             "assessed": len(final),
-            "touchless": touchless,
-            "reviewed": len(final) - touchless,
+            "straight_through": straight,
+            "reviewed": len(final) - straight,
             "human_step": len(reviewed),
-            "touchless_rate": _pct(touchless, len(final)),
+            "straight_through_rate": _pct(straight, len(final)),
         },
+        "approver_share": _pct(
+            workload.get("approver", {}).get("settlements", 0),
+            sum(w["settlements"] for w in workload.values()),
+        ),
         "approver_workload": dict(sorted(workload.items())),
         "docs_pending_aging": {
             "count": len(ages),
@@ -189,7 +199,7 @@ def _fmt(value) -> str:
 
 
 def _business_markdown(op: dict) -> list[str]:
-    t, g = op["touchless"], op["docs_pending_aging"]
+    t, g = op["straight_through"], op["docs_pending_aging"]
     return [
         "## Money effect by rule (final assessment, USD)",
         "",
@@ -197,9 +207,11 @@ def _business_markdown(op: dict) -> list[str]:
         "|---|---|---|",
         *[f"| {k} | {v['claims']} | {usd(v['amount_cents'])} |" for k, v in op["by_rule"].items()],
         "",
-        "## Touchless processing",
+        "## Straight-through (no exception) rate",
         "",
-        f"- Assessed claims: {t['assessed']} | touchless (no pend or review step, ended assessed/approved/paid): {t['touchless']} ({t['touchless_rate']:.1%}) | other: {t['reviewed']} (of which with a human step: {t['human_step']})",
+        STRAIGHT_THROUGH_NOTE,
+        "",
+        f"- Assessed claims: {t['assessed']} | straight-through: {t['straight_through']} ({t['straight_through_rate']:.1%}) | other: {t['reviewed']} (of which pended or referred: {t['human_step']})",
         "",
         "## Approver workload",
         "",
@@ -209,6 +221,8 @@ def _business_markdown(op: dict) -> list[str]:
             f"| {k} | {v['settlements']} | {usd(v['amount_cents'])} |"
             for k, v in op["approver_workload"].items()
         ],
+        "",
+        f"- Share of approved settlements that needed the approver: {op['approver_share']:.1%}",
         "",
         "## Documents pending: aging at the as-of date",
         "",
@@ -271,6 +285,8 @@ def to_markdown(tables: dict, ground_truth: list, checks: list) -> str:
         "## Precision and recall vs ground_truth",
         "",
         "Predicted labels come from engine output, input data and validator failures only. Unassessed (very recent) claims count as misses.",
+        "",
+        "Fraud caveat: the fraud labels are the planted indicator pattern (an early claim near the limit), so the suspected_fraud row checks rule consistency; it is not a fraud-detection accuracy.",
         "",
         "| Class | Truth | Predicted | True positives | Precision | Recall |",
         "|---|---|---|---|---|---|",

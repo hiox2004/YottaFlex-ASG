@@ -161,7 +161,7 @@ the target was ~5-15% of settlements above the approver threshold so the approve
 
 ## Improvements decisions (backlog IMP-002 to IMP-012)
 - Credibility: the payable rule has an independent reference implementation in tests (written from the spec, no import of rules.py); mutation tests show scoring and validation change when a rule is broken; injection is tested to leave non-target claims identical.
-- Metrics: money effect by rule, touchless rate, approver workload, docs-pending aging and cycle time by type are computed from the dataset tables. The threshold sweep re-runs the clean engine, so it counts recommended settlements and can differ slightly from the approver workload table (recent unapproved settlements, planted amount defects); the report says so.
+- Metrics: money effect by rule, straight-through (no exception) rate (renamed from "touchless"; every decision is automated), approver workload, docs-pending aging and cycle time by type are computed from the dataset tables. The threshold sweep re-runs the clean engine, so it counts recommended settlements and can differ slightly from the approver workload table (recent unapproved settlements, planted amount defects); the report says so.
 - View: the rule trace and counterfactual are derived from assessments, history and rule functions only (never ground truth). The dataset checksum is a SHA-256 over canonical CSV text (export.csv_text); rebuild-and-compare proves determinism live. The seed stays fixed and read-only because the brief fixes it.
 - Process: improvements were built by Sonnet and Haiku workers on disjoint files; workers never committed; the orchestrator verified (ruff, tests, output spot-checks) and committed one group at a time.
 

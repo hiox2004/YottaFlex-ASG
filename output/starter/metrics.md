@@ -52,9 +52,11 @@ Days from submission to settlement (paid): mean 9.04, median 8.0, p90 11.0
 | R-PAY-01/blocked | 6 | 2,855.75 |
 | R-PAY-01/reduced | 27 | 58,082.89 |
 
-## Touchless processing
+## Straight-through (no exception) rate
 
-- Assessed claims: 48 | touchless (no pend or review step, ended assessed/approved/paid): 25 (52.1%) | other: 23 (of which with a human step: 9)
+Straight-through means the claim never pended for documents or went to review and ended assessed, approved or paid. Every decision in this dataset is automated; the actor roles show who would own each step in a real operation. It is not comparable with an industry touchless rate.
+
+- Assessed claims: 48 | straight-through: 25 (52.1%) | other: 23 (of which pended or referred: 9)
 
 ## Approver workload
 
@@ -62,6 +64,8 @@ Days from submission to settlement (paid): mean 9.04, median 8.0, p90 11.0
 |---|---|---|
 | approver | 2 | 99,632.04 |
 | process_owner | 25 | 186,421.49 |
+
+- Share of approved settlements that needed the approver: 7.4%
 
 ## Documents pending: aging at the as-of date
 
@@ -105,6 +109,8 @@ Counts every recommended settlement above the threshold on a clean re-run, inclu
 ## Precision and recall vs ground_truth
 
 Predicted labels come from engine output, input data and validator failures only. Unassessed (very recent) claims count as misses.
+
+Fraud caveat: the fraud labels are the planted indicator pattern (an early claim near the limit), so the suspected_fraud row checks rule consistency; it is not a fraud-detection accuracy.
 
 | Class | Truth | Predicted | True positives | Precision | Recall |
 |---|---|---|---|---|---|
