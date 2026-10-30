@@ -45,6 +45,7 @@ defects, and precision/recall against the answer key is reported in each package
 - Repeated `/loop` entries are scheduled re-runs of the same prompt. Prompts that Claude wrote for subagents and helper models are in
   `prompt-history/subagent-and-helper-prompts.md`.
 - The briefs and FAQ pasted into prompts are the organisation's material; they appear in the history because the history must be complete.
+- The system prompts of the three custom subagents (`reviewer`, `teacher`, `mechanical`) are in `ai-transparency/agents/`: byte-identical copies of the gitignored `.claude/agents/*.md` files, which drove the Opus reviews, the teaching session and the Haiku workers.
 
 ## Regenerating the prompt history
 ```
