@@ -14,7 +14,9 @@ from claimsgen import SEED, generate
 
 def digest(out: Path) -> dict:
     result = {}
-    for f in sorted(p for p in out.rglob("*") if p.is_file()):
+    for f in sorted(
+        (p for p in out.rglob("*") if p.is_file()), key=lambda p: p.relative_to(out).as_posix()
+    ):
         data = f.read_bytes()
         result[f.relative_to(out).as_posix()] = (
             data.count(b"\n"),

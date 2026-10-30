@@ -130,7 +130,11 @@ Money is USD with two decimals. Dates are ISO. All "today" logic uses AS_OF {con
 Joins: claim.policy_id -> policy, claim.incident_id -> incident, claim_item/document/assessment/reserve/settlement/claim_status_history/claim_adjuster_assignment .claim_id -> claim.
 """
     (out / "README.md").write_text(readme, encoding="utf-8", newline="\n")
-    files = sorted(p for p in out.rglob("*") if p.is_file() and p.name != "checksums.sha256")
+    # sort by the POSIX path text: Path ordering is case-insensitive on Windows and case-sensitive on Linux
+    files = sorted(
+        (p for p in out.rglob("*") if p.is_file() and p.name != "checksums.sha256"),
+        key=lambda p: p.relative_to(out).as_posix(),
+    )
     lines = [
         f"{hashlib.sha256(p.read_bytes()).hexdigest()}  {p.relative_to(out).as_posix()}\n"
         for p in files
