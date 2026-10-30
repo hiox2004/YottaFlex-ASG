@@ -7,6 +7,7 @@ An error looks like {"field": "items[0].amount", "message": "must be greater tha
 """
 
 import json
+import re
 from datetime import date
 from decimal import Decimal, InvalidOperation
 
@@ -21,6 +22,9 @@ DOC_OPTIONAL = ("status",)
 DOC_STATUSES = ("received", "rejected")
 MAX_ITEMS = 20
 MAX_DOCS = 20
+MAX_JSON_CHARS = 50_000  # JSON text longer than this is refused before parsing
+MIN_DATE = date(1900, 1, 1)  # no date field may be earlier than this
+DATE_TEXT = re.compile(r"\d{4}-\d{2}-\d{2}", re.ASCII)
 MAX_AMOUNT = Decimal(10000000)  # USD, per item
 CENT = Decimal("0.01")
 
@@ -51,13 +55,32 @@ def _err(errors: list[dict], field: str, message: str) -> None:
     errors.append({"field": field, "message": message})
 
 
+def _no_duplicate_keys(pairs: list[tuple[str, object]]) -> dict:
+    """object_pairs_hook for json.loads: a repeated key is an error, not a silent overwrite."""
+    obj: dict = {}
+    for key, value in pairs:
+        if key in obj:
+            raise ValueError(f"duplicate key {key!r}")
+        obj[key] = value
+    return obj
+
+
 def _load(raw) -> tuple[dict | None, list[dict]]:
     errors: list[dict] = []
     if isinstance(raw, str):
+        if len(raw) > MAX_JSON_CHARS:
+            _err(errors, "$", "claim text is too long (max 50,000 characters)")
+            return None, errors
         try:
-            raw = json.loads(raw)
+            raw = json.loads(raw, object_pairs_hook=_no_duplicate_keys)
         except json.JSONDecodeError as exc:
             _err(errors, "$", f"invalid JSON: {exc.msg} at position {exc.pos}")
+            return None, errors
+        except ValueError as exc:  # duplicate key, or an integer literal over Python's digit limit
+            _err(errors, "$", f"invalid JSON: {exc}")
+            return None, errors
+        except RecursionError:
+            _err(errors, "$", "invalid JSON: nesting is too deep")
             return None, errors
     if not isinstance(raw, dict):
         _err(errors, "$", "must be a JSON object")
@@ -68,25 +91,28 @@ def _load(raw) -> tuple[dict | None, list[dict]]:
 def _check_keys(obj: dict, required, optional, prefix: str, errors: list[dict]) -> None:
     for key in required:
         if key not in obj:
-            _err(errors, prefix + key, "is required")
+            _err(errors, f"{prefix}{key}", "is required")
     for key in obj:
         if key in required or key in optional:
             continue
         if key == "claim_type":
-            _err(errors, prefix + key, "claim_type is derived from the policy and must be removed")
+            _err(
+                errors,
+                f"{prefix}{key}",
+                "claim_type is derived from the policy and must be removed",
+            )
         else:
-            _err(errors, prefix + key, "is not a known field")
+            _err(errors, f"{prefix}{key}", "is not a known field")
 
 
 def _parse_date(value) -> date | None:
-    if isinstance(value, date):
-        return value
-    if isinstance(value, str):
-        try:
-            return date.fromisoformat(value)
-        except ValueError:
-            return None
-    return None
+    """Only a str in YYYY-MM-DD form is a date. A date or datetime object is not accepted."""
+    if not isinstance(value, str) or not DATE_TEXT.fullmatch(value):
+        return None
+    try:
+        return date.fromisoformat(value)
+    except ValueError:
+        return None
 
 
 def _date_field(
@@ -102,7 +128,10 @@ def _date_field(
         return None
     value = _parse_date(obj[key])
     if value is None:
-        _err(errors, field, "must be an ISO date (YYYY-MM-DD)")
+        _err(errors, field, "must be an ISO date string YYYY-MM-DD")
+        return None
+    if value < MIN_DATE:
+        _err(errors, field, f"date is before {MIN_DATE.isoformat()}")
         return None
     if lo is not None and value < lo:
         _err(errors, field, f"must be on or after {lo.isoformat()}")
@@ -151,8 +180,8 @@ def _parse_amount(value) -> tuple[int | None, str]:
     if isinstance(value, bool) or not isinstance(value, (str, int, float)):
         return None, "must be a number"
     try:
-        amount = Decimal(str(value))
-    except InvalidOperation:
+        amount = Decimal(str(value))  # str() of a huge int raises ValueError
+    except (InvalidOperation, ValueError):
         return None, "must be a number"
     if not amount.is_finite():
         return None, "must be a number"
@@ -171,7 +200,9 @@ def _check_items(value, coverages: tuple[str, ...] | None, errors: list[dict]) -
         _err(errors, "items", "must be a list of items")
         return ()
     if not 1 <= len(value) <= MAX_ITEMS:
+        # One count error; the per-element checks are skipped so a huge list costs nothing.
         _err(errors, "items", f"must have between 1 and {MAX_ITEMS} items")
+        return ()
     items = []
     for i, row in enumerate(value):
         path = f"items[{i}]"
@@ -199,7 +230,9 @@ def _check_docs(value, submission: date | None, errors: list[dict]) -> tuple[Doc
         _err(errors, "documents", "must be a list of documents")
         return ()
     if len(value) > MAX_DOCS:
+        # One count error; the per-element checks are skipped so a huge list costs nothing.
         _err(errors, "documents", f"must have at most {MAX_DOCS} documents")
+        return ()
     docs = []
     for i, row in enumerate(value):
         path = f"documents[{i}]"

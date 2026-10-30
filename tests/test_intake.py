@@ -1,7 +1,7 @@
 """Intake validation: structure and format only. Business outcomes must be accepted, not rejected."""
 
 import json
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 import pytest
 
@@ -359,3 +359,117 @@ def test_to_json_round_trips_to_an_equal_draft(tables):
     assert errors == [] and again == draft
     again_from_text, _ = parse_and_validate(draft.canonical(), tables)
     assert again_from_text == draft
+
+
+# Hostile or odd input: never raises, always returns (None, errors) with {"field", "message"} entries.
+
+
+def _text_errors(text, tables) -> list[dict]:
+    draft, errors = parse_and_validate(text, tables)
+    assert draft is None
+    assert errors and all(set(e) == {"field", "message"} for e in errors)
+    return errors
+
+
+def test_integer_literal_over_the_digit_limit_is_one_root_error(tables):
+    errors = _text_errors('{"policy_id": ' + "1" * 5000 + "}", tables)
+    assert [e["field"] for e in errors] == ["$"]
+
+
+def test_deeply_nested_json_is_one_root_error(tables):
+    errors = _text_errors("[" * 100000, tables)
+    assert [e["field"] for e in errors] == ["$"]
+
+
+def test_json_text_over_the_size_cap_is_refused_before_parsing(tables):
+    errors = _text_errors('"' + "a" * 60000 + '"', tables)
+    assert errors == [{"field": "$", "message": "claim text is too long (max 50,000 characters)"}]
+
+
+def test_long_string_inside_a_dict_gives_errors_not_a_crash(tables):
+    raw = _valid(tables)
+    raw["adjuster_note"] = "a" * 60000
+    assert _fields(_errs(raw, tables)) == ["adjuster_note"]
+
+
+def test_duplicate_keys_in_json_text_are_rejected(tables):
+    errors = _text_errors(
+        '{"policy_id": "POL-AUTO-2026-000001", "policy_id": "POL-AUTO-2026-000002"}', tables
+    )
+    assert [e["field"] for e in errors] == ["$"]
+    assert "duplicate key" in errors[0]["message"]
+
+
+def test_top_level_list_of_claims_is_one_root_error(tables):
+    errors = _text_errors(json.dumps([_valid(tables)]), tables)
+    assert errors == [{"field": "$", "message": "must be a JSON object"}]
+
+
+def test_huge_integer_amount_in_a_dict_is_an_error(tables):
+    raw = _valid(tables)
+    raw["items"][0]["amount"] = 10**5000
+    assert _fields(_errs(raw, tables)) == ["items[0].amount"]
+
+
+def test_non_string_key_in_a_dict_is_an_error_not_a_crash(tables):
+    raw = _valid(tables)
+    raw[1] = "x"
+    assert _fields(_errs(raw, tables)) == ["1"]
+
+
+def test_twenty_five_items_give_one_count_error_and_skip_element_checks(tables):
+    raw = _valid(tables)
+    raw["items"] = [{"coverage_id": "X", "item_type": "bogus", "amount": "-1"}] * 25
+    assert _fields(_errs(raw, tables)) == ["items"]
+
+
+def test_twenty_five_documents_give_one_count_error_and_skip_element_checks(tables):
+    raw = _valid(tables)
+    raw["documents"] = [{"doc_type": "bogus", "received_date": "1800-01-01"}] * 25
+    assert _fields(_errs(raw, tables)) == ["documents"]
+
+
+@pytest.mark.parametrize(
+    "field, value", [("submission_date", "0001-01-05"), ("incident_date", "1899-12-31")]
+)
+def test_date_before_1900_is_an_error(tables, field, value):
+    raw = _valid(tables)
+    raw[field] = value
+    errors = _errs(raw, tables)
+    assert _fields(errors) == [field]
+    assert errors[0]["message"] == "date is before 1900-01-01"
+
+
+def test_document_date_before_1900_is_an_error(tables):
+    raw = _valid(tables)
+    raw["documents"][0]["received_date"] = "0001-01-06"
+    errors = _errs(raw, tables)
+    assert _fields(errors) == ["documents[0].received_date"]
+    assert errors[0]["message"] == "date is before 1900-01-01"
+
+
+@pytest.mark.parametrize(
+    "value", ["20261022", "2026-W43-4", "2026/10/22", "2026-1-5", "2026-10-22T00:00"]
+)
+def test_non_iso_date_strings_are_rejected(tables, value):
+    raw = _valid(tables)
+    raw["submission_date"] = value
+    assert _fields(_errs(raw, tables)) == ["submission_date"]
+
+
+@pytest.mark.parametrize("value", [datetime(2026, 10, 1), date(2026, 10, 1)])
+def test_date_objects_inside_a_dict_are_rejected(tables, value):
+    raw = _valid(tables)
+    raw["incident_date"] = value
+    errors = _errs(raw, tables)
+    assert _fields(errors) == ["incident_date"]
+    assert errors[0]["message"] == "must be an ISO date string YYYY-MM-DD"
+
+
+def test_claim_with_dates_exactly_on_the_1900_bound_is_accepted(tables):
+    raw = _valid(tables)
+    raw["incident_date"] = "1900-01-01"
+    raw["submission_date"] = "1900-01-01"
+    raw["documents"][0]["received_date"] = "1900-01-01"
+    draft, errors = parse_and_validate(raw, tables)
+    assert errors == [] and draft is not None
