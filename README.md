@@ -28,6 +28,8 @@ python -m claimsgen build --scale 1.0 --out output/full      # 2,000 policies / 
 python -m claimsgen build --scale 0.05 --out output/starter  # starter: 100 policies / 50 claims (committed)
 python -m claimsgen all --out output                          # both
 ```
+Lightweight path: the generator, engine, validation and metrics have no third-party runtime dependencies (`pip install -e .` is enough; the Streamlit view and the tests are optional extras `ui` and `dev`), so everything above runs without the UI.
+
 Seed fixed at 20261022, "today" fixed at 2026-10-22 (never the system clock), currency USD. Each package contains CSV and
 JSON for the 16 input tables, `seed.sql` (SQLite, foreign keys), `ground_truth.*` (separate answer key), data dictionary,
 schema, validation summary, metrics, manifest and checksums. The exit code is non-zero if validation does not flag exactly
