@@ -65,7 +65,8 @@ Days from submission to settlement (paid): mean 9.04, median 8.0, p90 11.0
 
 ## Documents pending: aging at the as-of date
 
-- Claims: 3 | mean 243.33 days, median 313.0, p90 313.0, max 317 | older than 14 days: 3
+- Claims: 3 | mean 243.33 days, median 313.0, p90 313.0, max 317 | older than 14 days: 3, 30 days: 3, 90 days: 3
+- There is no document-chase SLA or closure: a claim stays in `docs_pending` unless the documents arrive.
 
 ## Cycle time by claim type (submission to paid, days)
 

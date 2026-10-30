@@ -189,7 +189,9 @@ with tab_metrics:
     ag = op["docs_pending_aging"]
     st.write(
         f"Docs pending aging: {ag['count']} claims, mean {ag['mean_days']} days, median {ag['median_days']}, "
-        f"p90 {ag['p90_days']}, max {ag['max_days']}; {ag['older_than_14_days']} older than 14 days."
+        f"p90 {ag['p90_days']}, max {ag['max_days']}; {ag['older_than_14_days']} older than 14 days, "
+        f"{ag['older_than_30_days']} older than 30, {ag['older_than_90_days']} older than 90. "
+        "There is no document-chase SLA or closure."
     )
     st.subheader("Cycle time by claim type (submission to paid, days)")
     st.dataframe(

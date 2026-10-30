@@ -109,6 +109,11 @@ def claim_detail(tables: dict, claim_id: str) -> dict:
                 grouped[name]["rows"].append(r)
     policy = next(p for p in tables["policy"] if p["policy_id"] == claim["policy_id"])
     incident = next(i for i in tables["incident"] if i["incident_id"] == claim["incident_id"])
+    requested = {
+        a["assessment_date"]: a["missing_doc_types"]
+        for a in grouped["assessment"]["rows"]
+        if a["decision"] == "pend_docs"
+    }
     timeline = [
         {
             "date": e["event_date"].isoformat(),
@@ -117,6 +122,11 @@ def claim_detail(tables: dict, claim_id: str) -> dict:
             "actor_role": e["actor_role"],
             "rule_id": e["rule_id"],
             "reason": e["reason_code"],
+            "detail": (
+                "Requested: " + requested[e["event_date"]].replace("|", ", ")
+                if e["to_status"] == "docs_pending" and requested.get(e["event_date"])
+                else ""
+            ),
         }
         for e in grouped["claim_status_history"]["rows"]
     ]

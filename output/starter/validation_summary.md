@@ -95,7 +95,7 @@ Two independent builds with seed 20261022 produced identical row counts and SHA-
 | File | Rows | SHA-256 (run 1) | Same in run 2 |
 |---|---|---|---|
 | csv/adjuster.csv | 10 | 195496bea0d1a0d2... | True |
-| csv/assessment.csv | 50 | 5775fd7a3952104f... | True |
+| csv/assessment.csv | 50 | cbdcf5e8c21e04c8... | True |
 | csv/claim.csv | 50 | f064d0b1202d74c3... | True |
 | csv/claim_adjuster_assignment.csv | 53 | 9a59d7b61fd48068... | True |
 | csv/claim_item.csv | 73 | 4091f794fb93a074... | True |
@@ -114,7 +114,7 @@ Two independent builds with seed 20261022 produced identical row counts and SHA-
 | ground_truth.json | 25 | 42c1b37ac65b6002... | True |
 | ground_truth.sql | 25 | 7fd0f2cd54a2ee62... | True |
 | json/adjuster.json | 10 | 6b5be53a0e76275b... | True |
-| json/assessment.json | 50 | e74c7469423de754... | True |
+| json/assessment.json | 50 | 26957ecdcc6ad5c2... | True |
 | json/claim.json | 50 | d22f63e6b1f6be72... | True |
 | json/claim_adjuster_assignment.json | 53 | cac7eb3f43de81c4... | True |
 | json/claim_item.json | 73 | da95d401b66feb4c... | True |
@@ -129,4 +129,4 @@ Two independent builds with seed 20261022 produced identical row counts and SHA-
 | json/policy_event.json | 121 | 362e3d49cacc0b83... | True |
 | json/reserve.json | 27 | 2eb15813b8bfedc5... | True |
 | json/settlement.json | 29 | d9ec2afb82fdcd0e... | True |
-| seed.sql | 1164 | 7e159b2d07f1cf56... | True |
+| seed.sql | 1164 | 189b05260d6d9c70... | True |

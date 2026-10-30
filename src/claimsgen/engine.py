@@ -30,6 +30,7 @@ class Decision:
     payable: int = 0
     score: float = 0.0
     payout: object = None
+    missing: str = ""  # pipe list of the document types requested (pend_docs only)
 
 
 class World:
@@ -152,9 +153,9 @@ def evaluate(w: World, c: dict, duplicate: bool, resumed: bool) -> Decision:
     )
     score = sum(flags.values()) / 4
 
-    def out(decision, rule, reason, payout=None, scored=True):
+    def out(decision, rule, reason, payout=None, scored=True, missing=""):
         e, d, a = (payout.eligible, payout.deductible, payout.payable) if payout else (0, 0, 0)
-        return Decision(decision, rule, reason, e, d, a, score if scored else 0.0, payout)
+        return Decision(decision, rule, reason, e, d, a, score if scored else 0.0, payout, missing)
 
     if not resumed:
         if c["submission_date"] < p["start_date"]:
@@ -165,10 +166,13 @@ def evaluate(w: World, c: dict, duplicate: bool, resumed: bool) -> Decision:
             return out("deny", "R-COV-03", "outside_coverage_period", scored=False)
         if duplicate:
             return out("refer_review", "R-ELG-03", "duplicate_claim", scored=False)
-        if rules.missing_docs(
+        missing = rules.missing_docs(
             w.required[c["claim_type"]], w.docs[c["claim_id"]], c["submission_date"]
-        ):
-            return out("pend_docs", "R-DOC-01", "missing_document", scored=False)
+        )
+        if missing:
+            return out(
+                "pend_docs", "R-DOC-01", "missing_document", scored=False, missing="|".join(missing)
+            )
     if score >= w.fraud_threshold:
         return out("refer_review", "R-FRD-05", "suspected_fraud")
     covered = rules.covered_items(items, inc["incident_type"], w.terms)
@@ -201,6 +205,7 @@ def _assess(w, c, adjuster, day, d: Decision, frm: str):
             "deductible_applied": d.deductible,
             "payable_amount": d.payable,
             "fraud_score": d.score,
+            "missing_doc_types": d.missing,
         }
     )
     _event(w, cid, frm, STATUS[d.decision], day, "operations_analyst", d.rule_id, d.reason)

@@ -154,7 +154,9 @@ def _show(result):
     role = result["settlement"][-1]["approver_role"] if result["settlement"] else None
     st.write(f"Approval route: {role}" if role else "Approval route: not reached (no settlement).")
     if result["missing_documents"]:
-        st.write("Missing documents: " + ", ".join(result["missing_documents"]))
+        pend = next((a for a in result["assessments"] if a["decision"] == "pend_docs"), None)
+        when = f" on {pend['assessment_date']}" if pend else ""
+        st.write("Requested: " + ", ".join(result["missing_documents"]) + when)
     st.subheader("Rule trace (decision path)")
     st.dataframe(result["rule_trace"], hide_index=True, width="stretch")
     st.subheader("What would make it payable")

@@ -13,7 +13,7 @@
 | money effect by rule | `by_rule`: from each claim's FINAL assessment, key `RULE/effect`: denied = blocked (claimed amount), approved = reduced (claimed minus payable), pend/refer = held (claimed amount); values `{effect, claims, amount_cents}` |
 | touchless | `touchless`: `assessed`, `touchless` (no pend_docs/refer_review assessment ever and final status assessed/approved/paid), `reviewed` (= assessed minus touchless), `human_step` (claims with a pend or refer assessment), `touchless_rate` (0..1) |
 | approver workload | `approver_workload`: `{role: {settlements, amount_cents}}`, first settlement per claim, only approved ones |
-| docs pending aging | `docs_pending_aging`: `count, mean_days, median_days, p90_days, max_days, older_than_14_days`; age = AS_OF minus the date the claim entered its final status |
+| docs pending aging | `docs_pending_aging`: `count, mean_days, median_days, p90_days, max_days, older_than_14_days, older_than_30_days, older_than_90_days`; age = AS_OF minus the date the claim entered its final status |
 | cycle by claim type | `cycle_by_claim_type`: `{type: {paid_claims, median_days, p90_days}}`, submission to paid |
 
 These keys are added next to the existing ones; all are plain dicts of ints, floats and strings. `to_markdown` also renders them and the "Threshold sensitivity" section from `sensitivity.sweep` (see sensitivity.md).

@@ -162,6 +162,8 @@ def test_unreferred_duplicate_is_flagged(tables):
             "deductible_applied": 0,
             "payable_amount": 0,
             "fraud_score": 0.0,
+            # new column: left empty on purpose, the hand-built row only has to exercise the duplicate check
+            "missing_doc_types": "",
         }
     )
     assert (

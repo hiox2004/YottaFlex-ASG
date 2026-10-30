@@ -25,7 +25,7 @@
   "seed": 20261022,
   "sha256": {
     "csv/adjuster.csv": "195496bea0d1a0d26152fc9d16e3ad9316704ca3a0868bd7b164cbfd8d6ac518",
-    "csv/assessment.csv": "5775fd7a3952104fa1b90d18e33426393d156fe8afc8c3e4cf12f9e26287f404",
+    "csv/assessment.csv": "cbdcf5e8c21e04c85f4b0b9d3159a783ad0b5bbe9848b6f04983825aededc67b",
     "csv/claim.csv": "f064d0b1202d74c3513c40d339ab246625fd05d755822f5b8b54c54e6633d467",
     "csv/claim_adjuster_assignment.csv": "9a59d7b61fd480687e1f136f52bea0578566ef90dbe3745bae1f56eec35e6493",
     "csv/claim_item.csv": "4091f794fb93a074385037d2f855ba175d724777768c6defdc638422f027da1c",
@@ -44,7 +44,7 @@
     "ground_truth.json": "42c1b37ac65b600264639889bc25d0e7f42d25f49a8aab8ac3ea2324cf786012",
     "ground_truth.sql": "7fd0f2cd54a2ee62788e753c510bd026c33ce97be8c1911cc2249e349708c438",
     "json/adjuster.json": "6b5be53a0e76275b41ba35c4bc8d5f54515044238d425a41da481d519bf1d304",
-    "json/assessment.json": "e74c7469423de754c4d8ed62996593e7f29e4200f368dd837c8df729ebb023c2",
+    "json/assessment.json": "26957ecdcc6ad5c28ec2a66b15df861ea0f7ae21f975689d88c1af638ceace7c",
     "json/claim.json": "d22f63e6b1f6be728d94ded8cb1ce4813ce374fd0d752423f8d91647047f45a9",
     "json/claim_adjuster_assignment.json": "cac7eb3f43de81c4dae1a0d694f116c695db7d4f477e8f71164872bde86ce7dc",
     "json/claim_item.json": "da95d401b66feb4c9b1fc46315c46411a576a61b5dbba80c0f091ea2c38bdc56",
@@ -59,7 +59,7 @@
     "json/policy_event.json": "362e3d49cacc0b83ba578863b3edcec607c9c56a309411e09ba31d6bc038fe67",
     "json/reserve.json": "2eb15813b8bfedc5659e90e7ce373dad284e698a7710f2f115536e2ad26856d7",
     "json/settlement.json": "d9ec2afb82fdcd0e221d87a84614281ec7c47e903234cfeef7e0a0cd94fffa3c",
-    "seed.sql": "7e159b2d07f1cf568d304ee5d8643431ba828be63a483740964d885639760a66"
+    "seed.sql": "189b05260d6d9c70bfed2776b3db985bea65589c88677b40e8f7479866027e84"
   },
   "synthetic": true
 }

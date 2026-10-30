@@ -74,7 +74,7 @@ Validation checks structure, format and sanity bounds only. Every business outco
 | Excluded item types | R-ELG-02 |
 | Amount over the limit | R-PAY-01 |
 | Amount within the deductible | R-PAY-01 |
-| Mandatory documents missing or late | R-DOC-01 |
+| Mandatory documents missing or late (the requested types are recorded on the assessment and shown as "Requested: ...") | R-DOC-01 |
 | Duplicate of an earlier claim (same policy, incident date and claim type) | R-ELG-03 |
 
 ## Notes

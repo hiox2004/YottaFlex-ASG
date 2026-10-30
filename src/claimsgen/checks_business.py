@@ -78,6 +78,18 @@ def business_checks(t: dict) -> list[Check]:
                 a["decision"] != "approve" and a["payable_amount"]
             ):
                 arith.fail(a["assessment_id"], "eligible/payable inconsistent with decision")
+        for a in a_rows:  # the requested document types are a derived value: recompute them
+            want = (
+                "|".join(
+                    rules.missing_docs(
+                        w.required[c["claim_type"]], w.docs[cid], c["submission_date"]
+                    )
+                )
+                if a["decision"] == "pend_docs"
+                else ""
+            )
+            if a["missing_doc_types"] != want:
+                arith.fail(a["assessment_id"], "missing_doc_types does not match the recomputation")
         approved = last is not None and last["decision"] == "approve"
         if approved:
             exp = rules.payable(

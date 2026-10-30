@@ -81,6 +81,8 @@ def _business(tables: dict, claims: dict, status: dict, first_settlement: dict) 
             "p90_days": _p90(ages),
             "max_days": max(ages, default=0),
             "older_than_14_days": sum(a > 14 for a in ages),
+            "older_than_30_days": sum(a > 30 for a in ages),
+            "older_than_90_days": sum(a > 90 for a in ages),
         },
         "cycle_by_claim_type": {
             t: {"paid_claims": len(v), "median_days": float(median(v)), "p90_days": _p90(v)}
@@ -210,7 +212,8 @@ def _business_markdown(op: dict) -> list[str]:
         "",
         "## Documents pending: aging at the as-of date",
         "",
-        f"- Claims: {g['count']} | mean {g['mean_days']} days, median {g['median_days']}, p90 {g['p90_days']}, max {g['max_days']} | older than 14 days: {g['older_than_14_days']}",
+        f"- Claims: {g['count']} | mean {g['mean_days']} days, median {g['median_days']}, p90 {g['p90_days']}, max {g['max_days']} | older than 14 days: {g['older_than_14_days']}, 30 days: {g['older_than_30_days']}, 90 days: {g['older_than_90_days']}",
+        "- There is no document-chase SLA or closure: a claim stays in `docs_pending` unless the documents arrive.",
         "",
         "## Cycle time by claim type (submission to paid, days)",
         "",

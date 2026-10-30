@@ -253,6 +253,11 @@ TABLES: tuple[Table, ...] = (
             _money("deductible_applied", "per R-PAY-01"),
             _money("payable_amount", "per R-PAY-01"),
             Field("fraud_score", "ratio", True, "0..1", "", False, "flags / 4"),
+            _text(
+                "missing_doc_types",
+                "pipe-separated DOC_TYPES requested; empty unless pend_docs",
+                False,
+            ),
         ),
     ),
     Table(

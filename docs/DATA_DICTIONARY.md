@@ -155,6 +155,7 @@ Decision with reason; new row when re-run. PK `assessment_id` pattern `ASM-CLM-2
 | deductible_applied | money | Y | >= 0 | USD | N |  | per R-PAY-01 |
 | payable_amount | money | Y | >= 0 | USD | N |  | per R-PAY-01 |
 | fraud_score | ratio | Y | 0..1 |  | N |  | flags / 4 |
+| missing_doc_types | text | N |  |  | N |  | pipe-separated DOC_TYPES requested; empty unless pend_docs |
 
 ## reserve
 Append-only reserve history. PK `reserve_id` pattern `RSV-CLM-2026-\d{6}-\d{3}`.

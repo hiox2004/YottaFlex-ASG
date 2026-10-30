@@ -11,6 +11,7 @@
 | duplicates | a repeated (policy, incident date, type) must be referred or denied, never approved/pended; no repeated document type per claim | claim or document id |
 
 Gotchas:
+- Each assessment's `missing_doc_types` is recomputed from documents and requirements (pend_docs only, empty otherwise); a mismatch fails the arithmetic check.
 - The replay filters items by coverage terms (R-ELG-01) before the exclusion filter, exactly as the engine does.
 - The replay commits the EXPECTED amounts, so one corrupted settlement is flagged alone and later claims are unaffected.
 - Only claims denied at intake by R-COV-01 may have activity before the policy start (derived from history, never from labels).

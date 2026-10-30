@@ -123,6 +123,7 @@ CREATE TABLE assessment (
   deductible_applied NUMERIC NOT NULL,
   payable_amount NUMERIC NOT NULL,
   fraud_score REAL NOT NULL,
+  missing_doc_types TEXT,
   PRIMARY KEY (assessment_id),
   FOREIGN KEY (claim_id) REFERENCES claim(claim_id),
   FOREIGN KEY (adjuster_id) REFERENCES adjuster(adjuster_id)
