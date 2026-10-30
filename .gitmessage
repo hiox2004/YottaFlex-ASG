@@ -1,0 +1,9 @@
+# <type>(<scope>): <summary, imperative, <=72 chars, no period>
+#
+# Why this change (what problem it solves), not a diff narration. Wrap at 72.
+#
+# Types : feat fix docs test refactor chore ci data
+# Scopes: schema rules gen inject validate export ui docs tooling
+# Example: feat(rules): add R-COV-01..03 coverage checks
+#
+# One logical step per commit. Tests/lint must pass before committing.

@@ -25,3 +25,4 @@ Plain Python 3.11+, stdlib (`csv`, `json`, `sqlite3`, `hashlib`), pytest, ruff. 
 - Inject anomalies AFTER the clean baseline, without orphan FKs or touching unrelated rows.
 - Never read raw `output/` CSV/DB files; use `scripts/summarize_data.py`.
 - One git commit per step. Keep diffs small. Public repo: no secrets, ever.
+- Commit format `<type>(<scope>): <summary>` per CONTRIBUTING.md (enforced by .githooks/commit-msg); design lives in docs/DESIGN.md.

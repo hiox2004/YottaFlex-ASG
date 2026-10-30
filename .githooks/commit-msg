@@ -1,0 +1,9 @@
+#!/bin/sh
+# Enforce "<type>(<scope>): <summary>" on the first line. Merge/revert commits are allowed through.
+first=$(grep -v '^#' "$1" | head -n 1)
+case "$first" in Merge\ *|Revert\ *) exit 0 ;; esac
+if ! echo "$first" | grep -Eq '^(feat|fix|docs|test|refactor|chore|ci|data)(\([a-z-]+\))?: .{1,72}$'; then
+  echo "commit-msg: first line must match '<type>(<scope>): <summary>' (<=72 chars)." >&2
+  echo "types: feat fix docs test refactor chore ci data. See CONTRIBUTING.md." >&2
+  exit 1
+fi
