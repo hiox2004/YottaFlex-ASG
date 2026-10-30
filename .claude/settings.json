@@ -1,0 +1,54 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python:*)",
+      "Bash(python -m pytest:*)",
+      "Bash(pytest:*)",
+      "Bash(ruff:*)",
+      "Bash(pip install -e:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(gh repo view:*)",
+      "Bash(gh auth status:*)"
+    ],
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(gh repo create:*)",
+      "Bash(pip install:*)",
+      "Edit(docs/SPEC.md)"
+    ],
+    "deny": [
+      "Bash(rm -rf:*)",
+      "Bash(rmdir /s:*)",
+      "Bash(Remove-Item -Recurse:*)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git clean:*)",
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./output/**)",
+      "Read(./**/*.db)",
+      "Read(./**/*.sqlite)",
+      "Bash(cat output/*:*)",
+      "Bash(type output*:*)",
+      "Bash(Get-Content output*:*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python scripts/post_edit.py"
+          }
+        ]
+      }
+    ]
+  }
+}
