@@ -38,7 +38,7 @@ def parse_and_validate(raw, tables: dict) -> tuple[Draft | None, list[dict]]:
     policy = _check_policy(tables, data, errors)
     if policy is not None and "incident_type" in data:
         _check_incident_type(data["incident_type"], policy["product"], tables, errors)
-    coverages = _policy_coverages(tables, policy["policy_id"]) if policy is not None else None
+    coverages = policy_coverages(tables, policy["policy_id"]) if policy is not None else None
     items = _check_items(data["items"], coverages, errors) if "items" in data else ()
     docs = _check_docs(data["documents"], submission, errors) if "documents" in data else ()
     if errors:
@@ -121,13 +121,13 @@ def _check_policy(tables: dict, data: dict, errors: list[dict]) -> dict | None:
     return None
 
 
-def _policy_coverages(tables: dict, policy_id: str) -> tuple[str, ...]:
+def policy_coverages(tables: dict, policy_id: str) -> tuple[str, ...]:
     return tuple(
         pc["coverage_id"] for pc in tables["policy_coverage"] if pc["policy_id"] == policy_id
     )
 
 
-def _incident_types(tables: dict, product: str) -> tuple[str, ...]:
+def incident_types(tables: dict, product: str) -> tuple[str, ...]:
     """Union of the incident types of every coverage sold under this product, sorted."""
     types: set[str] = set()
     for cov in tables["coverage"]:
@@ -137,7 +137,7 @@ def _incident_types(tables: dict, product: str) -> tuple[str, ...]:
 
 
 def _check_incident_type(value, product: str, tables: dict, errors: list[dict]) -> None:
-    valid = _incident_types(tables, product)
+    valid = incident_types(tables, product)
     if value not in valid:
         _err(
             errors,

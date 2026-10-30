@@ -3,6 +3,8 @@
 Rendering only; every number comes from claimsgen.view_data (tested). Run: streamlit run app.py   (pip install -e ".[ui]")
 """
 
+import app_intake
+import app_quality
 import streamlit as st
 
 from claimsgen import SEED, view_data
@@ -43,9 +45,33 @@ st.sidebar.caption(
 )
 
 decisions = view_data.decisions_table(tables)
-tab_decisions, tab_exceptions, tab_claim, tab_metrics, tab_realism, tab_repro = st.tabs(
-    ["Decisions", "Exceptions", "Claim timeline", "Metrics", "Realism", "Reproducibility"]
+(
+    tab_submit,
+    tab_decisions,
+    tab_exceptions,
+    tab_claim,
+    tab_metrics,
+    tab_realism,
+    tab_repro,
+    tab_quality,
+) = st.tabs(
+    [
+        "Submit a claim",
+        "Decisions",
+        "Exceptions",
+        "Claim timeline",
+        "Metrics",
+        "Realism",
+        "Reproducibility",
+        "Quality and data",
+    ]
 )
+
+with tab_submit:
+    app_intake.render(tables, scale)
+
+with tab_quality:
+    app_quality.render(tables, ground_truth, checks)
 
 with tab_decisions:
     st.caption(

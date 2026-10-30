@@ -129,7 +129,7 @@ def test_app_runs_headless_and_shows_every_panel():
     app = AppTest.from_file(str(ROOT / "app.py"), default_timeout=180).run()
     assert not app.exception, app.exception
     assert app.title[0].value.startswith("Claims workflow")
-    assert len(app.tabs) == 6
+    assert len(app.tabs) == 8
     assert len(app.dataframe) >= 5
     assert app.text_input(key="seed").disabled
     app.button(key="rebuild").click().run()

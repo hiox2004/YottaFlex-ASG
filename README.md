@@ -19,7 +19,7 @@ python scripts/verify.py                    # builds twice, compares every file 
 streamlit run app.py                        # the view
 ```
 1. Open `output/starter/` (small, committed): `README.md`, `validation_summary.md`, `metrics.md`, `ground_truth.csv`.
-2. Run the view. Tabs: Decisions (rule, reason, actor per claim), Exceptions, Claim timeline (append-only history, a rule trace showing where a claim stopped and why, and what would make it payable), Metrics (rates, cycle times, amounts blocked, money effect by rule, touchless rate, approver workload, docs-pending aging, reserve vs final, threshold sensitivity, precision/recall), Realism (distributions) and Reproducibility (fixed seed, dataset checksum, rebuild-and-compare).
+2. Run the view. Tabs: Submit a claim (fill in a form or load one of seven examples, watch the whole workflow decide it, request missing documents; template in [docs/CLAIM_INPUT.md](docs/CLAIM_INPUT.md)), Decisions (rule, reason, actor per claim), Exceptions, Claim timeline (append-only history, a rule trace showing where a claim stopped and why, and what would make it payable), Metrics (rates, cycle times, amounts blocked, money effect by rule, touchless rate, approver workload, docs-pending aging, reserve vs final, threshold sensitivity, precision/recall), Realism (distributions) and Reproducibility (fixed seed, dataset checksum, rebuild-and-compare) and Quality and data (validation checks, planted defects vs flagged, answer key, data dictionary, rule catalogue, table browser).
 3. Regenerate anything with the command below; the same seed always gives byte-identical files.
 
 ## Generate data
@@ -46,6 +46,7 @@ rule ID and reason. The catalogue is `src/claimsgen/rules.py`.
 - **Independent payable check:** `tests/payable_reference.py` re-implements the payable rule from the spec text (it does not import `rules.py`) and is compared with the engine on hand-computed cases and on every approving claim.
 - **The evaluation can fail:** mutation tests (`tests/test_mutation.py`) break one rule at a time and assert that recall, precision or amounts move.
 - **Injection is contained:** every non-target claim is identical before and after injection (`tests/test_injection_isolation.py`).
+- **Intake is exercised through the real app:** seven example claims, each tested to reach its intended rule at starter and full scale (`tests/test_intake_examples.py`, `tests/test_app_intake.py`); validation never rejects what the rules decide.
 - **No leakage, byte-stable output:** label columns are rejected in inputs, and two same-seed builds are byte-identical (`scripts/verify.py`, run in CI).
 
 ## Where to verify the review points
@@ -71,6 +72,7 @@ validator against the answer key) are in each package's `metrics.md` and the vie
   by the rules and labelled `origin=baseline`; the six mandatory cases are `origin=injected`.
 
 ## Known limits (stated, not hidden)
+- Intake accepts structured claims only (a form or JSON in the documented template). There is no free-text or document extraction, by choice: intake and the decision path are fully deterministic, so accuracy cannot drop at the intake step; the cost is that messy real-world input would need a separate adapter.
 - The validator replays derived amounts through the same `rules.payable` function the engine uses: it is an independent
   replay of the inputs, not an independent implementation of the formula. `tests/payable_reference.py` is the independent
   reimplementation from the spec text, checked against the engine on hand-computed fixtures and on the full dataset.
