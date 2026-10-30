@@ -2,6 +2,7 @@
 
 Add a line per step: date, commit scope, what it taught or changed, which notes were updated.
 
+- 2026-10-31 `docs(intake)` Opus intake audit #5: docs corrected to match the code (optional status, full rejection list, later claims processed but hidden, horizon and ordering, config never patched). Worker: Haiku. DO LATER: Streamlit version pin and the deprecated use_container_width API.
 - 2026-10-31 `fix(intake)` Opus intake audit #4, #6, #8, #9: horizon = max(dataset date + 30 days, submission + 21 days); tab state keyed by scale, last draft reused for request-docs, session list capped; tests for the horizon boundary, both approver sides, lapsed policy with documents, examples at 0.25 with a validation round-trip; a tautology replaced. Worker: Sonnet.
 - 2026-10-31 `fix(intake)` Opus intake audit #2, #3, #10: hostile JSON (huge integer, deep nesting, duplicate keys, over-long text), ancient dates that overflowed the engine, lenient date formats. All return field errors. 68 intake tests. Worker: Haiku.
 - 2026-10-31 `fix(engine)` Opus intake audit #1: the threshold sweep patched global config while a concurrent session could run a what-if; thresholds are now `engine.run` arguments (like `as_of`), config is never patched, defaults byte-identical, tests prove it. My own DESIGN note had claimed this was already true. Worker: Sonnet.
