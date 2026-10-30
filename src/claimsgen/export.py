@@ -50,7 +50,7 @@ def _write(path: Path, content: str) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def _csv(table: schema.Table, rows: list) -> str:
+def csv_text(table: schema.Table, rows: list) -> str:
     import io
 
     buf = io.StringIO()
@@ -83,7 +83,7 @@ def write_tables(out: Path, tables: dict, ground_truth: list) -> dict:
         rows = tables[t.name]
         digests[f"csv/{t.name}.csv"] = (
             len(rows),
-            _write(out / "csv" / f"{t.name}.csv", _csv(t, rows)),
+            _write(out / "csv" / f"{t.name}.csv", csv_text(t, rows)),
         )
         digests[f"json/{t.name}.json"] = (
             len(rows),
@@ -101,7 +101,7 @@ def write_tables(out: Path, tables: dict, ground_truth: list) -> dict:
     gt = schema.TABLE_BY_NAME["ground_truth"]
     digests["ground_truth.csv"] = (
         len(ground_truth),
-        _write(out / "ground_truth.csv", _csv(gt, ground_truth)),
+        _write(out / "ground_truth.csv", csv_text(gt, ground_truth)),
     )
     digests["ground_truth.json"] = (
         len(ground_truth),

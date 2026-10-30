@@ -4,9 +4,15 @@ Pure functions over the dataset tables (no Streamlit), so everything the view sh
 engine output and validator failures only; ground_truth is used solely by the metrics panel's scoring table.
 """
 
-from collections import defaultdict
+import hashlib
+from collections import Counter, defaultdict
+from itertools import pairwise
+from statistics import mean, median
 
-from claimsgen import export, generate, metrics, schema, scoring, validate
+from claimsgen import export, generate, metrics, schema, scoring, sensitivity, validate
+from claimsgen.view_trace import counterfactual, rule_trace
+
+__all__ = ["counterfactual", "rule_trace"]
 
 EXCEPTION_TITLES = {
     "documents": "Documents pending (R-DOC-01)",
@@ -142,9 +148,68 @@ def display(table: str, rows: list) -> list[dict]:
     ]
 
 
-def metrics_panel(tables: dict, ground_truth: list, checks: list) -> dict:
-    """Operational metrics plus the precision/recall scoring rows (the only place ground_truth is read)."""
+def metrics_panel(
+    tables: dict, ground_truth: list, checks: list, sweep_result: dict | None = None
+) -> dict:
+    """Operational metrics, precision/recall rows and the threshold sweep (the only place ground_truth is read).
+
+    The sweep re-runs the engine 8 times; callers that cache it pass it as `sweep_result`.
+    """
     return {
         "operational": metrics.operational(tables),
         "scoring": scoring.score(tables, ground_truth, checks),
+        "sensitivity": sweep_result or sensitivity.sweep(tables, ground_truth),
+    }
+
+
+def dataset_checksum(tables: dict) -> str:
+    """SHA-256 over the canonical CSV text of the input tables in schema order (byte-stable, nothing written)."""
+    h = hashlib.sha256()
+    for t in export.INPUT_TABLES:
+        h.update(f"{t.name}\n".encode())
+        h.update(export.csv_text(t, tables[t.name]).encode("utf-8"))
+    return h.hexdigest()
+
+
+def rebuild_and_compare(scale: float) -> tuple[bool, str, str]:
+    """Build the dataset twice from the fixed seed: (identical, checksum_1, checksum_2)."""
+    first = dataset_checksum(generate.build_dataset(scale)[0])
+    second = dataset_checksum(generate.build_dataset(scale)[0])
+    return first == second, first, second
+
+
+LAG_BINS = [("0", 0, 0), ("1", 1, 1), ("2", 2, 2), ("3", 3, 3), ("4-7", 4, 7), ("8-14", 8, 14)]
+AMOUNT_EDGES_USD = [0, 500, 1_000, 2_500, 5_000, 10_000, 25_000]
+
+
+def realism(tables: dict) -> dict:
+    """Plain data for the realism panel: amount histogram and stats, type mix, policy status at AS_OF, report lag."""
+    claims = tables["claim"]
+    amounts = sorted(c["claimed_amount"] for c in claims)
+    edges = [e * 100 for e in AMOUNT_EDGES_USD] + [None]
+    hist = []
+    for lo, hi in pairwise(edges):
+        n = sum(a >= lo and (hi is None or a < hi) for a in amounts)
+        label = f"{lo // 100}+" if hi is None else f"{lo // 100}-{hi // 100}"
+        hist.append({"bin_usd": label, "count": n})
+    incident = {i["incident_id"]: i["incident_date"] for i in tables["incident"]}
+    lags = [(c["submission_date"] - incident[c["incident_id"]]).days for c in claims]
+    lag = [
+        {"bin_days": label, "count": sum(lo <= d <= hi for d in lags)} for label, lo, hi in LAG_BINS
+    ]
+    lag.append({"bin_days": "15+", "count": sum(d >= 15 for d in lags)})
+    last = {}
+    for e in tables["policy_event"]:
+        last[e["policy_id"]] = {"issued": "in force"}.get(e["event_type"], e["event_type"])
+    n = len(amounts)
+    return {
+        "claimed_histogram": hist,
+        "claimed_stats_usd": {
+            "median": median(amounts) / 100 if n else 0.0,
+            "mean": mean(amounts) / 100 if n else 0.0,
+            "p90": amounts[int(0.9 * (n - 1))] / 100 if n else 0.0,
+        },
+        "claim_type_mix": dict(sorted(Counter(c["claim_type"] for c in claims).items())),
+        "policy_status": dict(sorted(Counter(last.values()).items())),
+        "lag_days": lag,
     }

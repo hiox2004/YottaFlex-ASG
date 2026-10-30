@@ -84,6 +84,44 @@ def test_metrics_panel_has_operational_and_scoring(full):
     assert len(panel["scoring"]) >= 14
 
 
+def test_metrics_panel_includes_sensitivity_and_new_metrics(full):
+    tables, gt, checks = full
+    panel = view_data.metrics_panel(tables, gt, checks)
+    sens = panel["sensitivity"]
+    assert len(sens["approver"]) == 4 and len(sens["fraud"]) == 4
+    assert sum(r["current"] for r in sens["fraud"]) == 1
+    op = panel["operational"]
+    assert {"by_rule", "touchless", "approver_workload", "docs_pending_aging"} <= set(op)
+    assert view_data.metrics_panel(tables, gt, checks, sens)["sensitivity"] is sens
+
+
+def test_checksum_is_stable_and_sensitive(full):
+    tables = full[0]
+    first = view_data.dataset_checksum(tables)
+    assert first == view_data.dataset_checksum(tables) and len(first) == 64
+    changed = {k: [dict(r) for r in v] for k, v in tables.items()}
+    changed["claim"][0]["claimed_amount"] += 1
+    assert view_data.dataset_checksum(changed) != first
+
+
+def test_rebuild_and_compare_is_identical_at_starter_scale():
+    same, one, two = view_data.rebuild_and_compare(0.05)
+    assert same and one == two and len(one) == 64
+
+
+def test_realism_numbers_add_up(full):
+    tables = full[0]
+    r = view_data.realism(tables)
+    n = len(tables["claim"])
+    assert sum(b["count"] for b in r["claimed_histogram"]) == n
+    assert sum(b["count"] for b in r["lag_days"]) == n
+    assert sum(r["claim_type_mix"].values()) == n
+    assert sum(r["policy_status"].values()) == len(tables["policy"])
+    s = r["claimed_stats_usd"]
+    assert 0 < s["median"] <= s["p90"] and s["mean"] > 0
+    assert [b["bin_days"] for b in r["lag_days"]] == ["0", "1", "2", "3", "4-7", "8-14", "15+"]
+
+
 def test_app_runs_headless_and_shows_every_panel():
     pytest.importorskip("streamlit")
     from streamlit.testing.v1 import AppTest
@@ -91,8 +129,15 @@ def test_app_runs_headless_and_shows_every_panel():
     app = AppTest.from_file(str(ROOT / "app.py"), default_timeout=180).run()
     assert not app.exception, app.exception
     assert app.title[0].value.startswith("Claims workflow")
-    assert len(app.tabs) == 4
+    assert len(app.tabs) == 6
     assert len(app.dataframe) >= 5
+    assert app.text_input(key="seed").disabled
+    app.button(key="rebuild").click().run()
+    assert not app.exception, app.exception
+    assert any(s.value.startswith("Identical rebuild") for s in app.success)
+    assert not app.error
+    app.selectbox(key="dataset").select("Medium (500 policies, 250 claims)").run()
+    assert not app.exception, app.exception
     app.selectbox(key="exception").select("Documents pending (R-DOC-01)").run()
     assert not app.exception
     ids = [o for o in app.selectbox(key="claim").options]

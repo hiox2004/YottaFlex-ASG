@@ -5,9 +5,13 @@ Rendering only; every number comes from claimsgen.view_data (tested). Run: strea
 
 import streamlit as st
 
-from claimsgen import view_data
+from claimsgen import SEED, view_data
 
-DATASETS = {"Starter (100 policies, 50 claims)": 0.05, "Full (2,000 policies, 1,000 claims)": 1.0}
+DATASETS = {
+    "Starter (100 policies, 50 claims)": 0.05,
+    "Medium (500 policies, 250 claims)": 0.25,
+    "Full (2,000 policies, 1,000 claims)": 1.0,
+}
 
 st.set_page_config(page_title="Claims workflow", layout="wide")
 
@@ -17,17 +21,30 @@ def load(scale: float):
     return view_data.load(scale)
 
 
+@st.cache_data(show_spinner="Computing metrics and threshold sweep...")
+def metrics_panel(scale: float):
+    tables, ground_truth, checks = load(scale)
+    return view_data.metrics_panel(tables, ground_truth, checks)
+
+
+@st.cache_data
+def checksum(scale: float) -> str:
+    return view_data.dataset_checksum(load(scale)[0])
+
+
 st.title("Claims workflow: decisions, exceptions, traceability")
-choice = st.sidebar.selectbox("Dataset", list(DATASETS), key="dataset")
-tables, ground_truth, checks = load(DATASETS[choice])
-st.sidebar.caption("Seed 20261022, fixed as-of date 2026-10-22. All data is synthetic.")
+choice = st.sidebar.selectbox("Dataset scale", list(DATASETS), key="dataset")
+scale = DATASETS[choice]
+tables, ground_truth, checks = load(scale)
+st.sidebar.text_input("Seed (fixed by the brief)", str(SEED), disabled=True, key="seed")
+st.sidebar.caption("Fixed as-of date 2026-10-22. All data is synthetic.")
 st.sidebar.caption(
     "Workflow: intake, coverage validation, document request, eligibility, settlement routing."
 )
 
 decisions = view_data.decisions_table(tables)
-tab_decisions, tab_exceptions, tab_claim, tab_metrics = st.tabs(
-    ["Decisions", "Exceptions", "Claim timeline", "Metrics"]
+tab_decisions, tab_exceptions, tab_claim, tab_metrics, tab_realism, tab_repro = st.tabs(
+    ["Decisions", "Exceptions", "Claim timeline", "Metrics", "Realism", "Reproducibility"]
 )
 
 with tab_decisions:
@@ -74,6 +91,10 @@ with tab_claim:
     d.metric("Payable (USD)", f"{row['payable_usd']:,.2f}")
     st.subheader("Status timeline (append-only history)")
     st.dataframe(detail["timeline"], hide_index=True, use_container_width=True)
+    st.subheader("Rule trace (decision path)")
+    st.dataframe(view_data.rule_trace(tables, claim_id), hide_index=True, use_container_width=True)
+    st.subheader("What would make it payable")
+    st.markdown("\n".join(f"- {t}" for t in view_data.counterfactual(tables, claim_id)))
     for name in (
         "claim_item",
         "document",
@@ -88,7 +109,7 @@ with tab_claim:
             )
 
 with tab_metrics:
-    panel = view_data.metrics_panel(tables, ground_truth, checks)
+    panel = metrics_panel(scale)
     op = panel["operational"]
     cols = st.columns(len(op["counts"]))
     for col, (name, n) in zip(cols, op["counts"].items(), strict=True):
@@ -113,8 +134,121 @@ with tab_metrics:
         hide_index=True,
         use_container_width=True,
     )
+    st.subheader("Rule impact (final assessment per claim, USD)")
+    st.caption("Blocked and held amounts are the claimed amount; reduced is claimed minus payable.")
+    st.dataframe(
+        [
+            {
+                "rule/effect": k,
+                "claims": v["claims"],
+                "usd": v["amount_cents"] / 100,
+            }
+            for k, v in op["by_rule"].items()
+        ],
+        hide_index=True,
+        use_container_width=True,
+    )
+    tl = op["touchless"]
+    st.write(
+        f"Touchless: {tl['touchless']} of {tl['assessed']} assessed claims ({tl['touchless_rate']:.1%}); "
+        f"{tl['reviewed']} others, of which {tl['human_step']} needed a human step."
+    )
+    st.subheader("Approver workload")
+    st.dataframe(
+        [
+            {"role": r, "settlements": v["settlements"], "usd": v["amount_cents"] / 100}
+            for r, v in op["approver_workload"].items()
+        ],
+        hide_index=True,
+        use_container_width=True,
+    )
+    ag = op["docs_pending_aging"]
+    st.write(
+        f"Docs pending aging: {ag['count']} claims, mean {ag['mean_days']} days, median {ag['median_days']}, "
+        f"p90 {ag['p90_days']}, max {ag['max_days']}; {ag['older_than_14_days']} older than 14 days."
+    )
+    st.subheader("Cycle time by claim type (submission to paid, days)")
+    st.dataframe(
+        [{"type": t, **v} for t, v in op["cycle_by_claim_type"].items()],
+        hide_index=True,
+        use_container_width=True,
+    )
+    sens = panel["sensitivity"]
+    st.subheader("Threshold sensitivity")
+    st.caption(
+        "The engine is re-run with one threshold changed at a time; the current row is marked."
+    )
+    st.dataframe(
+        [
+            {
+                "approver threshold (USD)": r["value"] / 100,
+                "current": r["current"],
+                "settlements to approver": r["approver_settlements"],
+                "amount to approver (USD)": r["approver_amount_cents"] / 100,
+            }
+            for r in sens["approver"]
+        ],
+        hide_index=True,
+        use_container_width=True,
+    )
+    st.dataframe(
+        [
+            {
+                "fraud cutoff": r["value"],
+                "current": r["current"],
+                "fraud referred": r["fraud_referred"],
+                "flagged amount (USD)": r["flagged_amount_cents"] / 100,
+                "precision": r["precision"],
+                "recall": r["recall"],
+            }
+            for r in sens["fraud"]
+        ],
+        hide_index=True,
+        use_container_width=True,
+    )
     st.subheader("Precision and recall vs ground truth")
     st.caption(
         "Predictions come from engine output, input data and validator failures only. Unassessed recent claims count as misses."
     )
     st.dataframe(panel["scoring"], hide_index=True, use_container_width=True)
+
+with tab_realism:
+    real = view_data.realism(tables)
+    st.caption("Distributions of the generated claims, to judge whether the data looks plausible.")
+    stats = real["claimed_stats_usd"]
+    st.write(
+        f"Claimed amount (USD): median {stats['median']:,.2f}, mean {stats['mean']:,.2f}, "
+        f"p90 {stats['p90']:,.2f}"
+    )
+    st.subheader("Claimed amount (USD bins)")
+    st.bar_chart(real["claimed_histogram"], x="bin_usd", y="count")
+    left, right = st.columns(2)
+    with left:
+        st.subheader("Claim type mix")
+        st.dataframe(
+            [{"type": k, "claims": v} for k, v in real["claim_type_mix"].items()],
+            hide_index=True,
+            use_container_width=True,
+        )
+    with right:
+        st.subheader("Policy status at the as-of date")
+        st.dataframe(
+            [{"status": k, "policies": v} for k, v in real["policy_status"].items()],
+            hide_index=True,
+            use_container_width=True,
+        )
+    st.subheader("Days from incident to submission")
+    st.bar_chart(real["lag_days"], x="bin_days", y="count")
+
+with tab_repro:
+    st.caption("The seed is fixed by the brief; the same seed and scale must give the same bytes.")
+    st.write(f"Seed: {SEED} (read-only). Scale: {scale}.")
+    st.code(checksum(scale), language="text")
+    st.caption("SHA-256 over the canonical CSV text of the input tables in schema order.")
+    if st.button("Rebuild and compare", key="rebuild"):
+        with st.spinner("Building the dataset again..."):
+            same, one, two = view_data.rebuild_and_compare(scale)
+        if same and one == checksum(scale):
+            st.success(f"Identical rebuild: {one}")
+        else:
+            st.error(f"Rebuild differs: {one} vs {two}")
