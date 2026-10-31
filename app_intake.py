@@ -176,10 +176,10 @@ def _show(result):
 
 def render(tables, scale):
     st.caption(
-        "No AI is involved: the decision path is deterministic rules. The claim is evaluated as a what-if "
-        "on a copy of the dataset (the dataset is never changed) up to the evaluation horizon. "
-        + whatif.NOTE
+        "Pick an example or edit the JSON; a deterministic rule engine decides it as a what-if (the dataset never changes)."
     )
+    with st.expander("How the what-if works"):
+        st.write(whatif.NOTE)
     _reset_for_scale(scale)
     examples = _examples(tables, scale)
     if examples is None:

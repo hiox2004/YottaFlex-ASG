@@ -209,14 +209,14 @@ def _assemble(specs: list) -> tuple[dict, list]:
                     "claimed_amount": cents,
                 }
             )
-        for k, (doc_type, received) in enumerate(s.docs, start=1):
+        for k, (doc_type, received, status) in enumerate(s.docs, start=1):
             tables["document"].append(
                 {
                     "document_id": ids.doc(claim_id, k),
                     "claim_id": claim_id,
                     "doc_type": doc_type,
                     "received_date": received,
-                    "status": "received",
+                    "status": status,
                 }
             )
     for i in order:

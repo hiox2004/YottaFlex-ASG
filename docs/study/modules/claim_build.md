@@ -10,7 +10,7 @@
 | `Ctx.exposure`, `Ctx.cum_exposure` | days each policy was in force before AS_OF (at least 1), and the running total | `normal_spec` picks the policy with `rng.choices(ids, cum_weights=cum_exposure)`, so claims follow exposure: young policies get fewer claims and F1 falls to its organic rate; short TRVL terms mean fewer travel claims |
 | `latest_incident(ctx, p, lag)` | latest legal incident date: policy end, AS_OF minus lag, day before lapse/cancel | keeps ordinary claims inside the in-force window |
 | `_items` | 1-3 items (the incident type is drawn first in `build_spec`; a secondary coverage is used only if it covers that incident type), lognormal amounts with a per-coverage median and sigma from `masterdata.SEVERITY` (independent of the limit), capped at 90% of each coverage limit; an overflowing coverage is scaled to a random 40-100% of the cap so totals do not pile up at 90% | cosmetic (excluded) items 8% of the time |
-| `make_docs` | all mandatory docs, optional ones 50%; one doc can be omitted or arrive 10-30 days late | received_date never after AS_OF |
+| `make_docs` | all mandatory docs, optional ones 50%; one doc can be omitted, arrive 10-30 days late, or arrive on time as `rejected` (docs are `(doc_type, received_date, status)` triples) | received_date never after AS_OF |
 | `build_spec` | turns a chosen policy-coverage + incident date into a `Spec` | single-item mode is used for exact-amount boundary cases |
 | `normal_spec` | draws a clean claim; optional `cents` callback fixes the amount for scenario variants | returns `None` when a drawn policy has no legal window (caller retries) |
 

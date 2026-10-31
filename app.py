@@ -44,6 +44,8 @@ st.sidebar.caption(
     "Workflow: intake, coverage validation, document request, eligibility, settlement routing."
 )
 
+st.caption("Start with an example claim in 'Submit a claim', or open Decisions / Metrics.")
+
 decisions = view_data.decisions_table(tables)
 (
     tab_submit,

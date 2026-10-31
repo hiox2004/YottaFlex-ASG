@@ -125,3 +125,19 @@ def test_suspected_fraud_row_keeps_recall_and_precision_above_0_8(built_full):
     )
     assert row["recall"] >= 0.8
     assert row["precision"] >= 0.8
+
+
+def test_rejected_documents_exist_only_on_incomplete_evidence_claims_and_are_still_detected(
+    built_full,
+):
+    full, gt = built_full
+    incomplete = {g["entity_id"] for g in gt if g["label"] == "incomplete_evidence"}
+    rejected = [d for d in full["document"] if d["status"] == "rejected"]
+    assert len(rejected) >= 10
+    assert {d["claim_id"] for d in rejected} <= incomplete
+    row = next(
+        r
+        for r in scoring.score(full, gt, validate.run_all(full))
+        if r["class"].startswith("incomplete_evidence")
+    )
+    assert row["recall"] >= 0.95

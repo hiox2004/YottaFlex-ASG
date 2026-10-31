@@ -25,7 +25,7 @@ class Spec:
     incident_type: str
     submission_date: date
     items: list  # (coverage_id, item_type, cents)
-    docs: list  # (doc_type, received_date)
+    docs: list  # (doc_type, received_date, status)
     scenario: str = ""
     detail: str = ""
     source: "Spec | None" = None
@@ -140,16 +140,24 @@ def _items(
 
 
 def make_docs(
-    rng: Random, ctx: Ctx, product: str, submission: date, omit: str = "", late: bool = False
+    rng: Random,
+    ctx: Ctx,
+    product: str,
+    submission: date,
+    omit: str = "",
+    late: bool = False,
+    rejected: bool = False,
 ) -> list:
+    """The omitted type is absent, arrives late, or arrives on time but rejected (does not count)."""
     docs = []
     for doc_type, mandatory in ctx.required[product]:
         if mandatory == "N" and rng.random() < 0.5:
             continue
-        if doc_type == omit and not late:
+        if doc_type == omit and not (late or rejected):
             continue
-        gap = rng.randint(10, 30) if doc_type == omit else rng.randint(0, 3)
-        docs.append((doc_type, min(config.AS_OF, submission + timedelta(days=gap))))
+        gap = rng.randint(10, 30) if doc_type == omit and late else rng.randint(0, 3)
+        status = "rejected" if doc_type == omit and rejected else "received"
+        docs.append((doc_type, min(config.AS_OF, submission + timedelta(days=gap)), status))
     return docs
 
 
@@ -172,18 +180,19 @@ def build_spec(
         items = _items(rng, ctx, pcv, incident, only_primary, incident_type)
     else:
         items = [(pcv["coverage_id"], _item_type(rng, ctx, pcv, cosmetic), cents)]
-    omit, late, detail = "", False, ""
+    omit, late, rejected, detail = "", False, False, ""
     if incomplete:
         omit = rng.choice([d for d, m in ctx.required[p["product"]] if m == "Y"])
         late = rng.random() < 0.5 and submission + timedelta(days=30) <= config.AS_OF
-        detail = "late" if late else "absent"
+        rejected = not late and rng.random() < 0.5  # about a quarter of all omissions
+        detail = "late" if late else "rejected" if rejected else "absent"
     return Spec(
         p,
         incident,
         incident_type,
         submission,
         items,
-        make_docs(rng, ctx, p["product"], submission, omit, late),
+        make_docs(rng, ctx, p["product"], submission, omit, late, rejected),
         scenario,
         detail,
     )

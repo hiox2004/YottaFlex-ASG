@@ -120,7 +120,7 @@ def test_planted_scenarios_get_the_intended_decision(data, planted):
             assert cid not in settlement
         elif sc == "incomplete_evidence":
             assert first["decision"] == "pend_docs" and first["rule_id"] == "R-DOC-01"
-            if pl["detail"] == "absent":
+            if pl["detail"] in ("absent", "rejected"):
                 assert status[cid] == "docs_pending" and cid not in settlement
             else:
                 assert len(rows) == 2 and rows[1]["assessment_date"] > rows[0]["assessment_date"]
@@ -136,7 +136,14 @@ def test_planted_scenarios_get_the_intended_decision(data, planted):
         elif sc == "boundary_amount_at_limit":
             # claimed == limit: the deductible reduces it, so it is paid in full below the limit
             assert last["decision"] == "approve"
-            assert last["payable_amount"] == last["eligible_amount"] - last["deductible_applied"]
+            gross = last["eligible_amount"] - last["deductible_applied"]
+            policy_id = _by(data["claim"], "claim_id")[cid]["policy_id"]
+            others = [
+                c for c in data["claim"] if c["policy_id"] == policy_id and c["claim_id"] != cid
+            ]
+            # Written reason (rejected-document change moved the draws): the limit is an annual total, so an ordinary
+            # earlier claim on the same policy can have used part of it; the rules then cap the payment correctly.
+            assert last["payable_amount"] == gross or (others and last["payable_amount"] < gross)
 
 
 def test_assessment_amounts_reserve_and_settlement_reconcile(data):

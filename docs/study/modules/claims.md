@@ -10,7 +10,7 @@ A claim is first a `Spec` (policy, incident date/type, submission date, items, d
 |---|---|
 | lapsed_policy | incident after the policy's lapse date |
 | outside_coverage_period | incident before a late-starting policy_coverage |
-| incomplete_evidence | one mandatory doc absent, or present but received 10-30 days late |
+| incomplete_evidence | one mandatory doc absent (about a quarter of the omissions are instead present on time with status `rejected`, which does not count), or present but received 10-30 days late (detail: absent, rejected or late) |
 | claim_over_limit | single item at 1.1-1.6x the coverage limit |
 | suspected_fraud | incident within 20 days of start, amount 95-100% of limit |
 | duplicate_incident | clone of a normal claim (same policy/date/type), submitted 1-20 days later |

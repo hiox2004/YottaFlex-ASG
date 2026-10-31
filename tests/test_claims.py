@@ -119,6 +119,7 @@ def test_planted_scenarios_hold(data, planted):
                 t
                 for t in required[c["claim_type"]]
                 if t not in have
+                or have[t]["status"] == "rejected"  # a rejected document does not count
                 or (have[t]["received_date"] - c["submission_date"]).days > config.DOC_WINDOW_DAYS
             ]
             assert len(gaps) == 1, (pl, gaps)
