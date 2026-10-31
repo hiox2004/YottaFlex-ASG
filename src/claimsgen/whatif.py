@@ -23,9 +23,7 @@ NOTE = (
     "the draft has on them is not shown. The whole dataset advances to the horizon, so real claims still pending at the "
     "dataset date can use up limits before this draft does."
 )
-HORIZON_DAYS = (
-    21  # assessment up to 5 days, approval up to 3, payment up to 5, plus the documents path
-)
+HORIZON_DAYS = 45  # assessment up to 25 days, approval up to 7, payment up to 5, plus the documents path (late documents: 30)
 
 
 def horizon_for(draft: Draft) -> date:

@@ -198,7 +198,7 @@ def test_submitted_on_horizon_is_paid(tables):
         clean.items,
         tuple(Doc(x.doc_type, h) for x in clean.documents),
     )
-    assert whatif.horizon_for(d) == h + timedelta(days=21)
+    assert whatif.horizon_for(d) == h + timedelta(days=45)
     r = whatif.evaluate(tables, d)
     assert r["decision"]["decision"] == "approve"
     assert r["decision"]["status"] == "paid"

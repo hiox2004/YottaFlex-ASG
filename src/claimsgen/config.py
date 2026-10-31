@@ -13,6 +13,13 @@ INTAKE_HORIZON_DAYS = (
 )
 CURRENCY = "USD"
 APPROVER_THRESHOLD_CENTS = 3_000_000  # payable above this needs the approver role
+# Days from submission to the assessment, per product (inclusive range). Hand-chosen to rank the lines the way public
+# benchmarks do (health fastest, liability slowest); still much faster than real life: no investigation or negotiation.
+ASSESS_DAYS = {"AUTO": (2, 10), "HOME": (5, 20), "HLTH": (1, 5), "TRVL": (2, 10), "LIAB": (7, 25)}
+APPROVAL_DAYS = {
+    "process_owner": (1, 3),
+    "approver": (3, 7),
+}  # assessment -> approval; the approver is slower
 DOC_WINDOW_DAYS = 5  # R-DOC-01: a document counts only if received_date <= submission_date + this
 FRAUD_F1_DAYS = 30  # F1: submission within this many days after policy start (inclusive)
 FRAUD_F2_DAYS = 90  # F2: window for earlier claims by the same customer (inclusive)

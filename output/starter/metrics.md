@@ -6,80 +6,79 @@ Operational numbers come from the dataset; the scoring table compares engine and
 
 | Outcome | Claims | Share |
 |---|---|---|
-| approved | 29 | 58.0% |
+| approved | 28 | 56.0% |
 | denied | 12 | 24.0% |
 | docs_pending | 4 | 8.0% |
 | under_review | 4 | 8.0% |
-| not_yet_assessed | 1 | 2.0% |
+| not_yet_assessed | 2 | 4.0% |
 
-Days from submission to approval: mean 6.83, median 6, p90 8.0
-Days from submission to settlement (paid): mean 10.14, median 9, p90 12.0
+Days from submission to approval: mean 11.11, median 8.5, p90 19.0
+Days from submission to settlement (paid): mean 13.89, median 12.0, p90 22.0
 
 ## Amounts (USD)
 
-- Claimed total: 716,232.95
-- Blocked by denial: 115,227.81
-- Reduced by deductible, exclusions and limits on approved claims: 50,383.58
-- Held for documents or review: 227,968.45
-- Recommended settlements: 451,480.43 | paid: 451,480.43
+- Claimed total: 655,163.09
+- Blocked by denial: 95,942.64
+- Reduced by deductible, exclusions and limits on approved claims: 49,283.58
+- Held for documents or review: 172,107.77
+- Recommended settlements: 391,223.89 | paid: 391,223.89
 
 ## Reserve vs final settlement
 
-- Settled claims: 29 | reserve total 302,653.11 | recommended total 451,480.43
+- Settled claims: 28 | reserve total 304,838.17 | recommended total 391,223.89
 - Claims where the settlement differs from the reserve: 2 (compare with the integrity defects in the validation summary)
 
 ## By claim type
 
 | Type | Claims | Approval rate | Denial rate |
 |---|---|---|---|
-| AUTO | 17 | 70.6% | 17.6% |
-| HLTH | 8 | 50.0% | 37.5% |
-| HOME | 16 | 50.0% | 12.5% |
-| LIAB | 7 | 57.1% | 42.9% |
-| TRVL | 2 | 50.0% | 50.0% |
+| AUTO | 17 | 70.6% | 23.5% |
+| HLTH | 9 | 55.6% | 33.3% |
+| HOME | 15 | 53.3% | 0.0% |
+| LIAB | 7 | 42.9% | 42.9% |
+| TRVL | 2 | 0.0% | 100.0% |
 
 ## Money effect by rule (final assessment, USD)
 
 | Rule / effect | Claims | Amount |
 |---|---|---|
-| R-COV-01/blocked | 2 | 30,776.32 |
-| R-COV-02/blocked | 4 | 67,091.14 |
+| R-COV-01/blocked | 2 | 15,521.47 |
+| R-COV-02/blocked | 4 | 63,060.82 |
 | R-COV-03/blocked | 1 | 779.64 |
-| R-DOC-01/held | 4 | 99,128.13 |
-| R-ELG-03/held | 3 | 71,461.36 |
+| R-DOC-01/held | 4 | 104,337.31 |
+| R-ELG-03/held | 3 | 10,391.50 |
 | R-FRD-05/held | 1 | 57,378.96 |
 | R-PAY-01/blocked | 5 | 16,580.71 |
-| R-PAY-01/reduced | 29 | 50,383.58 |
+| R-PAY-01/reduced | 28 | 49,283.58 |
 
 ## Straight-through (no exception) rate
 
 Straight-through means the claim never pended for documents or went to review and ended assessed, approved or paid. Every decision in this dataset is automated; the actor roles show who would own each step in a real operation. It is not comparable with an industry touchless rate.
 
-- Assessed claims: 49 | straight-through: 28 (57.1%) | other: 21 (of which pended or referred: 9)
+- Assessed claims: 48 | straight-through: 27 (56.2%) | other: 21 (of which pended or referred: 9)
 
 ## Approver workload
 
 | Role | Settlements | Amount |
 |---|---|---|
 | approver | 3 | 129,450.36 |
-| process_owner | 26 | 322,030.07 |
+| process_owner | 25 | 261,773.53 |
 
-- Share of approved settlements that needed the approver: 10.3%
+- Share of approved settlements that needed the approver: 10.7%
 
 ## Documents pending: aging at the as-of date
 
-- Claims: 4 | mean 111 days, median 112.0, p90 202.0, max 216 | older than 14 days: 3, 30 days: 2, 90 days: 2
+- Claims: 4 | mean 101.25 days, median 99.5, p90 173.0, max 206 | older than 14 days: 3, 30 days: 2, 90 days: 2
 - There is no document-chase SLA or closure: a claim stays in `docs_pending` unless the documents arrive.
 
 ## Cycle time by claim type (submission to paid, days)
 
 | Type | Paid claims | Median | p90 |
 |---|---|---|---|
-| AUTO | 12 | 8.5 | 11.0 |
-| HLTH | 4 | 10.0 | 11.0 |
-| HOME | 8 | 9.5 | 12.0 |
-| LIAB | 4 | 11.0 | 13.0 |
-| TRVL | 1 | 12.0 | 12.0 |
+| AUTO | 12 | 10.5 | 13.0 |
+| HLTH | 5 | 8.0 | 9.0 |
+| HOME | 8 | 20.5 | 26.0 |
+| LIAB | 3 | 21.0 | 21.0 |
 
 ## Threshold sensitivity
 
@@ -100,7 +99,7 @@ Counts every recommended settlement above the threshold on a clean re-run, inclu
 
 | Cutoff | Fraud-referred claims | Claimed amount flagged (USD) | Precision | Recall |
 |---|---|---|---|---|
-| 0.25 | 8 | 175,868.94 | 0.12 | 1.00 |
+| 0.25 | 8 | 184,713.55 | 0.12 | 1.00 |
 | 0.5 (current) | 1 | 57,378.96 | 1.00 | 1.00 |
 | 0.75 | 0 | 0.00 | n/a | 0.00 |
 | 1.0 | 0 | 0.00 | n/a | 0.00 |

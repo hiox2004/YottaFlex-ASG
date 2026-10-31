@@ -38,7 +38,7 @@ The IDs in the example are illustrative. Use a policy, coverage and dates from t
 | `documents[].received_date` | date (`YYYY-MM-DD`) | yes | ISO date. Between `submission_date` and the intake horizon. |
 | `documents[].status` | enum | no | `received` or `rejected`. Default `received`. |
 
-The evaluation horizon is the later of the dataset date 2026-10-22 plus 30 days (2026-11-21) and the submission date plus 21 days. Dates on the form are checked against this horizon.
+The evaluation horizon is the later of the dataset date 2026-10-22 plus 30 days (2026-11-21) and the submission date plus 45 days. Dates on the form are checked against this horizon.
 
 ## What validation rejects
 
@@ -81,6 +81,6 @@ Validation checks structure, format and sanity bounds only. Every business outco
 
 - `claim_type` is derived from the policy product. It is not an input.
 - A submitted claim is evaluated as a what-if on a copy of the dataset. The dataset is never changed. The claim is treated as inserted at its `submission_date`. Claims are processed in (`submission_date`, `incident_date`, `policy_id`, `claim_id`) order; the provisional claim id only breaks complete ties. Existing claims submitted after that date are still processed by the engine, but their outcomes are not shown. The whole dataset is advanced to the evaluation horizon, so real claims still pending at the dataset date can consume limits before the draft.
-- The evaluation horizon is the later of the dataset date plus 30 days and the submission date plus 21 days, so a claim submitted near the horizon still shows its whole workflow rather than stopping at the as-of date.
+- The evaluation horizon is the later of the dataset date plus 30 days and the submission date plus 45 days, so a claim submitted near the horizon still shows its whole workflow rather than stopping at the as-of date.
 - "Request missing documents" adds the documents that were received after the 5-day document window, then re-evaluates the claim. This is the pend-and-resume path: a claim pended for documents resumes once they arrive.
 - No AI is involved in intake. The decision path is deterministic rules, so the same form on the same dataset always gives the same result.

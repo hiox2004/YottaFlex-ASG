@@ -10,7 +10,7 @@
 |---|---|---|
 | `evaluate(tables, draft)` | dict: `claim, incident, decision, timeline, rule_trace, counterfactual, assessments, reserve, settlement, assignments, history, horizon, missing_documents, note` | `decision` has the shape of a `view_data.decisions_table` row |
 | `missing_documents(tables, draft)` | mandatory types not received within `DOC_WINDOW_DAYS` of submission | uses `rules.missing_docs`, so a rejected or late document counts as missing |
-| `horizon_for(draft)` | `max(config.intake_horizon(), submission_date + 21 days)` | 21 days covers assessment (5), approval (3), payment (5) and the documents path, so late drafts are never cut off |
+| `horizon_for(draft)` | `max(config.intake_horizon(), submission_date + 45 days)` | 45 days covers assessment (up to 25), approval (up to 7), payment (5) and the documents path (late documents arrive by day 30), so late drafts are never cut off |
 | `request_docs(tables, draft, day=None)` | new draft with the missing documents received on `day` | stops adding at `intake.MAX_DOCS`; default is submission + window + 1 (capped at `horizon_for(draft)`): inside the window it would only delay the first assessment instead of producing `docs_pending` |
 
 ## Gotchas

@@ -227,7 +227,7 @@ def inject(
             ),
         ),
         "duplicate_incident": _take(
-            rng, pool, k, used, lambda c: c["submission_date"] + timedelta(days=15) <= config.AS_OF
+            rng, pool, k, used, lambda c: c["submission_date"] + timedelta(days=30) <= config.AS_OF
         ),
         "claim_before_policy_start": _take(rng, pool, k, used),
     }

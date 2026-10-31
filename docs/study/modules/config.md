@@ -15,6 +15,7 @@
 | `SCENARIO_RATES`, `scenario_counts(n)` | share of baseline claims planted per condition | min 1 each, so tiny starters still show every case |
 | `inject_rows(scale)` | rows per injected edge case (15 at full scale) | injected duplicates are carved out of the 1,000 |
 
+| `ASSESS_DAYS`, `APPROVAL_DAYS` | days to assess per product (HLTH 1-5, AUTO and TRVL 2-10, HOME 5-20, LIAB 7-25) and to approve per role (process_owner 1-3, approver 3-7) | hand-chosen so lines rank like public benchmarks; still faster than real life (no investigation or negotiation) |
 | `DOC_WINDOW_DAYS`, `FRAUD_*` | document cutoff and fraud-flag windows/threshold | defined once here; rules and tests read them |
 
 ## Worked example

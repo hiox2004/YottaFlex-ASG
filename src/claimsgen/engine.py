@@ -239,7 +239,8 @@ def _settle(w, c, d: Decision, day, delays):
         }
     )
     role = "approver" if d.payable > w.approver_threshold_cents else "process_owner"
-    approved = day + timedelta(days=delays[1])
+    lo, hi = config.APPROVAL_DAYS[role]
+    approved = day + timedelta(days=lo + int(delays[1] * (hi - lo + 1)))
     paid = approved + timedelta(days=delays[2])
     row = {
         "settlement_id": ids.settlement(cid, 1),
@@ -275,7 +276,8 @@ def _ready_date(w, c):
 
 def _process(w: World, c: dict, rng):
     # fixed draw order per claim; the stream depends only on the claim's own stable fields
-    delays = (rng.randint(1, 5), rng.randint(1, 3), rng.randint(1, 5))
+    # three draws per claim, always: assessment days (per product), a uniform for approval days, payment days
+    delays = (rng.randint(*config.ASSESS_DAYS[c["claim_type"]]), rng.random(), rng.randint(1, 5))
     reassign, pick1, pick2 = rng.random() < 0.05, rng.random(), rng.random()
     cid, sub, as_of = c["claim_id"], c["submission_date"], w.as_of
     key = (c["policy_id"], w.incident[c["incident_id"]]["incident_date"], c["claim_type"])
@@ -291,7 +293,9 @@ def _process(w: World, c: dict, rng):
     d = evaluate(w, c, duplicate, resumed=False)
     _assess(w, c, adjuster, day, d, "submitted")
     if d.decision == "pend_docs":
-        day = _resume_date(w, c)
+        resume = _resume_date(w, c)
+        # a late document that arrived before the pend was recorded is picked up the next day, never before it
+        day = None if resume is None else max(resume, day + timedelta(days=1))
         if day is None or day > as_of:
             return
         d = evaluate(w, c, duplicate, resumed=True)
