@@ -10,7 +10,7 @@ Outcomes: `deny`, `refer_review` (terminal), `pend_docs`, `approve`. Approved cl
 | Function | Role | Gotcha |
 |---|---|---|
 | `World` | indexes all inputs; holds running state (`committed` limits, customer submission dates, seen duplicate keys, event counters) | claims are processed in (submission, incident, policy) date order, so "earlier" is well defined |
-| `evaluate(w, c, duplicate, resumed)` | returns a `Decision` | `resumed=True` skips coverage/duplicate/document checks after late documents arrive |
+| `evaluate(w, c, duplicate, resumed)` | imported from `decide.py` (see [decide.md](decide.md)); returns a `Decision` | `resumed=True` skips coverage/duplicate/document checks after late documents arrive |
 | `_assess` | writes an assessment and its history event together; on pend_docs it records the requested document types in `missing_doc_types` (pipe list, empty otherwise) | a re-run after late docs becomes `ASM-...-002` |
 | `_settle` | reserve (preliminary) + write-once settlement | approval/payment only if their dates are <= AS_OF; approver role if payable > threshold |
 | `_resume_date` | date the last missing mandatory doc arrived | `None` if a document never arrived: the claim stays `docs_pending` |
