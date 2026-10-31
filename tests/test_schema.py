@@ -2,7 +2,7 @@ import re
 import sqlite3
 from pathlib import Path
 
-from claimsgen import schema, schema_docs
+from claimsgen import rules, schema, schema_docs
 
 DOCS = Path(__file__).resolve().parents[1] / "docs"
 LEAK = {"label", "origin", "kind", "expected_decision", "is_fraud", "anomaly_type", "issue_type"}
@@ -52,3 +52,15 @@ def test_generated_docs_are_current():
         encoding="utf-8"
     ) == schema_docs.render_dictionary_md()
     assert (DOCS / "schema.sql").read_text(encoding="utf-8") == schema_docs.render_ddl()
+
+
+def test_relationships_section_covers_every_fk_and_transition():
+    md = schema_docs.render_relationships_md()
+    for t in schema.TABLES:
+        for f in t.fields:
+            if f.fk:
+                assert f"| {t.name} | {f.name} | {f.fk} |" in md, (t.name, f.name)
+        assert t.pk_pattern.replace("|", r"\|") in md
+    for dst in rules.TRANSITIONS.values():
+        for to in dst:
+            assert to in md

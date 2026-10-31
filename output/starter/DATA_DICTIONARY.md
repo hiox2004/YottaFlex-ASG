@@ -210,3 +210,82 @@ Separate answer key; never joined into inputs. PK `entity_id` pattern `any entit
 | kind | enum | Y | business_outcome\|integrity_defect\|boundary |  | N |  |  |
 | expected_decision | text | Y |  |  | N |  | non-empty |
 | rule_id | text | N | R-[A-Z]{3}-\d{2} |  | N |  | rule that applies |
+
+## Relationships and lifecycle
+
+Generated from the FK declarations in `schema.TABLES`, `rules.TRANSITIONS` and `ids.py`.
+
+### Foreign keys and cardinality
+Cardinality is parent:child. An FK column that is required (`Y`) is never null.
+
+| Child | FK column | Parent | Cardinality | FK required | Parent may have no child | Note |
+|---|---|---|---|---|---|---|
+| policy | customer_id | customer | 1:N | Y | N | a customer holds many policies |
+| policy_event | policy_id | policy | 1:N | Y | Y | append-only; the first event is `issued` |
+| policy_coverage | policy_id | policy | 1:N | Y | N | with coverage_id this is the N:M bridge policy-coverage |
+| policy_coverage | coverage_id | coverage | 1:N | Y | N | limit and deductible live on the bridge row |
+| incident | policy_id | policy | 1:N | Y | N | a policy can have several incidents |
+| claim | policy_id | policy | 1:N | Y | N | claim_type equals the policy product |
+| claim | incident_id | incident | 1:N | Y | N | one claim per incident; more only for duplicate claims |
+| claim_item | claim_id | claim | 1:N | Y | N | claimed_amount of the claim = sum of its items |
+| claim_item | coverage_id | coverage | 1:N | Y | N | each item is paid under one coverage |
+| document | claim_id | claim | 1:N | Y | Y | metadata only; 0 rows allowed (missing documents) |
+| claim_adjuster_assignment | claim_id | claim | 1:N | Y | N | reassignment is a new row |
+| claim_adjuster_assignment | adjuster_id | adjuster | 1:N | Y | N | with claim_id: N:M claim-adjuster |
+| assessment | claim_id | claim | 1:N | Y | Y | a re-run adds a row; the latest decides |
+| assessment | adjuster_id | adjuster | 1:N | Y | Y | the adjuster who assessed |
+| reserve | claim_id | claim | 1:N | Y | Y | FNOL row, then revised rows |
+| settlement | claim_id | claim | 0..1:1 | Y | Y | none before a decision; 2 only for the paid_twice defect |
+| claim_status_history | claim_id | claim | 1:N | Y | N | append-only; status = last event |
+
+`ground_truth.entity_id` is deliberately not a foreign key: it points at any entity by id and is never joined into the input tables.
+
+### Effective dates
+| Table | Date column(s) |
+|---|---|
+| policy | start_date .. end_date |
+| policy_coverage | effective_start .. effective_end |
+| policy_event | event_date |
+| claim | submission_date |
+| incident | incident_date |
+
+Coverage is checked at the incident date: the policy window, the policy_coverage window, and no earlier `lapsed` or `cancelled` event (R-COV-01..03).
+
+### Claim status lifecycle
+Legal transitions (`rules.TRANSITIONS`); the first event has an empty from_status.
+
+| From | To (allowed) |
+|---|---|
+| (none) | submitted |
+| submitted | assessed, denied, docs_pending, under_review |
+| docs_pending | assessed, denied, under_review |
+| assessed | approved |
+| approved | paid |
+| denied | (terminal) |
+| under_review | (terminal) |
+| paid | (terminal) |
+
+Other lifecycles: policy events `issued`, then `lapsed`, `cancelled` or `expired`; reserve basis `preliminary` (FNOL, R-RSV-01) then `revised` (R-RSV-02); settlement stage is which dates are filled (recommended, approved, paid).
+
+### ID formats
+| Entity | Format |
+|---|---|
+| customer | `CUS-\d{6}` |
+| coverage | `COV-(AUTO\|HOME\|HLTH\|TRVL\|LIAB)-\d{3}` |
+| adjuster | `ADJ-\d{3}` |
+| document_requirement | `DRQ-(AUTO\|HOME\|HLTH\|TRVL\|LIAB)-[A-Z_]+` |
+| policy | `POL-(AUTO\|HOME\|HLTH\|TRVL\|LIAB)-2026-\d{6}` |
+| policy_event | `PEV-POL-(AUTO\|HOME\|HLTH\|TRVL\|LIAB)-2026-\d{6}-\d{3}` |
+| policy_coverage | `PCV-POL-(AUTO\|HOME\|HLTH\|TRVL\|LIAB)-2026-\d{6}-\d{3}` |
+| incident | `INC-2026-\d{6}` |
+| claim | `CLM-2026-\d{6}` |
+| claim_item | `ITM-CLM-2026-\d{6}-\d{3}` |
+| document | `DOC-CLM-2026-\d{6}-\d{3}` |
+| claim_adjuster_assignment | `ASN-CLM-2026-\d{6}-\d{3}` |
+| assessment | `ASM-CLM-2026-\d{6}-\d{3}` |
+| reserve | `RSV-CLM-2026-\d{6}-\d{3}` |
+| settlement | `SET-CLM-2026-\d{6}-\d{3}` |
+| claim_status_history | `EVT-CLM-2026-\d{6}-\d{3}` |
+| ground_truth | `any entity id` |
+
+The policy serial is one counter shared by all products: `POL-HOME-2026-000004` can be the first HOME policy. `2026` is the series year, not a date; policy dates run 2024-2026. Child ids carry the parent id and a 3-digit sequence.
