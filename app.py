@@ -152,7 +152,7 @@ with tab_metrics:
     )
     rv = op["reserve_vs_final"]
     st.write(
-        f"Reserve vs final: {rv['settled_claims']} settled claims, {rv['mismatched_claims']} where the settlement differs from the reserve."
+        f"Reserve: FNOL {rv['fnol_all'] / 100:,.0f} USD at submission, {rv['final_reserve_all'] / 100:,.0f} USD after revision ({rv['revised_claims']} claims revised). {rv['settled_claims']} settled claims, {rv['mismatched_claims']} where the settlement differs from the latest reserve."
     )
     st.subheader("By claim type")
     st.dataframe(

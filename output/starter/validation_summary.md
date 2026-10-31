@@ -8,16 +8,16 @@ Checks: 12 | passed: 10 | failed: 2 | failing ids: 4
 
 | Category | Check | Rows checked | Failures | Result |
 |---|---|---|---|---|
-| keys | primary key uniqueness | 1166 | 0 | PASS |
-| keys | ID format | 1166 | 0 | PASS |
-| joins | foreign key integrity | 1531 | 0 | PASS |
-| domain | enum values | 1472 | 0 | PASS |
-| domain | required fields present | 6749 | 0 | PASS |
-| domain | money is a non-negative integer (cents) | 998 | 0 | PASS |
-| dates | event dates not after AS_OF | 935 | 0 | PASS |
+| keys | primary key uniqueness | 1223 | 0 | PASS |
+| keys | ID format | 1223 | 0 | PASS |
+| joins | foreign key integrity | 1588 | 0 | PASS |
+| domain | enum values | 1529 | 0 | PASS |
+| domain | required fields present | 7091 | 0 | PASS |
+| domain | money is a non-negative integer (cents) | 1055 | 0 | PASS |
+| dates | event dates not after AS_OF | 992 | 0 | PASS |
 | leakage | no label or unexpected columns in input tables | 16 | 0 | PASS |
 | dates | date order across the claim lifecycle | 180 | 0 | PASS |
-| arithmetic | totals, payable, reserve and settlement reconcile | 108 | 2 | FAIL |
+| arithmetic | totals, payable, reserve and settlement reconcile | 158 | 2 | FAIL |
 | lifecycle | legal transitions, approval before payment, roles | 80 | 4 | FAIL |
 | duplicates | duplicate claims are referred; no duplicate documents | 165 | 0 | PASS |
 
@@ -38,7 +38,7 @@ Checks: 12 | passed: 10 | failed: 2 | failing ids: 4
 | document | 115 |
 | claim_adjuster_assignment | 53 |
 | assessment | 49 |
-| reserve | 28 |
+| reserve | 85 |
 | settlement | 30 |
 | claim_status_history | 155 |
 | ground_truth | 25 |
@@ -108,7 +108,7 @@ Two independent builds with seed 20261022 produced identical row counts and SHA-
 | csv/policy.csv | 100 | d7c158c0434dbd41... | True |
 | csv/policy_coverage.csv | 237 | b28cc2529a201c1a... | True |
 | csv/policy_event.csv | 121 | ec8d8e3f1dddc1ec... | True |
-| csv/reserve.csv | 28 | 5ede8a3bc0161beb... | True |
+| csv/reserve.csv | 85 | 5eacb32a90333b23... | True |
 | csv/settlement.csv | 30 | 49154fc1ea10872c... | True |
 | ground_truth.csv | 25 | 79e2bf31317d7582... | True |
 | ground_truth.json | 25 | dc0834775a1fb645... | True |
@@ -127,6 +127,6 @@ Two independent builds with seed 20261022 produced identical row counts and SHA-
 | json/policy.json | 100 | 3670c49467250e14... | True |
 | json/policy_coverage.json | 237 | ccb75369c29fe3a5... | True |
 | json/policy_event.json | 121 | 68b2f45cbd0d97fa... | True |
-| json/reserve.json | 28 | fcfae8162ec19de0... | True |
+| json/reserve.json | 85 | 78bf51c911f27a32... | True |
 | json/settlement.json | 30 | 7426758405e987e8... | True |
-| seed.sql | 1166 | 432a8fd9a5c62aa0... | True |
+| seed.sql | 1223 | 1fe3ccfe83a931b1... | True |

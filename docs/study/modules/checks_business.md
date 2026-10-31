@@ -6,7 +6,7 @@
 | Check | What it verifies | Failing id |
 |---|---|---|
 | date order | incident <= submission; incident within policy start..end; assignment, document and assessment dates >= submission; settlement dates ordered; policy events ordered | claim, settlement or policy id |
-| arithmetic | items sum to claim; assessment and settlement REPLAY from source records via `rules.payable` in processing order; latest reserve = assessment payable; no reserve unless approving; approved/paid amounts | assessment, settlement or reserve id |
+| arithmetic | items sum to claim; assessment and settlement REPLAY from source records via `rules.payable` in processing order; first reserve = FNOL recomputed by `rules.fnol_reserve`; latest reserve = the decisive assessment's payable (0 on denial), FNOL when undecided; approved/paid amounts | assessment, settlement or reserve id |
 | lifecycle | history starts at submitted and follows `TRANSITIONS`; one settlement per claim; settlement only after an approving assessment; paid needs approval; approver role matches R-APR-01; stage agrees with history | claim or settlement id (extra settlement id for paid-twice) |
 | duplicates | a repeated (policy, incident date, type) must be referred or denied, never approved/pended; no repeated document type per claim | claim or document id |
 

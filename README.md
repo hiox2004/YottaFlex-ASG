@@ -11,10 +11,10 @@ All data is fully synthetic ([SOURCE_MANIFEST.md](SOURCE_MANIFEST.md)). Scope an
 
 ## Results at a glance
 
-Full scale (seed 20261022, 2,000 policies, 1,000 claims, 23,545 rows in the 16 input tables; derived from a fresh build and `metrics.md`):
+Full scale (seed 20261022, 2,000 policies, 1,000 claims, 24,594 rows in the 16 input tables; derived from a fresh build and `metrics.md`):
 
 - **Outcomes:** 71.3% approved, 14.3% denied, 4.0% waiting for documents, 6.4% under review, 4.0% not yet assessed at the as-of date.
-- **Proof:** validation flags exactly the 30 planted defects (4 in the starter), a same-seed rebuild is byte-identical, and `pytest -q` runs 315 tests.
+- **Proof:** validation flags exactly the 30 planted defects (4 in the starter), a same-seed rebuild is byte-identical, and `pytest -q` runs 319 tests.
 - **Workflow:** 70.3% of assessed claims are straight-through (no pend, no review); 30 claims (3.0%) are referred as suspected fraud; 11.9% of approved settlements need the approver.
 - **Honest misses:** recall is 0.90 to 0.97 for lapsed policy, outside coverage period, duplicate, incomplete evidence and boundary-on-start (recent claims are not assessed yet); `claim_over_limit` precision is 0.81. Fraud scores 1.00 only because its labels are planted ([why](docs/DESIGN.md)).
 
@@ -72,7 +72,7 @@ the planted defects or a same-seed rerun differs.
 Decision order (first failing step ends the path): coverage (R-COV-01 claim after start, R-COV-02 policy in force,
 R-COV-03 incident inside coverage dates) -> duplicate (R-ELG-03) -> documents (R-DOC-01, pend until received) ->
 fraud flags (R-FRD-05, score >= 0.5 goes to review) -> coverage terms (R-ELG-01: item and incident type must be covered by the item's coverage) -> exclusions (R-ELG-02) -> payable per coverage
-(R-PAY-01: eligible minus deductible, capped at the remaining limit) -> reserve (R-RSV-01) -> approval authority
+(R-PAY-01: eligible minus deductible, capped at the remaining limit) -> reserve (R-RSV-01 at submission, revised by R-RSV-02) -> approval authority
 (R-APR-01: above 30,000 USD needs the approver). Every state change is a new row in `claim_status_history` with actor role,
 rule ID and reason. The catalogue is `src/claimsgen/rules.py`.
 
@@ -100,7 +100,7 @@ Reference ranges are approximate, snippet-level public figures (sources and URLs
 | Straight-through rate | 70.3% (no exception; every decision is automated) | 10-20% of a blended book (vendor figures) | not comparable |
 | Claims per policy-year | 0.90 (1,000 claims over about 1,111 policy-years) | auto collision about 0.05 | fixed by the brief, more than 10x a real book |
 | Policies not in force at the as-of date | 26.3% (13% lapsed or cancelled, the rest ended by term) | annual auto retention about 78-82% | plausible, not modelled further |
-| Not modelled | investigation and negotiation time, document-chase closure, reopen and appeal, reserve development (the reserve equals the payable at approval) | | stated limits |
+| Not modelled | investigation and negotiation time, document-chase closure, reopen and appeal, reserve development beyond two steps (an FNOL reserve at submission, one revision at the decisive assessment; no later development) | | stated limits |
 
 ## Where to verify the review points
 
@@ -134,7 +134,7 @@ validator against the answer key) are in each package's `metrics.md` and the vie
   reimplementation from the spec text, checked against the engine on hand-computed fixtures and on the full dataset.
 - Very recent claims are honestly left in an earlier status when the next step would fall after the as-of date, and count as
   misses in recall. `claim_over_limit` precision is below 1 (0.81) because the limit is an annual total per coverage: a later ordinary claim on a policy whose limit an earlier claim already used up is also decided `limit_reached`.
-- `under_review` is terminal in this dataset, and reserves are not revised in the baseline.
+- `under_review` is terminal in this dataset. The reserve is set at submission (claimed, capped at each coverage limit) and revised once at the decisive assessment; there is no later reserve development.
 - There is no document-chase SLA or closure: a claim in `docs_pending` or `under_review` stays there unless documents arrive.
 - Duplicate detection matches the exact incident date only; a copy with the date shifted by one day is not caught (real carriers match within a window).
 - The `SET-...-002` second payment is an unavoidable marker of the paid-twice case.

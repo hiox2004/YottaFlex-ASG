@@ -11,6 +11,7 @@
 | `fraud_flags(...)` | R-FRD-01..04 | F2 counts only EARLIER claims by the customer, inclusive 90-day window |
 | `covered_items(items, incident_type, terms)` | R-ELG-01 | an item is kept only if the claim's incident type and the item type are in the coverage's `covered_*` lists; the engine denies `not_covered` when none remain |
 | `eligible_by_coverage(items, exclusions)` | R-ELG-02 | excluded item types contribute nothing |
+| `fnol_reserve(items, pcv_by_cov)` | R-RSV-01 | claimed per coverage capped at the coverage limit (not the remaining limit), summed; the validator recomputes it with the same function |
 | `payable(eligible, pcv_by_cov, committed)` | R-PAY-01 | per coverage `min(max(0, eligible - deductible), remaining)`; remaining = limit minus amounts already recommended on earlier claims |
 
 `TRANSITIONS` is the single legal-transition table; the validator will reuse it.

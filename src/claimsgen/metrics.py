@@ -120,9 +120,10 @@ def operational(tables: dict) -> dict:
     first_settlement = {}
     for s in tables["settlement"]:
         first_settlement.setdefault(s["claim_id"], s)
-    reserve = {}
+    reserve, fnol = {}, {}
     for r in tables["reserve"]:
         reserve[r["claim_id"]] = r["amount"]
+        fnol.setdefault(r["claim_id"], r["amount"])
     to_paid = [
         (s["paid_date"] - claims[cid]["submission_date"]).days
         for cid, s in first_settlement.items()
@@ -180,6 +181,10 @@ def operational(tables: dict) -> dict:
         "reserve_vs_final": {
             "settled_claims": len(first_settlement),
             "reserve_total": sum(reserve[c] for c in first_settlement if c in reserve),
+            "fnol_total": sum(fnol[c] for c in first_settlement if c in fnol),
+            "fnol_all": sum(fnol.values()),
+            "final_reserve_all": sum(reserve.values()),
+            "revised_claims": sum(reserve[c] != fnol[c] for c in reserve),
             "recommended_total": sum(s["recommended_amount"] for s in first_settlement.values()),
             "mismatched_claims": len(mismatches),
         },
@@ -276,8 +281,9 @@ def to_markdown(tables: dict, ground_truth: list, checks: list) -> str:
         "",
         "## Reserve vs final settlement",
         "",
-        f"- Settled claims: {r['settled_claims']} | reserve total {usd(r['reserve_total'])} | recommended total {usd(r['recommended_total'])}",
-        f"- Claims where the settlement differs from the reserve: {r['mismatched_claims']} (compare with the integrity defects in the validation summary)",
+        f"- FNOL reserve (set at submission: claimed, capped at each coverage limit): {usd(r['fnol_all'])} over all claims; after revision at the decisive assessment: {usd(r['final_reserve_all'])} ({r['revised_claims']} claims revised, denials to 0)",
+        f"- Settled claims: {r['settled_claims']} | FNOL reserve {usd(r['fnol_total'])} | latest reserve {usd(r['reserve_total'])} | recommended total {usd(r['recommended_total'])}",
+        f"- Claims where the settlement differs from the latest reserve: {r['mismatched_claims']} (compare with the integrity defects in the validation summary)",
         "",
         "## By claim type",
         "",

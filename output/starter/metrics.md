@@ -25,8 +25,9 @@ Days from submission to settlement (paid): mean 13.89, median 12.0, p90 22.0
 
 ## Reserve vs final settlement
 
-- Settled claims: 28 | reserve total 304,838.17 | recommended total 391,223.89
-- Claims where the settlement differs from the reserve: 2 (compare with the integrity defects in the validation summary)
+- FNOL reserve (set at submission: claimed, capped at each coverage limit): 644,152.88 over all claims; after revision at the decisive assessment: 509,936.87 (35 claims revised, denials to 0)
+- Settled claims: 28 | FNOL reserve 343,111.54 | latest reserve 304,838.17 | recommended total 391,223.89
+- Claims where the settlement differs from the latest reserve: 2 (compare with the integrity defects in the validation summary)
 
 ## By claim type
 

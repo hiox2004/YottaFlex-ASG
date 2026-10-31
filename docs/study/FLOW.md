@@ -10,7 +10,7 @@ Customer Asha holds `POL-AUTO-2026-000123` (AUTO, 2025-11-01 to 2026-10-31, coll
 6. Police report arrives 06-20 -> re-run: docs ok.
 7. **Fraud flags** F1-F4: none -> score 0.
 8. **Eligibility** item covered, no exclusion -> eligible 4,200.
-9. **Payable** R-PAY-01: min(max(0, 4,200 - 500), remaining limit 20,000) = 3,700. **Reserve** RSV row: 3,700 (preliminary, then revised since the first run had none).
+9. **Payable** R-PAY-01: min(max(0, 4,200 - 500), remaining limit 20,000) = 3,700. **Reserve** the FNOL row (R-RSV-01) was set at submission from the claimed amount capped at the coverage limit (4,200); at this decisive assessment a `revised` row (R-RSV-02) sets it to 3,700.
 10. **Settlement** recommended 3,700; under threshold so `process_owner` approves; payment recorded. Each step is one row in `claim_status_history` with actor role + rule ID.
 
 Later, the generator may *inject* a defect (e.g. a second paid settlement) and write the label only to `ground_truth`.

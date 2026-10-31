@@ -5,14 +5,15 @@
 
 ## Decision order (first failing step ends the path)
 R-COV-01 -> R-COV-02 -> R-COV-03 -> R-ELG-03 duplicate -> R-DOC-01 -> R-FRD-05 -> R-ELG-01 (coverage terms, `not_covered`) -> R-ELG-02 -> R-PAY-01.
-Outcomes: `deny`, `refer_review` (terminal), `pend_docs`, `approve`. Approved claims get a reserve, a settlement and approval/payment events.
+Outcomes: `deny`, `refer_review` (terminal), `pend_docs`, `approve`. Every claim gets an FNOL reserve at submission; decisive assessments revise it (0 on denial); approved claims also get a settlement and approval/payment events.
 
 | Function | Role | Gotcha |
 |---|---|---|
 | `World` | indexes all inputs; holds running state (`committed` limits, customer submission dates, seen duplicate keys, event counters) | claims are processed in (submission, incident, policy) date order, so "earlier" is well defined |
 | `evaluate(w, c, duplicate, resumed)` | imported from `decide.py` (see [decide.md](decide.md)); returns a `Decision` | `resumed=True` skips coverage/duplicate/document checks after late documents arrive |
 | `_assess` | writes an assessment and its history event together; on pend_docs it records the requested document types in `missing_doc_types` (pipe list, empty otherwise) | a re-run after late docs becomes `ASM-...-002` |
-| `_settle` | reserve (preliminary) + write-once settlement | approval/payment only if their dates are <= AS_OF; approver role if payable > threshold |
+| `_reserve` | appends a reserve row (`RSV-...-001` FNOL at submission, `-002` revised); `_process` writes the revision after a decisive assessment (approve/deny) only if the amount changes | an approved claim whose payable equals the FNOL (capped at the limit) has one reserve row |
+| `_settle` | write-once settlement | approval/payment only if their dates are <= AS_OF; approver role if payable > threshold |
 | `_resume_date` | date the last missing mandatory doc arrived | `None` if a document never arrived: the claim stays `docs_pending` |
 | `run(tables, as_of=None, *, fraud_threshold=None, approver_threshold_cents=None)` | processes all claims in date order (per-claim delays: `config.ASSESS_DAYS` by product, `APPROVAL_DAYS` by approver role; a resume after a pend is dated `max(late document arrival, pend date + 1 day)`); `as_of` (default `config.AS_OF`) and the two thresholds (defaults read from config when `World` is created) are stored on `World` and used for every cut-off, fraud referral and approver routing; `sensitivity.py` passes the thresholds as arguments | config is never mutated, so threads can use different dates; a resume after docs arrive also stops if its day is after `as_of`. Used by `whatif.py` with the intake horizon | each claim has its own RNG stream seeded from its stable fields (delays, 5% reassignment, adjuster picks), so adding a claim does not shift others |
 | `_ready_date` | latest in-window document arrival | an assessment is never dated before these documents exist |

@@ -19,7 +19,8 @@ RULES = {
     "R-FRD-04": "F4: reported more than 60 days after the incident",
     "R-FRD-05": "Fraud score (flags / 4) at or above the threshold goes to review",
     "R-PAY-01": "Payable = per coverage min(max(0, eligible - deductible), remaining limit)",
-    "R-RSV-01": "Preliminary reserve equals the payable amount at assessment",
+    "R-RSV-01": "FNOL reserve at submission = per coverage min(claimed, limit), summed",
+    "R-RSV-02": "Reserve revised to the payable (0 on denial) at the decisive assessment",
     "R-APR-01": "Payable above the threshold needs the approver; otherwise the process owner",
 }
 
@@ -93,6 +94,14 @@ def eligible_by_coverage(items: list, exclusions: dict) -> dict:
         if i["item_type"] not in exclusions[i["coverage_id"]]:
             out[i["coverage_id"]] = out.get(i["coverage_id"], 0) + i["claimed_amount"]
     return out
+
+
+def fnol_reserve(items: list, pcv_by_cov: dict) -> int:
+    """First reserve, set at submission before any rule has run: what is claimed, capped at each coverage limit."""
+    claimed: dict = {}
+    for i in items:
+        claimed[i["coverage_id"]] = claimed.get(i["coverage_id"], 0) + i["claimed_amount"]
+    return sum(min(a, pcv_by_cov[k]["limit_amount"]) for k, a in claimed.items())
 
 
 def payable(eligible: dict, pcv_by_cov: dict, committed: dict) -> Payout:

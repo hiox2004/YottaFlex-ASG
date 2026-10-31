@@ -158,16 +158,16 @@ Decision with reason; new row when re-run. PK `assessment_id` pattern `ASM-CLM-2
 | missing_doc_types | text | N |  |  | N |  | pipe-separated DOC_TYPES requested; empty unless pend_docs |
 
 ## reserve
-Append-only reserve history. PK `reserve_id` pattern `RSV-CLM-2026-\d{6}-\d{3}`.
+Append-only reserve history: FNOL row at submission, then revised. PK `reserve_id` pattern `RSV-CLM-2026-\d{6}-\d{3}`.
 
 | Field | Type | Required | Allowed values | Unit | Unique | FK | Validation rule |
 |---|---|---|---|---|---|---|---|
 | reserve_id | id | Y | ^RSV-CLM-2026-\d{6}-\d{3}$ |  | Y |  | primary key, immutable, zero-padded |
 | claim_id | id | Y |  |  | N | claim | must exist in claim |
-| reserve_date | date | Y | YYYY-MM-DD |  | N |  | >= assessment_date |
-| amount | money | Y | >= 0 | USD | N |  | latest = final payable |
+| reserve_date | date | Y | YYYY-MM-DD |  | N |  | >= submission_date |
+| amount | money | Y | >= 0 | USD | N |  | first = FNOL; latest = final payable (0 on denial) |
 | basis | enum | Y | preliminary\|revised |  | N |  |  |
-| rule_id | text | Y | R-[A-Z]{3}-\d{2} |  | N |  | R-RSV-01 |
+| rule_id | text | Y | R-[A-Z]{3}-\d{2} |  | N |  | R-RSV-01 | R-RSV-02 |
 
 ## settlement
 Write-once; stage = which dates are filled. PK `settlement_id` pattern `SET-CLM-2026-\d{6}-\d{3}`.

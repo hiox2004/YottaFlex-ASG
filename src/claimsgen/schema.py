@@ -264,14 +264,14 @@ TABLES: tuple[Table, ...] = (
         "reserve",
         "reserve_id",
         r"RSV-CLM-2026-\d{6}-\d{3}",
-        "Append-only reserve history",
+        "Append-only reserve history: FNOL row at submission, then revised",
         (
             _pk("reserve_id", r"^RSV-CLM-2026-\d{6}-\d{3}$"),
             _fk("claim_id", "claim"),
-            _date("reserve_date", ">= assessment_date"),
-            _money("amount", "latest = final payable"),
+            _date("reserve_date", ">= submission_date"),
+            _money("amount", "first = FNOL; latest = final payable (0 on denial)"),
             _enum("basis", ("preliminary", "revised")),
-            Field("rule_id", "text", True, RULE_RE, "", False, "R-RSV-01"),
+            Field("rule_id", "text", True, RULE_RE, "", False, "R-RSV-01 | R-RSV-02"),
         ),
     ),
     Table(

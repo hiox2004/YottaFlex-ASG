@@ -1,4 +1,4 @@
-"""Step 4 of the pipeline: the rules engine. Turns claims into assignments, assessments, reserves, settlements
+"""Step 4 of the pipeline: the rules engine. Turns claims into assignments, assessments, reserves (FNOL, then revised), settlements
 and an append-only status history. Every outcome is derived from rules.py; nothing here is randomly assigned except
 processing delays and the 5% reassignment, which only move dates and adjusters.
 
@@ -145,6 +145,21 @@ def _assess(w, c, adjuster, day, d: Decision, frm: str):
     _event(w, cid, frm, STATUS[d.decision], day, "operations_analyst", d.rule_id, d.reason)
 
 
+def _reserve(w, cid, day, amount, basis, rule):
+    rows = w.out["reserve"]
+    n = 1 + sum(r["claim_id"] == cid for r in rows[-3:])
+    rows.append(
+        {
+            "reserve_id": ids.rsv(cid, n),
+            "claim_id": cid,
+            "reserve_date": day,
+            "amount": amount,
+            "basis": basis,
+            "rule_id": rule,
+        }
+    )
+
+
 def _resume_date(w, c):
     """Date the last late mandatory document arrived, if every missing type eventually arrived."""
     missing = rules.missing_docs(
@@ -162,16 +177,6 @@ def _settle(w, c, d: Decision, day, delays):
     cid, as_of = c["claim_id"], w.as_of
     for cov, amount in d.payout.by_coverage.items():
         w.committed[(c["policy_id"], cov)] += amount
-    w.out["reserve"].append(
-        {
-            "reserve_id": ids.rsv(cid, 1),
-            "claim_id": cid,
-            "reserve_date": day,
-            "amount": d.payable,
-            "basis": "preliminary",
-            "rule_id": "R-RSV-01",
-        }
-    )
     role = "approver" if d.payable > w.approver_threshold_cents else "process_owner"
     lo, hi = config.APPROVAL_DAYS[role]
     approved = day + timedelta(days=lo + int(delays[1] * (hi - lo + 1)))
@@ -218,6 +223,8 @@ def _process(w: World, c: dict, rng):
     duplicate = key in w.seen_keys
     w.seen_keys.add(key)
     _event(w, cid, "", "submitted", sub, "requester", "", "submitted")
+    fnol = rules.fnol_reserve(w.items[cid], w.pcv[c["policy_id"]])
+    _reserve(w, cid, sub, fnol, "preliminary", "R-RSV-01")
     adjuster = _assign(w, c, sub, "initial", pick1)
     if reassign and sub < as_of and len(w.adjusters[c["claim_type"]]) > 1:
         adjuster = _assign(w, c, sub + timedelta(days=1), "reassigned", pick2, exclude=adjuster)
@@ -234,6 +241,8 @@ def _process(w: World, c: dict, rng):
             return
         d = evaluate(w, c, duplicate, resumed=True)
         _assess(w, c, adjuster, day, d, "docs_pending")
+    if d.decision in ("approve", "deny") and d.payable != w.out["reserve"][-1]["amount"]:
+        _reserve(w, cid, day, d.payable, "revised", "R-RSV-02")
     if d.decision == "approve":
         _settle(w, c, d, day, delays)
 

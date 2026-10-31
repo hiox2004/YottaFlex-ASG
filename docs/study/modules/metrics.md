@@ -8,7 +8,7 @@
 | outcome rates | share of claims by final status: approved (assessed/approved/paid), denied, docs_pending, under_review, not_yet_assessed |
 | days submission to approval / settlement | per claim, from the first settlement row: approved/paid date minus submission date (mean, median, p90) |
 | amount blocked | denied claims' claimed total; reduced = claimed minus payable on approved claims; held = docs_pending + under_review claimed total |
-| reserve vs final | per settled claim, latest reserve vs first settlement's recommended amount; mismatches are listed (the planted limit defects) |
+| reserve vs final | FNOL reserve total vs the revised (latest) total over all claims, how many claims were revised (denials to 0), and per settled claim the latest reserve vs the first settlement's recommended amount; mismatches are the planted limit defects |
 | by claim type | claims, approval rate, denial rate |
 | money effect by rule | `by_rule`: from each claim's FINAL assessment, key `RULE/effect`: denied = blocked (claimed amount), approved = reduced (claimed minus payable), pend/refer = held (claimed amount); values `{effect, claims, amount_cents}` |
 | straight-through | `straight_through`: `assessed`, `straight_through` (no pend_docs/refer_review assessment ever and final status assessed/approved/paid), `reviewed` (= assessed minus straight_through), `human_step` (claims with a pend or refer assessment), `straight_through_rate` (0..1); defined as "no exception", every decision being automated; also `approver_share` (share of approved settlements routed to the approver) |

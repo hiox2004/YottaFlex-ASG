@@ -18,7 +18,7 @@
     "policy": 100,
     "policy_coverage": 237,
     "policy_event": 121,
-    "reserve": 28,
+    "reserve": 85,
     "settlement": 30
   },
   "scale": 0.05,
@@ -38,7 +38,7 @@
     "csv/policy.csv": "d7c158c0434dbd41d1ef266eb9573753d7d8f32ef07488ac72cdf0ff0c773846",
     "csv/policy_coverage.csv": "b28cc2529a201c1a1d204d9f8ae584d96bd4408446488c64375bcdf50f62cedb",
     "csv/policy_event.csv": "ec8d8e3f1dddc1ecaafdb665218fa2cbf0871c723cf7f69fe976a93cd0cf3c29",
-    "csv/reserve.csv": "5ede8a3bc0161beb72bc1dba5704452c849d496f2379dadb8ad5f8cf1e3acabe",
+    "csv/reserve.csv": "5eacb32a90333b233a83ae409b3d72988f4cb2e11830e73b6ea8e2fbe3aec30a",
     "csv/settlement.csv": "49154fc1ea10872c734039418c51a54b4779d239d9b66eced56b9e46321a47b7",
     "ground_truth.csv": "79e2bf31317d7582979121c5a2af02bc0d8bd9bb021aeec4b500a462ece92df6",
     "ground_truth.json": "dc0834775a1fb645a2a2de988dd327f7a94c3f2728ada53624fda60faf78da17",
@@ -57,9 +57,9 @@
     "json/policy.json": "3670c49467250e14541dc8f5d68be4ef1172f91a9a1251c39807506d9d9a8630",
     "json/policy_coverage.json": "ccb75369c29fe3a5b680a2c45392c8ec8ab5bf9e18762a49476aa69e33b63411",
     "json/policy_event.json": "68b2f45cbd0d97fa67e63be28dc7738ff9843e9535fb42171850555149a7d85f",
-    "json/reserve.json": "fcfae8162ec19de083b3b78052de8cc2529ea32a242b8e4feb8aab0a691410a1",
+    "json/reserve.json": "78bf51c911f27a3265085a546a05623f8b09f3829c5a3f0c33cdee923737a124",
     "json/settlement.json": "7426758405e987e8e3ea2ed949716fe34f8bfad3a117622be81d650b9b966f0a",
-    "seed.sql": "432a8fd9a5c62aa0e78dc3cb2098656f9b680a6464a6a4d53b2aeb1577e861cd"
+    "seed.sql": "1fe3ccfe83a931b13124ca5438a8c2490c2c06c77b8e3065f1c08cda54a27ed6"
   },
   "synthetic": true
 }

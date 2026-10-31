@@ -61,6 +61,7 @@ def business_checks(t: dict) -> list[Check]:
         bad = bad or any(a["assigned_date"] < c["submission_date"] for a in assigns[cid])
         bad = bad or any(d["received_date"] < c["submission_date"] for d in w.docs[cid])
         bad = bad or any(a["assessment_date"] < c["submission_date"] for a in a_rows)
+        bad = bad or any(r["reserve_date"] < c["submission_date"] for r in reserves.get(cid, []))
         if bad:
             order.fail(cid, "claim dates out of order")
         for s in sets:
@@ -118,13 +119,15 @@ def business_checks(t: dict) -> list[Check]:
                         s["settlement_id"],
                         f"recommended {s['recommended_amount']} != replayed {exp.payable}",
                     )
-            res = reserves.get(cid, [])
-            if not res or res[-1]["amount"] != last["payable_amount"]:
-                arith.fail(
-                    res[-1]["reserve_id"] if res else cid, "latest reserve != assessment payable"
-                )
-        elif reserves.get(cid):
-            arith.fail(reserves[cid][0]["reserve_id"], "reserve without an approving assessment")
+        # reserve: FNOL row first (recomputed), then the decisive assessment's payable (0 on denial)
+        res = reserves.get(cid, [])
+        arith.checked += 1
+        fnol = rules.fnol_reserve(w.items[cid], w.pcv[p["policy_id"]])
+        final = last["payable_amount"] if last and last["decision"] in ("approve", "deny") else fnol
+        if not res or res[0]["amount"] != fnol or res[0]["basis"] != "preliminary":
+            arith.fail(res[0]["reserve_id"] if res else cid, "first reserve != FNOL recomputation")
+        elif res[-1]["amount"] != final:
+            arith.fail(res[-1]["reserve_id"], "latest reserve != final payable (FNOL if undecided)")
         for s in sets:
             if s["approved_date"] and s["approved_amount"] != s["recommended_amount"]:
                 arith.fail(s["settlement_id"], "approved != recommended")

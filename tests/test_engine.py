@@ -161,7 +161,9 @@ def test_assessment_amounts_reserve_and_settlement_reconcile(data):
             last["decision"] == "approve" and s["recommended_amount"] == last["payable_amount"] > 0
         )
         assert reserve[s["claim_id"]]["amount"] == s["recommended_amount"]
-        assert reserve[s["claim_id"]]["reserve_date"] == last["assessment_date"]
+        # the latest reserve is the FNOL row (dated at submission) when the payable equals it (capped at the limit),
+        # otherwise the revised row dated at the decisive assessment (tests/test_reserve.py covers the development)
+        assert reserve[s["claim_id"]]["reserve_date"] <= last["assessment_date"]
         if s["approved_date"]:
             assert s["approved_amount"] == s["recommended_amount"]
             assert s["recommended_date"] <= s["approved_date"]
@@ -172,7 +174,8 @@ def test_assessment_amounts_reserve_and_settlement_reconcile(data):
         if s["paid_date"]:
             assert s["approved_date"] and s["approved_date"] <= s["paid_date"] <= config.AS_OF
             assert s["paid_amount"] == s["approved_amount"]
-    assert set(reserve) == {s["claim_id"] for s in data["settlement"]}
+    # every claim now has an FNOL reserve, so settled claims are a subset (was: equal, when only approvals reserved)
+    assert {s["claim_id"] for s in data["settlement"]} <= set(reserve)
 
 
 def test_settlements_never_exceed_remaining_limits(data):

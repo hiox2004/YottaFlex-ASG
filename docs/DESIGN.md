@@ -45,7 +45,7 @@ Processing order fixed: claims sorted by (submission_date, incident_date, policy
 6. R-FRD flags (any claim reaching this step): F1 submitted within 30 d of policy start; F2 >= 3 claims by the customer in prior 90 d; F3 claimed amount on any coverage >= 95% of its limit; F4 reported > 60 d after incident. fraud_score = flags/4; >= 0.5 -> under_review `suspected_fraud`
 7. R-ELG-01 item type and incident type are covered by the item's coverage (`coverage.covered_item_types` / `covered_incident_types`; implemented in review task T2, deny `not_covered` when no covered item remains); R-ELG-02 item_type not in coverage exclusions; failing items contribute 0 eligible
 8. R-PAY-01 per coverage c: payable_c = min(max(0, eligible_c - deductible_c), remaining_limit_c); remaining_limit_c = limit_c - recommended amounts already committed on earlier claims for that policy_coverage, replayed in processing order (not by date); payable = sum payable_c; deductible_applied = sum min(eligible_c, deductible_c)
-9. R-RSV-01 preliminary reserve = payable at first assessment; revised reserve = new row only if a later re-run changes it (none in the baseline)
+9. R-RSV-01 FNOL reserve at submission = per coverage min(claimed, limit), summed (basis `preliminary`); R-RSV-02 at the first decisive assessment (approve or deny) a `revised` row = the payable, 0 on denial, written only when it differs from the current reserve. Pending and referred claims keep the FNOL reserve
 10. R-APR-01 payable > APPROVER_THRESHOLD needs approver role else process_owner; paid only after approved; payable 0 -> no settlement
 First failing step ends the path (later rules not evaluated). under_review is terminal in this dataset (documented); docs_pending may resume as above.
 
@@ -78,7 +78,7 @@ Business-outcome cases re-run the engine for that claim only; integrity-defect c
 PK uniqueness; ID regexes for ALL patterns (POL, CLM, DOC, ASN, SET, CUS, COV, INC, ITM, PEV, PCV, DRQ, ADJ, ASM, RSV, EVT); FK integrity; enums;
 every date <= AS_OF; date order policy start <= incident <= submission <= assessment <= settlement, EXEMPT only for claims whose history shows denial by
 R-COV-01 with no assessment/settlement (keyed on input data, never on labels); arithmetic (items sum to claim; R-PAY-01 recompute; latest reserve = final
-payable; no reserve unless assessed); lifecycle (legal transitions, approved before paid, role matches R-APR-01); duplicates; label-leakage test; determinism.
+payable, 0 on denial, FNOL when undecided; first reserve = FNOL recomputation); lifecycle (legal transitions, approved before paid, role matches R-APR-01); duplicates; label-leakage test; determinism.
 Baseline: zero failures. After injection: set of failing entity_ids == set of integrity-defect ground_truth entity_ids (not a failure count).
 Metrics: precision/recall per label vs ground_truth; approval/denial rates, docs-pending rate, days submission->settlement, amount blocked, reserve vs final;
 the target is ~5-15% of settlements above the approver threshold so the approver path is exercised. Measured at 274a7d1: 20.3% of first settlements (126/621), a miss. T5 replaced "4% of the limit" by a per-coverage severity table (`masterdata.SEVERITY`) and moved the threshold to 25,000 USD (14.2% of approved first settlements, 96/677). After T6 (claims move to older policies, so the mix shifts) 25,000 USD gave 15.2%, just outside the band, so the threshold is 30,000 USD: 11.8% (85/718); after T7 11.9% (84/708 in metrics.md). Scratch measurement of the recommended-settlement share above each candidate after T6: 15k about 29%, 20k 21%, 25k 16%, 30k 13%. The band and the threshold are hand-chosen, not fitted.
@@ -125,7 +125,7 @@ the target is ~5-15% of settlements above the approver threshold so the approver
 - remaining limit = policy_coverage limit minus the sum of `recommended_amount` already committed on earlier claims (not only paid), so in-flight claims cannot jointly exceed a limit.
 - Fraud decision rule is R-FRD-05 (R-FRD-01..04 are the flags). New reason code `eligible` for an uncapped approval; `limit_reached` for a capped or exhausted limit.
 - A claim whose next step would fall after AS_OF stays in its earlier status; docs_pending claims with a late document resume on its received date (second assessment); claims with no such document stay docs_pending.
-- Preliminary reserve is set only at an approving assessment, so `revised` reserves do not occur in the baseline (enum kept for later use).
+- Preliminary reserve was set only at an approving assessment (the reserve was a copy of the payable). Superseded by T10 (see Realism decisions).
 - Adjusters: at least 10 (two per product) so a 5% reassignment is always possible; initial assignment is least-loaded by specialty.
 
 ## Reviewer checkpoint 2 decisions (rules step)
@@ -195,3 +195,9 @@ the target is ~5-15% of settlements above the approver threshold so the approver
 - Example claims come from deterministic filters over the input tables (never ground truth) and are tested against their intended (decision, rule, reason) at 0.05, 0.25 and 1.0.
 - No AI in intake: accuracy of the decision path is unchanged; the stated cost is that unstructured input would need an adapter (a deterministic parser for semi-structured text, or an optional human-confirmed assistant scored against ground truth).
 - Process: Opus reviewed the design first (the dataset date being in the past was the key finding); Sonnet workers built the core and UI wiring, Haiku workers the validation, the display tab and the docs; the orchestrator verified each piece and committed one group at a time.
+
+## Reserve development (T10)
+- Before: the reserve was written at approval as a copy of the payable (713 rows, all `preliminary`), so reserve vs final was true by construction. Now every claim gets an FNOL reserve at submission (R-RSV-01: per coverage min(claimed, limit), summed, the limit being the coverage limit, not what remains), and a `revised` row (R-RSV-02) at the first decisive assessment: the payable for an approval, 0 for a denial. It is written only when the amount differs, so an approval capped at the limit keeps one row; a pend or a referral keeps the FNOL reserve.
+- Measured at full scale: FNOL total 15.90M USD over all claims, 13.77M after revision (762 claims revised, 713 settled claims: FNOL 11.18M vs latest 10.38M vs recommended 10.82M; the 15 differences are still exactly the planted `settlement_exceeds_limit` defects). Reserve rows 713 -> 1,762; input-table rows 23,545 -> 24,594.
+- This deviates from SPEC's "preliminary reserve uses the same calc" (the payable calc): an FNOL reserve exists before any rule runs, so it cannot be the payable; the payable calc is applied by the revision.
+- Validator: the first reserve must equal the FNOL recomputation (`rules.fnol_reserve`), the latest must equal the decisive assessment's payable (FNOL when undecided); reserve dates cannot precede submission. Still not modelled: later development (reopen, partial payments, recoveries).
