@@ -137,6 +137,7 @@ validator against the answer key) are in each package's `metrics.md` and the vie
 - `under_review` is terminal in this dataset. The reserve is set at submission (claimed, capped at each coverage limit) and revised once at the decisive assessment; there is no later reserve development.
 - There is no document-chase SLA or closure: a claim in `docs_pending` or `under_review` stays there unless documents arrive.
 - Duplicate detection matches the exact incident date only; a copy with the date shifted by one day is not caught (real carriers match within a window).
+- `adjuster.max_open_claims` is part of the spec'd schema but not used: assignment picks an adjuster of the claim's specialty from a per-claim random draw, with no capacity scheduling (loads are uneven).
 - The `SET-...-002` second payment is an unavoidable marker of the paid-twice case.
 - The optional LLM extension is not built; the dataset and workflow are fully deterministic.
 - The approver threshold (30,000 USD), fraud cutoff (score 0.5), the 30/90/60-day fraud windows and the document window (5 days) are hand-chosen constants in `src/claimsgen/config.py`, not fitted to data.
