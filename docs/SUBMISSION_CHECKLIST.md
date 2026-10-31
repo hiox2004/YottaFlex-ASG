@@ -13,7 +13,7 @@ Update the status column as items close. Owner column: **Claude** = engineer wor
 | C4 | Fresh-clone check: clone the public repo, install, `pytest -q`, `verify.py 0.05` | Done: the fresh clone passed 319 tests and `verify.py` |
 | C5 | Brief-vs-project audit by an independent Opus (`docs/review/BRIEF_AUDIT.md`, local) | Done; its engineer fix list is applied (data dictionary relationships, full-volume proof in CI, doc drift, R-ELG-01 on the data) |
 | C6 | T13 freeze: refresh counts, final checklist, tag `v1.0.0` | After You H1-H4 |
-| C7 | Local Docker re-test (needs Docker Desktop running) | Waiting on You (start Docker Desktop) |
+| C7 | Local Docker re-test | Done 2026-11-01: image built, `verify.py 0.05` passed inside it, app healthy on :8501, browser run with Playwright (all 8 tabs, 7 example claims, 3 hostile inputs, no exceptions) |
 
 ## Only you (before sending)
 
