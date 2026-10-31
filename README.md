@@ -30,6 +30,7 @@ python -m venv .venv                           # create it once
 pip install -e ".[dev,ui]"                     # needs Python 3.11+ (CI uses 3.12)
 pytest -q                                   # tests incl. a headless run of the app
 python scripts/verify.py                    # builds twice, compares every file (rows + SHA-256)
+python scripts/verify.py 1.0                # same proof at the full 2,000 policies / 1,000 claims, about 15 s
 streamlit run app.py                        # the view
 ```
 
@@ -84,7 +85,7 @@ rule ID and reason. The catalogue is `src/claimsgen/rules.py`.
 - **The evaluation can fail:** mutation tests (`tests/test_mutation.py`) break one rule at a time and assert that recall, precision or amounts move.
 - **Injection is contained:** every non-target claim is identical before and after injection (`tests/test_injection_isolation.py`).
 - **Intake is exercised through the real app:** seven example claims, each tested to reach its intended rule at starter and full scale (`tests/test_intake_examples.py`, `tests/test_app_intake.py`); validation checks structure, format and sanity bounds (see [docs/CLAIM_INPUT.md](docs/CLAIM_INPUT.md)); every business outcome is decided by the rules.
-- **No leakage, byte-stable output:** label columns are rejected in inputs, and two same-seed builds are byte-identical (`scripts/verify.py`, run in CI).
+- **No leakage, byte-stable output:** label columns are rejected in inputs, and two same-seed builds are byte-identical (`scripts/verify.py`, run in CI at the starter scale and at the full volume).
 
 ## Realism and calibration
 

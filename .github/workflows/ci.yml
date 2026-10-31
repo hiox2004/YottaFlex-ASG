@@ -15,6 +15,8 @@ jobs:
       - run: ruff format --check .
       - run: pytest -q
       - run: python scripts/verify.py 0.05
+      - name: Reproducibility at the stated volume (2,000 policies, 1,000 claims)
+        run: python scripts/verify.py 1.0
   container:
     runs-on: ubuntu-latest
     steps:
