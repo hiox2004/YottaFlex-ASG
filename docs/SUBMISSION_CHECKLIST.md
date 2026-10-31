@@ -9,9 +9,9 @@ Update the status column as items close. Owner column: **Claude** = engineer wor
 |---|---|---|
 | C1 | Workflow engine, generator, validation, metrics, view, container, CI | Done (HEAD green) |
 | C2 | Reviewer backlog T1-T12 (honesty, coverage terms, realism, scale limits, cycle times, FNOL reserve) | Done |
-| C3 | MIT LICENSE | Done (this commit) |
-| C4 | Fresh-clone check: clone the public repo, install, `pytest -q`, `verify.py 0.05` | See LOG |
-| C5 | Brief-vs-project audit by an independent Opus (`docs/review/BRIEF_AUDIT.md`, local) | In progress; its DO NOW list becomes the next engineer slice |
+| C3 | MIT LICENSE | Done |
+| C4 | Fresh-clone check: clone the public repo, install, `pytest -q`, `verify.py 0.05` | Done: the fresh clone passed 319 tests and `verify.py` |
+| C5 | Brief-vs-project audit by an independent Opus (`docs/review/BRIEF_AUDIT.md`, local) | Done; its engineer fix list is applied (data dictionary relationships, full-volume proof in CI, doc drift, R-ELG-01 on the data) |
 | C6 | T13 freeze: refresh counts, final checklist, tag `v1.0.0` | After You H1-H4 |
 | C7 | Local Docker re-test (needs Docker Desktop running) | Waiting on You (start Docker Desktop) |
 

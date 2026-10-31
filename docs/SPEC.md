@@ -1,4 +1,6 @@
-# SPEC: Claims Synthetic Data Challenge (condensed from the Understanding Brief)
+# SPEC: Claims Synthetic Data Challenge (condensed from the organisers' text plus the candidate's Understanding Brief)
+
+Sources: the organisers' challenge text (key passages in `docs/BRIEF_VS_PLAN.md` section 5) is the authority; the Understanding Brief is the candidate's own reading of it, and where they differ the organisers' text wins.
 
 ## What we are building
 A working claims workflow solution plus its test bed: (1) a deterministic synthetic-data generator with a separate
@@ -49,7 +51,8 @@ Implied extra tables: policy_coverage, claim_adjuster_assignment (ASN-<claimid>-
 - Coverage: submitted on/after policy start; policy active on incident date; incident within coverage effective dates.
 - Documents: every type required for the claim type is present, else docs-pending, no payout.
 - Eligibility: item covered, no exclusion, not a duplicate (duplicate/fraud -> review).
-- Payable: eligible amount - deductible, floor 0, capped at remaining limit. Preliminary reserve uses same calc.
+- Payable: eligible amount - deductible, floor 0, capped at remaining limit.
+- Reserve: the FNOL reserve at submission = per coverage min(claimed, limit), summed (R-RSV-01); revised to the payable, 0 on denial, at the decisive assessment (R-RSV-02).
 - Audit: every state change is a new event with actor role and reason.
 - Actors: requester, process owner, approver, operations analyst, administrator. Settlements above a threshold need approver.
 

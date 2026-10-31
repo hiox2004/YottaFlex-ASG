@@ -127,6 +127,11 @@ validator against the answer key) are in each package's `metrics.md` and the vie
 - Baseline conditions (lapsed, outside coverage, incomplete evidence, over limit, fraud indicators, duplicates, an item type the coverage does not list) are produced
   by the rules and labelled `origin=baseline`; the six mandatory cases are `origin=injected`.
 
+- Policy IDs use one serial counter across products: `POL-HOME-2026-000004` can be the first HOME policy. The `2026` in IDs is the
+  series year, not a date; policy dates run 2024-2026.
+- Requesting documents has no table of its own: it is recorded as a `pend_docs` assessment (R-DOC-01) listing the requested types in
+  `assessment.missing_doc_types`, plus a `docs_pending` event in `claim_status_history`.
+
 ## Known limits (stated, not hidden)
 
 - Intake accepts structured claims only (a form or JSON in the documented template). There is no free-text or document extraction, by choice: intake and the decision path are fully deterministic, so accuracy cannot drop at the intake step; the cost is that messy real-world input would need a separate adapter.
