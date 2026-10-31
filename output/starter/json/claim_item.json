@@ -17,7 +17,7 @@
 {"item_id":"ITM-CLM-2026-000009-001","claim_id":"CLM-2026-000009","coverage_id":"COV-AUTO-004","item_type":"towing","claimed_amount":"576.38"},
 {"item_id":"ITM-CLM-2026-000009-002","claim_id":"CLM-2026-000009","coverage_id":"COV-AUTO-004","item_type":"rental_car","claimed_amount":"680.82"},
 {"item_id":"ITM-CLM-2026-000009-003","claim_id":"CLM-2026-000009","coverage_id":"COV-AUTO-004","item_type":"towing","claimed_amount":"353.11"},
-{"item_id":"ITM-CLM-2026-000010-001","claim_id":"CLM-2026-000010","coverage_id":"COV-LIAB-002","item_type":"liability_payment","claimed_amount":"4212.21"},
+{"item_id":"ITM-CLM-2026-000010-001","claim_id":"CLM-2026-000010","coverage_id":"COV-LIAB-002","item_type":"rental_car","claimed_amount":"4212.21"},
 {"item_id":"ITM-CLM-2026-000011-001","claim_id":"CLM-2026-000011","coverage_id":"COV-LIAB-002","item_type":"liability_payment","claimed_amount":"2000.00"},
 {"item_id":"ITM-CLM-2026-000012-001","claim_id":"CLM-2026-000012","coverage_id":"COV-LIAB-002","item_type":"liability_payment","claimed_amount":"10845.09"},
 {"item_id":"ITM-CLM-2026-000012-002","claim_id":"CLM-2026-000012","coverage_id":"COV-LIAB-002","item_type":"repair","claimed_amount":"20840.02"},

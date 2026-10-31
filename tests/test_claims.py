@@ -80,6 +80,9 @@ def test_planted_scenarios_hold(data, planted):
     items, docs = _group(data["claim_item"]), _group(data["document"])
     ends, pcv = _lookups(data)
     required = _mandatory(data)
+    coverage_items = {
+        r["coverage_id"]: r["covered_item_types"].split("|") for r in data["coverage"]
+    }
     for pl in planted:
         c = claim[pl["claim_id"]]
         inc, p = incident[c["incident_id"]], policy[c["policy_id"]]
@@ -92,6 +95,10 @@ def test_planted_scenarios_hold(data, planted):
             assert inc["incident_date"] < row["effective_start"]
         elif sc == "claim_over_limit":
             assert amount > row["limit_amount"]
+        elif sc == "not_covered":
+            assert len(its) == 1 and amount < row["limit_amount"]
+            listed = coverage_items[its[0]["coverage_id"]]
+            assert its[0]["item_type"] not in listed
         elif sc == "suspected_fraud":
             assert c["submission_date"] <= p["start_date"] + timedelta(days=config.FRAUD_F1_DAYS)
             assert amount >= 0.95 * row["limit_amount"]

@@ -15,6 +15,7 @@
 | duplicate_incident | any assessment cites R-ELG-03 (baseline and injected share the label) |
 | suspected_fraud | any assessment cites R-FRD-05 |
 | claim_over_limit | final reason is `limit_reached` |
+| not_covered | last assessment denies with R-ELG-01 |
 | incomplete_evidence + missing_mandatory_doc | any assessment cites R-DOC-01 (one shared class) |
 | settlement_exceeds_limit | validator failure "recommended ... != replayed" (settlement id) |
 | paid_twice | validator failure "more than one settlement for a claim" (second settlement id) |

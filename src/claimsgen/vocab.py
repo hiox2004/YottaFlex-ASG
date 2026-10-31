@@ -56,7 +56,7 @@ REASON_CODES = (
     "duplicate_claim",
     "missing_document",
     "suspected_fraud",
-    "item_not_covered",
+    "not_covered",
     "item_excluded",
     "eligible",
     "within_deductible",
@@ -82,5 +82,6 @@ LABELS = (
     "boundary_incident_on_end",
     "boundary_amount_at_limit",
     "boundary_amount_at_deductible",
+    "not_covered",
 )
 RULE_RE = r"R-[A-Z]{3}-\d{2}"

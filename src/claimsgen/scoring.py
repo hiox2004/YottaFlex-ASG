@@ -49,6 +49,7 @@ def predictions(tables: dict, checks: list) -> dict[str, set]:
         "duplicate_incident": {c for c, r in rules.items() if "R-ELG-03" in r},
         "suspected_fraud": {c for c, r in rules.items() if "R-FRD-05" in r},
         "claim_over_limit": {c for c, a in last.items() if a["reason_code"] == "limit_reached"},
+        "not_covered": denied_by("R-ELG-01"),
         "documents": {c for c, r in rules.items() if "R-DOC-01" in r},
         "settlement_exceeds_limit": {i for i, why in failures if why.startswith("recommended")},
         "paid_twice": {i for i, why in failures if why == "more than one settlement for a claim"},
@@ -95,6 +96,7 @@ def score(tables: dict, ground_truth: list, checks: list) -> list[dict]:
         "duplicate_incident",
         "suspected_fraud",
         "claim_over_limit",
+        "not_covered",
         "settlement_exceeds_limit",
         "paid_twice",
     )

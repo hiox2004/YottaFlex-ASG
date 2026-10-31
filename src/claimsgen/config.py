@@ -84,6 +84,7 @@ SCENARIO_RATES = {
     "boundary_incident_on_end": 0.01,
     "boundary_amount_at_limit": 0.01,
     "boundary_amount_at_deductible": 0.01,
+    "not_covered": 0.01,
 }
 
 

@@ -109,6 +109,13 @@ def test_planted_scenarios_get_the_intended_decision(data, planted):
             assert (first["decision"], first["rule_id"]) == ("deny", "R-COV-02")
         elif sc == "outside_coverage_period":
             assert (first["decision"], first["rule_id"]) == ("deny", "R-COV-03")
+        elif sc == "not_covered":
+            assert (last["decision"], last["rule_id"], last["reason_code"]) == (
+                "deny",
+                "R-ELG-01",
+                "not_covered",
+            )
+            assert last["payable_amount"] == 0 and cid not in settlement
         elif sc == "duplicate_incident":
             assert (first["decision"], first["rule_id"]) == ("refer_review", "R-ELG-03")
         elif sc == "suspected_fraud":

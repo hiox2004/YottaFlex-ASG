@@ -32,6 +32,11 @@ BASELINE = {
         "R-ELG-03",
         "refer_review: flag the later claim as a duplicate",
     ),
+    "not_covered": (
+        "business_outcome",
+        "R-ELG-01",
+        "deny: the only item type is not covered by its coverage",
+    ),
     "boundary_incident_on_start": (
         "boundary",
         "R-COV-02",

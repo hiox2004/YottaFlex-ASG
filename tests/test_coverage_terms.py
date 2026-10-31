@@ -95,16 +95,21 @@ def test_uncovered_incident_type_is_denied(tables):
     assert (r["decision"], r["rule_id"], r["reason_code"]) == ("deny", "R-ELG-01", "not_covered")
 
 
-def test_generator_never_builds_an_item_its_coverage_does_not_cover():
-    data = build_dataset(1.0)[0]
+def test_only_planted_not_covered_claims_have_an_item_its_coverage_does_not_cover():
+    """Every baseline claim is built from covered items except the planted `not_covered` scenario, which is the
+    only source of R-ELG-01 denials (it used to be zero; the rule now fires on the data)."""
+    data, truth = build_dataset(1.0)
     terms = _terms(data)
     inc = {i["incident_id"]: i["incident_type"] for i in data["incident"]}
     claim_inc = {c["claim_id"]: inc[c["incident_id"]] for c in data["claim"]}
-    bad = [
-        i["item_id"]
+    bad = {
+        i["claim_id"]
         for i in data["claim_item"]
         if claim_inc[i["claim_id"]] not in terms[i["coverage_id"]][0]
         or i["item_type"] not in terms[i["coverage_id"]][1]
-    ]
-    assert bad == []
-    assert not any(a["rule_id"] == "R-ELG-01" for a in data["assessment"])
+    }
+    planted = {r["entity_id"] for r in truth if r["label"] == "not_covered"}
+    assert bad == planted
+    assert 9 <= len(planted) <= 11
+    denied = {a["claim_id"] for a in data["assessment"] if a["rule_id"] == "R-ELG-01"}
+    assert denied and denied <= planted

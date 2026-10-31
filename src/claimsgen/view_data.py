@@ -18,6 +18,7 @@ EXCEPTION_TITLES = {
     "documents": "Documents pending (R-DOC-01)",
     "duplicate_incident": "Duplicate claim referred (R-ELG-03)",
     "claim_over_limit": "Over limit, paid at the cap or nothing (R-PAY-01)",
+    "not_covered": "Item type not covered (R-ELG-01)",
     "suspected_fraud": "Suspected fraud referred (R-FRD-05)",
     "cancelled_before_incident": "Policy cancelled before incident (R-COV-02)",
     "lapsed_policy": "Policy lapsed before incident (R-COV-02)",

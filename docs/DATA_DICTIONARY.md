@@ -150,7 +150,7 @@ Decision with reason; new row when re-run. PK `assessment_id` pattern `ASM-CLM-2
 | assessment_date | date | Y | YYYY-MM-DD |  | N |  | >= assignment date |
 | decision | enum | Y | approve\|deny\|pend_docs\|refer_review |  | N |  |  |
 | rule_id | text | Y | R-[A-Z]{3}-\d{2} |  | N |  | rule catalogue id |
-| reason_code | enum | Y | submitted\|before_policy_start\|policy_not_in_force\|outside_coverage_period\|duplicate_claim\|missing_document\|suspected_fraud\|item_not_covered\|item_excluded\|eligible\|within_deductible\|limit_reached\|docs_received\|approved_by_authority\|payment_recorded\|reassigned |  | N |  |  |
+| reason_code | enum | Y | submitted\|before_policy_start\|policy_not_in_force\|outside_coverage_period\|duplicate_claim\|missing_document\|suspected_fraud\|not_covered\|item_excluded\|eligible\|within_deductible\|limit_reached\|docs_received\|approved_by_authority\|payment_recorded\|reassigned |  | N |  |  |
 | eligible_amount | money | Y | >= 0 | USD | N |  | <= claimed_amount |
 | deductible_applied | money | Y | >= 0 | USD | N |  | per R-PAY-01 |
 | payable_amount | money | Y | >= 0 | USD | N |  | per R-PAY-01 |
@@ -196,7 +196,7 @@ Append-only claim event log; claim status = last event. PK `event_id` pattern `E
 | event_date | date | Y | YYYY-MM-DD |  | N |  | non-decreasing per claim |
 | actor_role | enum | Y | requester\|process_owner\|approver\|operations_analyst\|administrator |  | N |  |  |
 | rule_id | text | N | R-[A-Z]{3}-\d{2} |  | N |  | rule catalogue id |
-| reason_code | enum | Y | submitted\|before_policy_start\|policy_not_in_force\|outside_coverage_period\|duplicate_claim\|missing_document\|suspected_fraud\|item_not_covered\|item_excluded\|eligible\|within_deductible\|limit_reached\|docs_received\|approved_by_authority\|payment_recorded\|reassigned |  | N |  |  |
+| reason_code | enum | Y | submitted\|before_policy_start\|policy_not_in_force\|outside_coverage_period\|duplicate_claim\|missing_document\|suspected_fraud\|not_covered\|item_excluded\|eligible\|within_deductible\|limit_reached\|docs_received\|approved_by_authority\|payment_recorded\|reassigned |  | N |  |  |
 
 ## ground_truth
 Separate answer key; never joined into inputs. PK `entity_id` pattern `any entity id`.
@@ -205,7 +205,7 @@ Separate answer key; never joined into inputs. PK `entity_id` pattern `any entit
 |---|---|---|---|---|---|---|---|
 | entity_id | id | Y |  |  | N |  | id of the labelled row (unique with label) |
 | entity_type | text | Y |  |  | N |  | table name |
-| label | enum | Y | claim_before_policy_start\|cancelled_before_incident\|duplicate_incident\|settlement_exceeds_limit\|missing_mandatory_doc\|paid_twice\|lapsed_policy\|outside_coverage_period\|incomplete_evidence\|claim_over_limit\|suspected_fraud\|boundary_incident_on_start\|boundary_incident_on_end\|boundary_amount_at_limit\|boundary_amount_at_deductible |  | N |  |  |
+| label | enum | Y | claim_before_policy_start\|cancelled_before_incident\|duplicate_incident\|settlement_exceeds_limit\|missing_mandatory_doc\|paid_twice\|lapsed_policy\|outside_coverage_period\|incomplete_evidence\|claim_over_limit\|suspected_fraud\|boundary_incident_on_start\|boundary_incident_on_end\|boundary_amount_at_limit\|boundary_amount_at_deductible\|not_covered |  | N |  |  |
 | origin | enum | Y | baseline\|injected |  | N |  |  |
 | kind | enum | Y | business_outcome\|integrity_defect\|boundary |  | N |  |  |
 | expected_decision | text | Y |  |  | N |  | non-empty |

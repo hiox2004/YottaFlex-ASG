@@ -28,6 +28,8 @@ Uniqueness: `_draw` keeps a `seen` set of (policy, incident date) so only labell
 | `_assemble` | sorts by (submission, incident, policy) then assigns IDs | injection step must renumber after adding claims |
 | `generate` | returns `(tables, planted)` | `planted` is never joined into input tables; later feeds ground_truth |
 
+`_make_not_covered` is not a builder: it converts k ordinary claims (one item of a type the coverage does not list, same amount) after all other draws, on its own random stream, so every other claim is untouched; it skips duplicate sources and claims whose dates could trip a fraud flag. Scenario `not_covered` (R-ELG-01) makes the rule fire on the data (10 claims at full scale).
+
 Counts come from `config.scenario_counts`; baseline claims = claims - `inject_rows(scale)` so injected duplicates keep the total at 1,000.
 
 ## Tests

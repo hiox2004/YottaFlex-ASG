@@ -6,27 +6,27 @@ Operational numbers come from the dataset; the scoring table compares engine and
 
 | Outcome | Claims | Share |
 |---|---|---|
-| approved | 28 | 56.0% |
-| denied | 12 | 24.0% |
+| approved | 27 | 54.0% |
+| denied | 13 | 26.0% |
 | docs_pending | 4 | 8.0% |
 | under_review | 4 | 8.0% |
 | not_yet_assessed | 2 | 4.0% |
 
-Days from submission to approval: mean 11.11, median 8.5, p90 19.0
-Days from submission to settlement (paid): mean 13.89, median 12.0, p90 22.0
+Days from submission to approval: mean 10.89, median 8, p90 19.0
+Days from submission to settlement (paid): mean 13.63, median 12, p90 22.0
 
 ## Amounts (USD)
 
 - Claimed total: 655,163.09
-- Blocked by denial: 95,942.64
-- Reduced by deductible, exclusions and limits on approved claims: 49,283.58
+- Blocked by denial: 100,154.85
+- Reduced by deductible, exclusions and limits on approved claims: 47,283.58
 - Held for documents or review: 172,107.77
-- Recommended settlements: 391,223.89 | paid: 391,223.89
+- Recommended settlements: 389,011.68 | paid: 389,011.68
 
 ## Reserve vs final settlement
 
-- FNOL reserve (set at submission: claimed, capped at each coverage limit): 644,152.88 over all claims; after revision at the decisive assessment: 509,936.87 (35 claims revised, denials to 0)
-- Settled claims: 28 | FNOL reserve 343,111.54 | latest reserve 304,838.17 | recommended total 391,223.89
+- FNOL reserve (set at submission: claimed, capped at each coverage limit): 644,152.88 over all claims; after revision at the decisive assessment: 507,724.66 (35 claims revised, denials to 0)
+- Settled claims: 27 | FNOL reserve 338,899.33 | latest reserve 302,625.96 | recommended total 389,011.68
 - Claims where the settlement differs from the latest reserve: 2 (compare with the integrity defects in the validation summary)
 
 ## By claim type
@@ -36,7 +36,7 @@ Days from submission to settlement (paid): mean 13.89, median 12.0, p90 22.0
 | AUTO | 17 | 70.6% | 23.5% |
 | HLTH | 9 | 55.6% | 33.3% |
 | HOME | 15 | 53.3% | 0.0% |
-| LIAB | 7 | 42.9% | 42.9% |
+| LIAB | 7 | 28.6% | 57.1% |
 | TRVL | 2 | 0.0% | 100.0% |
 
 ## Money effect by rule (final assessment, USD)
@@ -47,25 +47,26 @@ Days from submission to settlement (paid): mean 13.89, median 12.0, p90 22.0
 | R-COV-02/blocked | 4 | 63,060.82 |
 | R-COV-03/blocked | 1 | 779.64 |
 | R-DOC-01/held | 4 | 104,337.31 |
+| R-ELG-01/blocked | 1 | 4,212.21 |
 | R-ELG-03/held | 3 | 10,391.50 |
 | R-FRD-05/held | 1 | 57,378.96 |
 | R-PAY-01/blocked | 5 | 16,580.71 |
-| R-PAY-01/reduced | 28 | 49,283.58 |
+| R-PAY-01/reduced | 27 | 47,283.58 |
 
 ## Straight-through (no exception) rate
 
 Straight-through means the claim never pended for documents or went to review and ended assessed, approved or paid. Every decision in this dataset is automated; the actor roles show who would own each step in a real operation. It is not comparable with an industry touchless rate.
 
-- Assessed claims: 48 | straight-through: 27 (56.2%) | other: 21 (of which pended or referred: 9)
+- Assessed claims: 48 | straight-through: 26 (54.2%) | other: 22 (of which pended or referred: 9)
 
 ## Approver workload
 
 | Role | Settlements | Amount |
 |---|---|---|
 | approver | 3 | 129,450.36 |
-| process_owner | 25 | 261,773.53 |
+| process_owner | 24 | 259,561.32 |
 
-- Share of approved settlements that needed the approver: 10.7%
+- Share of approved settlements that needed the approver: 11.1%
 
 ## Documents pending: aging at the as-of date
 
@@ -79,7 +80,7 @@ Straight-through means the claim never pended for documents or went to review an
 | AUTO | 12 | 10.5 | 13.0 |
 | HLTH | 5 | 8.0 | 9.0 |
 | HOME | 8 | 20.5 | 26.0 |
-| LIAB | 3 | 21.0 | 21.0 |
+| LIAB | 2 | 25.5 | 15.0 |
 
 ## Threshold sensitivity
 
@@ -122,6 +123,7 @@ Fraud caveat: the fraud labels are the planted indicator pattern (an early claim
 | duplicate_incident | 3 | 3 | 3 | 1.00 | 1.00 |
 | suspected_fraud | 1 | 1 | 1 | 1.00 | 1.00 |
 | claim_over_limit | 1 | 3 | 1 | 0.33 | 1.00 |
+| not_covered | 1 | 1 | 1 | 1.00 | 1.00 |
 | settlement_exceeds_limit | 2 | 2 | 2 | 1.00 | 1.00 |
 | paid_twice | 2 | 2 | 2 | 1.00 | 1.00 |
 | documents (shared class) | 5 | 5 | 5 | 1.00 | 1.00 |

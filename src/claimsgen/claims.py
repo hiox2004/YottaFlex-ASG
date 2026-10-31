@@ -21,7 +21,8 @@ from claimsgen.claim_build import (
     make_docs,
     normal_spec,
 )
-from claimsgen.masterdata import rand_date
+from claimsgen.masterdata import COVERAGE_PROFILE, rand_date
+from claimsgen.vocab import ITEM_TYPES
 
 
 def _lapsed(rng, ctx):
@@ -95,6 +96,30 @@ def _on_end(rng, ctx):
         lag,
         "boundary_incident_on_end",
     )
+
+
+def _make_not_covered(ctx: Ctx, normals: list, copied: set, k: int) -> None:
+    """Turn k ordinary claims into R-ELG-01 cases: one item of a type its coverage does not list (same amount).
+
+    Done after every other draw, on a separate stream, so the rest of the dataset is untouched. Only claims that
+    cannot trip a fraud flag by their dates are eligible, so R-ELG-01 is the only rule that can decide them.
+    """
+    rng = config.rng("claims_not_covered")
+    ok = [
+        s
+        for s in normals
+        if id(s) not in copied
+        and s.submission_date > s.policy["start_date"] + timedelta(days=config.FRAUD_F1_DAYS)
+        and (s.submission_date - s.incident_date).days <= config.FRAUD_F4_DAYS
+    ]
+    for s in rng.sample(ok, k):
+        cov = s.items[0][0]
+        cents = sum(c for cv, _, c in s.items if cv == cov)
+        listed = COVERAGE_PROFILE[ctx.names[cov]][1]
+        s.items = [
+            (cov, rng.choice([t for t in ITEM_TYPES if t not in listed and t != "cosmetic"]), cents)
+        ]
+        s.scenario = "not_covered"
 
 
 def _at_deductible(rng, pcv):
@@ -233,6 +258,7 @@ def generate(master: dict, pol: dict, scale: float) -> tuple[dict[str, list[dict
     ctx, rng = make_ctx(master, pol), config.rng("claims")
     seen: set = set()
     copied: set = set()
+    converted = counts.pop("not_covered")  # carved out of the ordinary claims below, not drawn
     specs = [_draw(rng, ctx, "normal", seen) for _ in range(n - sum(counts.values()))]
     normals = list(specs)
     for scenario, k in counts.items():
@@ -242,4 +268,5 @@ def generate(master: dict, pol: dict, scale: float) -> tuple[dict[str, list[dict
                 if scenario == "duplicate_incident"
                 else _draw(rng, ctx, scenario, seen)
             )
+    _make_not_covered(ctx, normals, copied, converted)
     return _assemble(specs)

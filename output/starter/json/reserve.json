@@ -15,7 +15,7 @@
 {"reserve_id":"RSV-CLM-2026-000008-002","claim_id":"CLM-2026-000008","reserve_date":"2025-09-21","amount":"1510.31","basis":"revised","rule_id":"R-RSV-02"},
 {"reserve_id":"RSV-CLM-2026-000009-001","claim_id":"CLM-2026-000009","reserve_date":"2025-09-21","amount":"1610.31","basis":"preliminary","rule_id":"R-RSV-01"},
 {"reserve_id":"RSV-CLM-2026-000010-001","claim_id":"CLM-2026-000010","reserve_date":"2025-09-25","amount":"4212.21","basis":"preliminary","rule_id":"R-RSV-01"},
-{"reserve_id":"RSV-CLM-2026-000010-002","claim_id":"CLM-2026-000010","reserve_date":"2025-10-09","amount":"2212.21","basis":"revised","rule_id":"R-RSV-02"},
+{"reserve_id":"RSV-CLM-2026-000010-002","claim_id":"CLM-2026-000010","reserve_date":"2025-10-09","amount":"0.00","basis":"revised","rule_id":"R-RSV-02"},
 {"reserve_id":"RSV-CLM-2026-000011-001","claim_id":"CLM-2026-000011","reserve_date":"2025-10-14","amount":"2000.00","basis":"preliminary","rule_id":"R-RSV-01"},
 {"reserve_id":"RSV-CLM-2026-000011-002","claim_id":"CLM-2026-000011","reserve_date":"2025-10-30","amount":"0.00","basis":"revised","rule_id":"R-RSV-02"},
 {"reserve_id":"RSV-CLM-2026-000012-001","claim_id":"CLM-2026-000012","reserve_date":"2025-11-24","amount":"31685.11","basis":"preliminary","rule_id":"R-RSV-01"},

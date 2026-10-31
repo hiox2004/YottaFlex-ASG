@@ -28,9 +28,7 @@ EVT-CLM-2026-000008-004,CLM-2026-000008,approved,paid,2025-09-26,administrator,R
 EVT-CLM-2026-000009-001,CLM-2026-000009,,submitted,2025-09-21,requester,,submitted
 EVT-CLM-2026-000009-002,CLM-2026-000009,submitted,under_review,2025-09-27,operations_analyst,R-ELG-03,duplicate_claim
 EVT-CLM-2026-000010-001,CLM-2026-000010,,submitted,2025-09-25,requester,,submitted
-EVT-CLM-2026-000010-002,CLM-2026-000010,submitted,assessed,2025-10-09,operations_analyst,R-PAY-01,eligible
-EVT-CLM-2026-000010-003,CLM-2026-000010,assessed,approved,2025-10-12,process_owner,R-APR-01,approved_by_authority
-EVT-CLM-2026-000010-004,CLM-2026-000010,approved,paid,2025-10-16,administrator,R-APR-01,payment_recorded
+EVT-CLM-2026-000010-002,CLM-2026-000010,submitted,denied,2025-10-09,operations_analyst,R-ELG-01,not_covered
 EVT-CLM-2026-000011-001,CLM-2026-000011,,submitted,2025-10-14,requester,,submitted
 EVT-CLM-2026-000011-002,CLM-2026-000011,submitted,denied,2025-10-30,operations_analyst,R-PAY-01,within_deductible
 EVT-CLM-2026-000012-001,CLM-2026-000012,,submitted,2025-11-24,requester,,submitted

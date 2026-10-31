@@ -11,11 +11,11 @@ All data is fully synthetic ([SOURCE_MANIFEST.md](SOURCE_MANIFEST.md)). Scope an
 
 ## Results at a glance
 
-Full scale (seed 20261022, 2,000 policies, 1,000 claims, 24,594 rows in the 16 input tables; derived from a fresh build and `metrics.md`):
+Full scale (seed 20261022, 2,000 policies, 1,000 claims, 24,551 rows in the 16 input tables; derived from a fresh build and `metrics.md`):
 
-- **Outcomes:** 71.3% approved, 14.3% denied, 4.0% waiting for documents, 6.4% under review, 4.0% not yet assessed at the as-of date.
-- **Proof:** validation flags exactly the 30 planted defects (4 in the starter), a same-seed rebuild is byte-identical, and `pytest -q` runs 319 tests.
-- **Workflow:** 70.3% of assessed claims are straight-through (no pend, no review); 30 claims (3.0%) are referred as suspected fraud; 11.9% of approved settlements need the approver.
+- **Outcomes:** 70.3% approved, 15.3% denied, 4.0% waiting for documents, 6.4% under review, 4.0% not yet assessed at the as-of date.
+- **Proof:** validation flags exactly the 30 planted defects (4 in the starter), a same-seed rebuild is byte-identical, and `pytest -q` runs 320 tests.
+- **Workflow:** 69.3% of assessed claims are straight-through (no pend, no review); 30 claims (3.0%) are referred as suspected fraud; 12.0% of approved settlements need the approver.
 - **Honest misses:** recall is 0.90 to 0.97 for lapsed policy, outside coverage period, duplicate, incomplete evidence and boundary-on-start (recent claims are not assessed yet); `claim_over_limit` precision is 0.81. Fraud scores 1.00 only because its labels are planted ([why](docs/DESIGN.md)).
 
 ## Five-minute tour
@@ -79,7 +79,7 @@ rule ID and reason. The catalogue is `src/claimsgen/rules.py`.
 
 ## How we know it works
 
-- **Validation:** 12 checks (about 290,000 row-level checks over the roughly 23,000-row dataset); zero failures on the clean baseline, and after injection the failing ids are exactly the planted integrity defects.
+- **Validation:** 12 checks (about 309,000 row-level checks over the 24,551-row dataset); zero failures on the clean baseline, and after injection the failing ids are exactly the planted integrity defects.
 - **Independent payable check:** `tests/payable_reference.py` re-implements the payable rule from the spec text (it does not import `rules.py`) and is compared with the engine on hand-computed cases and on every approving claim.
 - **Fraud row caveat:** the fraud labels are the planted indicator pattern (an early claim near the limit), so the `suspected_fraud` precision and recall check rule consistency; they are not a fraud-detection accuracy.
 - **The evaluation can fail:** mutation tests (`tests/test_mutation.py`) break one rule at a time and assert that recall, precision or amounts move.
@@ -93,12 +93,12 @@ Reference ranges are approximate, snippet-level public figures (sources and URLs
 
 | Metric | This dataset | Reference | Status |
 |---|---|---|---|
-| Claimed amount, median per claim (USD) | AUTO 6.3k, HOME 10.6k, LIAB 18.8k, HLTH 4.5k, TRVL 3.3k; 3.9% of claims denied as within the deductible | auto collision 3.8k to 10k; general liability mean about 78k; trip cancellation about 1.5k | calibrated per coverage (medians, not the liability mean) |
-| Approver share of approved settlements | 11.9% above 30,000 USD | none; band of 8-15% chosen so the approver path is exercised | hand-chosen |
+| Claimed amount, median per claim (USD) | AUTO 6.2k, HOME 10.1k, LIAB 19.4k, HLTH 4.4k, TRVL 3.3k; 3.9% of claims denied as within the deductible | auto collision 3.8k to 10k; general liability mean about 78k; trip cancellation about 1.5k | calibrated per coverage (medians, not the liability mean) |
+| Approver share of approved settlements | 12.0% above 30,000 USD | none; band of 8-15% chosen so the approver path is exercised | hand-chosen |
 | Reporting lag (days) | median 2, p90 14, max 120; 1.9% over 60 days | none used | hand-chosen shape, long tail |
-| Fraud flags (share of claims) | F1 16.6%, F2 0.4%, F3 7.0%, F4 1.9%; referrals 3.0% | special-investigation referral about 3-10% | in range; the labels are planted |
-| Submission to paid, median days | HLTH 9, AUTO 11, TRVL 12 (10 claims), HOME 19, LIAB 20 | repairable auto about 19, homeowners about 41 | ranked like the benchmarks, faster than real life |
-| Straight-through rate | 70.3% (no exception; every decision is automated) | 10-20% of a blended book (vendor figures) | not comparable |
+| Fraud flags (share of claims) | F1 16.7%, F2 0.4%, F3 7.0%, F4 1.9%; referrals 3.0% | special-investigation referral about 3-10% | in range; the labels are planted |
+| Submission to paid, median days | HLTH 9, AUTO 11, TRVL 12 (10 claims), HOME 20, LIAB 20 | repairable auto about 19, homeowners about 41 | ranked like the benchmarks, faster than real life |
+| Straight-through rate | 69.3% (no exception; every decision is automated) | 10-20% of a blended book (vendor figures) | not comparable |
 | Claims per policy-year | 0.90 (1,000 claims over about 1,111 policy-years) | auto collision about 0.05 | fixed by the brief, more than 10x a real book |
 | Policies not in force at the as-of date | 26.3% (13% lapsed or cancelled, the rest ended by term) | annual auto retention about 78-82% | plausible, not modelled further |
 | Not modelled | investigation and negotiation time, document-chase closure, reopen and appeal, reserve development beyond two steps (an FNOL reserve at submission, one revision at the decisive assessment; no later development) | | stated limits |
@@ -124,7 +124,7 @@ validator against the answer key) are in each package's `metrics.md` and the vie
   Assessment is `ASM-...`. `DOC-<claim-id>-001` is literal: `DOC-CLM-2026-000001-001`.
 - Claim date means submission date; the incident date is separate. The 1,000 claims include duplicates and anomalies.
 - Injected rows are 15 per case at full scale (within the 10-30 target); the starter has 2 per case.
-- Baseline conditions (lapsed, outside coverage, incomplete evidence, over limit, fraud indicators, duplicates) are produced
+- Baseline conditions (lapsed, outside coverage, incomplete evidence, over limit, fraud indicators, duplicates, an item type the coverage does not list) are produced
   by the rules and labelled `origin=baseline`; the six mandatory cases are `origin=injected`.
 
 ## Known limits (stated, not hidden)
