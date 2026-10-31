@@ -9,6 +9,15 @@ decisions, exceptions, per-claim timeline and metrics.
 All data is fully synthetic ([SOURCE_MANIFEST.md](SOURCE_MANIFEST.md)). Scope and decisions: [docs/SPEC.md](docs/SPEC.md),
 [docs/DESIGN.md](docs/DESIGN.md), [docs/BRIEF_VS_PLAN.md](docs/BRIEF_VS_PLAN.md).
 
+## Results at a glance
+
+Full scale (seed 20261022, 2,000 policies, 1,000 claims, 23,545 rows in the 16 input tables; derived from a fresh build and `metrics.md`):
+
+- **Outcomes:** 71.3% approved, 14.3% denied, 4.0% waiting for documents, 6.4% under review, 4.0% not yet assessed at the as-of date.
+- **Proof:** validation flags exactly the 30 planted defects (4 in the starter), a same-seed rebuild is byte-identical, and `pytest -q` runs 315 tests.
+- **Workflow:** 70.3% of assessed claims are straight-through (no pend, no review); 30 claims (3.0%) are referred as suspected fraud; 11.9% of approved settlements need the approver.
+- **Honest misses:** recall is 0.90 to 0.97 for lapsed policy, outside coverage period, duplicate, incomplete evidence and boundary-on-start (recent claims are not assessed yet); `claim_over_limit` precision is 0.81. Fraud scores 1.00 only because its labels are planted ([why](docs/DESIGN.md)).
+
 ## Five-minute tour
 
 ```
@@ -77,6 +86,22 @@ rule ID and reason. The catalogue is `src/claimsgen/rules.py`.
 - **Intake is exercised through the real app:** seven example claims, each tested to reach its intended rule at starter and full scale (`tests/test_intake_examples.py`, `tests/test_app_intake.py`); validation checks structure, format and sanity bounds (see [docs/CLAIM_INPUT.md](docs/CLAIM_INPUT.md)); every business outcome is decided by the rules.
 - **No leakage, byte-stable output:** label columns are rejected in inputs, and two same-seed builds are byte-identical (`scripts/verify.py`, run in CI).
 
+## Realism and calibration
+
+Reference ranges are approximate, snippet-level public figures (sources and URLs in [docs/review/research/insurance-realism.md](docs/review/research/insurance-realism.md)); they set plausible ranges, they are not fitted targets. Every value below is from a fresh full-scale build.
+
+| Metric | This dataset | Reference | Status |
+|---|---|---|---|
+| Claimed amount, median per claim (USD) | AUTO 6.3k, HOME 10.6k, LIAB 18.8k, HLTH 4.5k, TRVL 3.3k; 3.9% of claims denied as within the deductible | auto collision 3.8k to 10k; general liability mean about 78k; trip cancellation about 1.5k | calibrated per coverage (medians, not the liability mean) |
+| Approver share of approved settlements | 11.9% above 30,000 USD | none; band of 8-15% chosen so the approver path is exercised | hand-chosen |
+| Reporting lag (days) | median 2, p90 14, max 120; 1.9% over 60 days | none used | hand-chosen shape, long tail |
+| Fraud flags (share of claims) | F1 16.6%, F2 0.4%, F3 7.0%, F4 1.9%; referrals 3.0% | special-investigation referral about 3-10% | in range; the labels are planted |
+| Submission to paid, median days | HLTH 9, AUTO 11, TRVL 12 (10 claims), HOME 19, LIAB 20 | repairable auto about 19, homeowners about 41 | ranked like the benchmarks, faster than real life |
+| Straight-through rate | 70.3% (no exception; every decision is automated) | 10-20% of a blended book (vendor figures) | not comparable |
+| Claims per policy-year | 0.90 (1,000 claims over about 1,111 policy-years) | auto collision about 0.05 | fixed by the brief, more than 10x a real book |
+| Policies not in force at the as-of date | 26.3% (13% lapsed or cancelled, the rest ended by term) | annual auto retention about 78-82% | plausible, not modelled further |
+| Not modelled | investigation and negotiation time, document-chase closure, reopen and appeal, reserve development (the reserve equals the payable at approval) | | stated limits |
+
 ## Where to verify the review points
 
 | Point                                   | Evidence                                                                                                                   |
@@ -117,6 +142,14 @@ validator against the answer key) are in each package's `metrics.md` and the vie
 - The approver threshold (30,000 USD), fraud cutoff (score 0.5), the 30/90/60-day fraud windows and the document window (5 days) are hand-chosen constants in `src/claimsgen/config.py`, not fitted to data.
 - There is no reopen or appeal flow: `denied` and `under_review` claims are final in this dataset.
 - The four fraud flags (early claim, repeated claims, amount near the limit, late reporting) are simple heuristics, combined as flags divided by 4, not a trained model.
+
+## Where AI would go next
+
+Not built: the dataset and workflow are deterministic by choice, so the evaluation is exact. Where a model would help, in order:
+1. FNOL extraction: turn free text into a draft claim, shown to a person to confirm, and score it field by field against the generator's ground truth.
+2. Adjuster summaries: a short narrative of each decision, checked against the rule trace so it cannot cite a rule that did not fire.
+3. Document triage: classify uploads and flag likely rejections before the R-DOC-01 check.
+4. Cost and privacy: a local model on the claim text, no personal data leaving the machine, a fixed prompt version logged per decision, and the rules (not the model) keep the final say.
 
 ## AI use and prompt history
 
