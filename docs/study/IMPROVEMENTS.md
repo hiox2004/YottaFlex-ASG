@@ -20,8 +20,6 @@ until it moves into `docs/DESIGN.md` or `docs/SPEC.md`. `docs/SPEC.md` stays the
 
 ## Open
 
-_(none)_
-
 ## Done
 
 ### IMP-001 Treat "expose decisions and exceptions" as core, not an optional UI
@@ -134,6 +132,40 @@ _(none)_
 - Why it matters: makes review point (a) visible.
 - Priority: low
 - Resolution: done in commit b8e1e8d (feat(view)): Realism tab (amount histogram, type mix, policy status, incident-to-submission lag).
+
+### IMP-013 Docs that disagree with the code (found while writing the code walkthrough)
+- Area: docs
+- Source: code walkthrough workers, 2026-10-31 (each item checked against the code)
+- Finding: the code is right in every case below; the docs are stale or loose.
+  - `docs/study/modules/rules.md` says the RULES catalogue has 14 IDs; `rules.py` has 16.
+  - `docs/DESIGN.md` "Engine decisions" says initial assignment is "least-loaded by specialty"; `engine._assign` picks from the claim's own random stream (Reviewer checkpoint 2 says so).
+  - `engine.py:218` comment says "three draws per claim, always"; `_process` makes six draws (three at :219, three at :220).
+  - `docs/DESIGN.md` says `whatif` passes the fraud and approver thresholds to `engine.run`; `whatif.py` passes only `as_of`.
+  - `docs/study/modules/intake.md` names `_incident_types`; the code function is the public `incident_types`.
+  - `docs/study/modules/export.md` says CSV uses `newline=""`; the code writes bytes with `lineterminator="\n"` (same result).
+  - `docs/DESIGN.md` and `view_data.md` name `export._csv`; the function is `export.csv_text`. `view_data.md` says the AppTest covers six tabs; `app.py` builds eight.
+- Suggestion: correct each line (and add a LOG.md line). No behaviour change.
+- Why it matters: a reviewer reading the notes and then the code will notice; the notes are what you study from.
+- Priority: med
+- Resolution: done in commit 797fa55 (docs(study)). Six of the seven claims were true. The `export._csv` claim was true for view_data.md only; DESIGN.md never named it. Comment-only engine change; verify.py checksums unchanged.
+
+### IMP-014 Two boundary labels are scored with identical logic
+- Area: validation
+- Source: `src/claimsgen/scoring.py:57-62`
+- Finding: `boundary_incident_on_start` and `boundary_incident_on_end` both use `a["rule_id"] not in COVERAGE_RULES`, so they always get the same predicted set; `boundary_amount_at_limit` checks only `decision == "approve"`, not the amount. Both are recall-only rows, so the numbers are not wrong, but they are weaker checks than the labels suggest.
+- Suggestion: either document them as "decided as expected" checks, or make each check its own condition (incident date equals policy start or end; claimed amount equals the coverage limit).
+- Why it matters: "boundary recall 1.00" is quoted in interviews; it should mean what it says.
+- Priority: med
+- Resolution: done in commit 4cb991e (fix(metrics)). Each boundary prediction now also tests its own input condition (incident date equals policy start/end; an item equals its coverage limit). Scores unchanged: full 9/10, 10/10, 10/10; starter 1/1, 1/1, 0/1. `boundary_amount_at_deductible` still checks the decision only; documented in scoring.md.
+
+### IMP-015 Small robustness items
+- Area: tests
+- Source: `src/claimsgen/intake_examples.py` (`_normal` calls `next()` with no default, so no candidate raises `StopIteration` while the other drafters raise `LookupError`); `src/claimsgen/metrics.py` (`statistics.mean`/`median` in `operational()` have no guard for an empty list of days); `app.py:42` (the as-of date text is typed in, not read from `config.AS_OF`).
+- Finding: none fails on today's data (starter and full both build and pass); each would fail or go stale on an unusual dataset or after a config change.
+- Suggestion: raise the same error type everywhere in intake_examples; guard empty lists in metrics; build the sidebar text from `config.AS_OF`.
+- Why it matters: cheap hardening; shows attention to edge cases.
+- Priority: low
+- Resolution: done in commit 7399082 (fix(view)). intake_examples raises LookupError everywhere, metrics day statistics guard empty lists, sidebar as-of text is built from config.AS_OF; tests added.
 
 ## Rejected
 
