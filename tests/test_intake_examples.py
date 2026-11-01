@@ -25,6 +25,16 @@ def test_each_example_reaches_its_rule(tables):
         assert got == intake_examples.EXPECTED[e.key], e.key
 
 
+def test_no_candidate_raises_lookup_error_not_stop_iteration():
+    """IMP-015: every drafter fails with the same error type when the dataset has no usable policy."""
+    empty = {
+        name: []
+        for name in ("policy", "policy_coverage", "claim", "claim_item", "assessment", "incident")
+    }
+    with pytest.raises(LookupError):
+        intake_examples._normal({"t": empty}, lambda c: 1)
+
+
 def test_build_is_deterministic(tables):
     assert intake_examples.build(tables) == intake_examples.build(tables)
 

@@ -15,6 +15,14 @@ def _pct(n: int, d: int) -> float:
     return round(n / d, 4) if d else 0.0
 
 
+def _mean(values: list) -> float:
+    return round(mean(values), 2) if values else 0.0
+
+
+def _median(values: list):
+    return median(values) if values else 0.0
+
+
 def _p90(values: list) -> float:
     ordered = sorted(values)
     return float(ordered[int(0.9 * (len(ordered) - 1))]) if ordered else 0.0
@@ -153,13 +161,13 @@ def operational(tables: dict) -> dict:
         "rates": {k: _pct(v, total) for k, v in groups.items()},
         "counts": groups,
         "days_to_approval": {
-            "mean": round(mean(to_approval), 2),
-            "median": median(to_approval),
+            "mean": _mean(to_approval),
+            "median": _median(to_approval),
             "p90": _p90(to_approval),
         },
         "days_to_settlement": {
-            "mean": round(mean(to_paid), 2),
-            "median": median(to_paid),
+            "mean": _mean(to_paid),
+            "median": _median(to_paid),
             "p90": _p90(to_paid),
         },
         "amounts_cents": {

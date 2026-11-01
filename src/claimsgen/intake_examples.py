@@ -133,7 +133,9 @@ def _claimable(c: _Cand) -> bool:
 
 
 def _normal(x: dict, cents, skip_doc: bool = False, need=lambda c: True) -> Draft:
-    c = next(c for c in _cands(x) if _claimable(c) and need(c))
+    c = next((c for c in _cands(x) if _claimable(c) and need(c)), None)
+    if c is None:
+        raise LookupError("no claimable policy for this example")
     day = c.policy["start_date"] + timedelta(days=DAYS_AFTER_START)
     skip = min(x["required"][c.policy["product"]]) if skip_doc else None
     return _draft(x, c, day, cents(c.pcv), skip)
@@ -173,7 +175,10 @@ def _lapsed(x: dict) -> Draft:
 
 
 def _before_start(x: dict) -> Draft:
-    c = _cands(x)[0]
+    cands = _cands(x)
+    if not cands:
+        raise LookupError("no policy for the before-start example")
+    c = cands[0]
     start = c.policy["start_date"]
     sub = start - timedelta(days=5)
     item = Item(c.pcv["coverage_id"], c.item_type, c.pcv["limit_amount"] // 10)

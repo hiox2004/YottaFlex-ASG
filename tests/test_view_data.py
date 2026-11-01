@@ -142,6 +142,7 @@ def test_app_runs_headless_and_shows_every_panel():
     assert len(app.tabs) == 8
     assert len(app.dataframe) >= 5
     assert app.text_input(key="seed").disabled
+    assert any(config.AS_OF.isoformat() in c.value for c in app.sidebar.caption)  # IMP-015
     app.button(key="rebuild").click().run()
     assert not app.exception, app.exception
     assert any(s.value.startswith("Identical rebuild") for s in app.success)

@@ -27,3 +27,5 @@ the examples per dataset. `EXPECTED` maps each key to the (decision, rule_id, re
   `masterdata.COVERAGE_PROFILE`; documents are received on the submission date.
 - duplicate copies an assessed, non-R-COV claim a few days later; lapsed_policy picks a day after the lapse inside the policy term.
 - The tests run every example through `whatif.evaluate` at the starter and full scale and compare with `EXPECTED`.
+
+Robustness (IMP-015): when no policy fits an example, every drafter raises `LookupError` (`_normal` and `_before_start` used to raise `StopIteration` / `IndexError`).

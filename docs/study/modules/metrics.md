@@ -20,6 +20,8 @@
 
 `operational(tables)` returns a plain dict (cents as integers); `to_markdown(tables, ground_truth, checks)` renders the report written to `metrics.md` in every dataset package.
 
+Robustness (IMP-015): `_mean`, `_median` and `_p90` return 0.0 for an empty list, so a dataset with no approved or paid claims reports zero days instead of raising.
+
 ## Tests
 `tests/test_metrics.py`: counts and rates add up, cycle times ordered, amounts consistent, reserve mismatches equal the planted defects, every claim type present.
 `tests/test_metrics_business.py`: straight_through + reviewed = assessed, by_rule sums equal the matching totals, approver workload, aging and cycle times, new report sections.

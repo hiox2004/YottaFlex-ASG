@@ -8,7 +8,7 @@ import app_intake
 import app_quality
 import streamlit as st
 
-from claimsgen import SEED, view_data
+from claimsgen import SEED, config, view_data
 
 DATASETS = {
     "Starter (100 policies, 50 claims)": 0.05,
@@ -40,7 +40,7 @@ choice = st.sidebar.selectbox("Dataset scale", list(DATASETS), key="dataset")
 scale = DATASETS[choice]
 tables, ground_truth, checks = load(scale)
 st.sidebar.text_input("Seed (fixed by the brief)", str(SEED), disabled=True, key="seed")
-st.sidebar.caption("Fixed as-of date 2026-10-22. All data is synthetic.")
+st.sidebar.caption(f"Fixed as-of date {config.AS_OF.isoformat()}. All data is synthetic.")
 st.sidebar.caption(
     "Workflow: intake, coverage validation, document request, eligibility, settlement routing."
 )

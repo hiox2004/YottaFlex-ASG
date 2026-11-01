@@ -103,6 +103,15 @@ def test_boundary_predictions_check_the_boundary_condition(built):
         )
 
 
+def test_cycle_stats_tolerate_no_approved_or_paid_claims(built):
+    """IMP-015: no settlement means no days to approve or pay; the stats are 0.0 instead of raising."""
+    tables, _, _ = built
+    empty = {**tables, "settlement": []}
+    op = metrics.operational(empty)
+    for key in ("days_to_approval", "days_to_settlement"):
+        assert op[key] == {"mean": 0.0, "median": 0.0, "p90": 0.0}
+
+
 def test_markdown_report_has_every_section(built):
     tables, gt, checks = built
     text = metrics.to_markdown(tables, gt, checks)
