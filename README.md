@@ -14,7 +14,7 @@ All data is fully synthetic ([SOURCE_MANIFEST.md](SOURCE_MANIFEST.md)). Scope an
 Full scale (seed 20261022, 2,000 policies, 1,000 claims, 24,551 rows in the 16 input tables; derived from a fresh build and `metrics.md`):
 
 - **Outcomes:** 70.3% approved, 15.3% denied, 4.0% waiting for documents, 6.4% under review, 4.0% not yet assessed at the as-of date.
-- **Proof:** validation flags exactly the 30 planted defects (4 in the starter), a same-seed rebuild is byte-identical, and `pytest -q` runs 326 tests.
+- **Proof:** validation flags exactly the 30 planted defects (4 in the starter), a same-seed rebuild is byte-identical, and `pytest -q` runs 330 tests.
 - **Workflow:** 69.3% of assessed claims are straight-through (no pend, no review); 30 claims (3.0%) are referred as suspected fraud; 12.0% of approved settlements need the approver.
 - **Honest misses:** recall is 0.90 to 0.97 for lapsed policy, outside coverage period, duplicate, incomplete evidence and boundary-on-start (recent claims are not assessed yet); `claim_over_limit` precision is 0.81. Fraud scores 1.00 only because its labels are planted ([why](docs/DESIGN.md)).
 
