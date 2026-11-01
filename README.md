@@ -71,6 +71,8 @@ docker run --rm yottaflex-asg python scripts/verify.py     # the reproducibility
 
 (From a local clone, build with `docker build -t yottaflex-asg .` instead.)
 
+Or with compose (same image, port from `.env.example`): `docker compose up --build`, then `docker compose run --rm app pytest -q` for the tests.
+
 CI builds this image on every push, runs the proof inside it and checks that the view serves. The image installs the optional extras
 (Streamlit and the test tools), so it is larger than the core, which has no third-party runtime dependencies. Versions are pinned in `constraints.txt` (what the build resolved on 2026-11-01), so the image and CI are repeatable; the generated data does not depend on them. There is no hosted demo: the
 project runs locally or in this container, and the starter dataset and its reports are committed in `output/starter/`.
@@ -155,6 +157,62 @@ validator against the answer key) are in each package's `metrics.md` and the vie
   series year, not a date; policy dates run 2024-2026.
 - Requesting documents has no table of its own: it is recorded as a `pend_docs` assessment (R-DOC-01) listing the requested types in
   `assessment.missing_doc_types`, plus a `docs_pending` event in `claim_status_history`.
+
+## Architecture
+
+```mermaid
+flowchart LR
+  subgraph Build["Build: python -m claimsgen build"]
+    A[config: seed, fixed as-of date] --> B[master data, policies]
+    B --> C[claims and planted scenarios]
+    C --> D[rules engine]
+    D --> E[inject six edge cases]
+    E --> F[finalize ids and ground truth]
+    F --> G[validate: 12 checks]
+    G --> H[export CSV, SQL, checksums]
+  end
+  subgraph Use["Use: Streamlit view"]
+    I[reviewer JSON or form] --> J[intake: structure and format checks]
+    J -- field errors --> I
+    J -- valid draft --> K[what-if on a copy of the tables]
+    K --> D2[the same rules engine]
+    D2 --> L[decision, rule id, trace, timeline]
+  end
+  H --> Use
+  F -. answer key, scoring only .-> M[metrics, precision and recall]
+```
+
+The engine is one set of pure rule functions (`rules.py`, `decide.py`, `engine.py`) used twice: to decide the generated claims and to decide a claim a reviewer submits. The answer key (`ground_truth`) never reaches the engine; it is read only by the scoring step. Per-module notes are in [docs/study/](docs/study/README.md).
+
+## Design trade-offs
+
+| Decision | Chosen | Alternative | Why | Cost |
+|---|---|---|---|---|
+| Decision logic | Deterministic rules, every outcome cites a rule id | An LLM decides | Exact scoring against the answer key, same input gives the same output, audit trail by construction | Cannot read free text yet (see "Where AI would go next") |
+| Storage | CSV and SQL files, byte-stable, with checksums | PostgreSQL with migrations | No setup, diffable, reproducibility is provable by comparing hashes | No concurrent writers, no row-level security or tenants (one synthetic dataset) |
+| Input validation | Standard library, every problem reported at once | Pydantic schemas | The core stays free of third-party dependencies | Checks are hand-written; [docs/CLAIM_INPUT.md](docs/CLAIM_INPUT.md) is the contract |
+| Submitted claims | What-if on a copy; nothing is saved | Persist them into the dataset | The dataset stays valid for scoring; no state to corrupt | Results disappear when the page reloads |
+| Execution | Synchronous, in process (full build about 6 seconds) | Queue and workers | Simpler, deterministic ordering of claims | Not horizontally scaled |
+| Interface | One Streamlit file, logic in tested modules | HTTP API plus a frontend | Fast to review and run | No HTTP contract yet; the modules can sit behind an API unchanged |
+| Realism | Calibrated to stated ranges, misses reported | Uniform random data | Shows the engine's honest limits | Some classes score below 1.00 |
+
+## Security and governance
+
+- **No personal data, no secrets:** all data is generated ([SOURCE_MANIFEST.md](SOURCE_MANIFEST.md)); the project needs no keys, accounts or network access at run time; `.env*`, databases and local agent settings are git-ignored; the prompt-history export redacts paths, e-mails and tokens.
+- **Untrusted input:** the intake validates structure before any rule runs: 50,000-character limit, at most 20 items and 20 documents, strict ISO dates from 1900-01-01, amounts in cents with at most two decimals, duplicate JSON keys rejected, nesting depth limited. Hostile inputs are tested (`tests/test_intake.py`).
+- **No prompt-injection surface today:** no model sits in the decision path. If an extraction model is added, its output is only a draft claim that goes through the same validator and a person's confirmation; the rules, not the model, keep the final say.
+- **Governance:** every decision names a rule id and a reason code; status changes are appended to a history and never overwritten; the answer key is separate from the inputs; one test fails if an input table gains a label column.
+- **Supply chain and container:** dependency versions are pinned (`constraints.txt`), the image runs as a non-root user with a health check, and CI rebuilds it on every push.
+
+## Interfaces
+
+| Interface | Contract | Errors |
+|---|---|---|
+| Claim intake (view, JSON) | Template and field rules in [docs/CLAIM_INPUT.md](docs/CLAIM_INPUT.md) | A list of `{"field", "message"}` pairs, all problems at once; nothing is evaluated on error |
+| Generator CLI `python -m claimsgen build --scale S --out DIR` | Scale 0.05, or 0.075 to 5.0; the seed is fixed by the brief | One-line message and exit code 2 for a bad scale |
+| Proof `python scripts/verify.py [scale]` | Builds twice and compares every file | Non-zero exit if any file differs or the validator does not flag exactly the planted defects |
+
+There is no HTTP API by design: this is a reviewer-run test bed and workflow, not a hosted service.
 
 ## Known limits (stated, not hidden)
 

@@ -16,3 +16,5 @@ output/full/
 # Local agent definitions (not shared)
 .claude/agents/
 .claude/scheduled_tasks.lock
+
+!.env.example

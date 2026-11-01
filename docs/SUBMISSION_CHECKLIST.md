@@ -29,6 +29,7 @@ Update the status column as items close. Owner column: **Claude** = engineer wor
 | H8 | Email the repo link from the recruitment address before the deadline | email |
 | H9 | Start Docker Desktop, run `docker build -t yottaflex-asg .` and `docker run --rm -p 8501:8501 yottaflex-asg`, open http://localhost:8501 | local |
 | H10 | Decide the opening line of the email: where to start (README "Five-minute tour", the Streamlit tab) and the container command | email |
+| H11 | Optional but strong: a 2-3 minute screen recording (architecture in one minute, then a claim through the Submit tab, then a bad input being rejected); add the link to the README top | local |
 
 ## Order of work
 

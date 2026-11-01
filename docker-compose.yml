@@ -1,0 +1,11 @@
+# One command for a reviewer:  docker compose up --build   then open http://localhost:8501
+# Tests and proof use the same image:
+#   docker compose run --rm app pytest -q
+#   docker compose run --rm app python scripts/verify.py 1.0
+services:
+  app:
+    build: .
+    image: yottaflex-asg
+    ports:
+      - "${APP_PORT:-8501}:8501"
+    restart: "no"
