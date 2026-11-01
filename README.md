@@ -153,7 +153,7 @@ validator against the answer key) are in each package's `metrics.md` and the vie
 ## Where AI would go next
 
 Not built: the dataset and workflow are deterministic by choice, so the evaluation is exact. Where a model would help, in order:
-1. FNOL extraction: turn free text into a draft claim, shown to a person to confirm, and score it field by field against the generator's ground truth.
+1. An extraction layer in front of intake: real claims arrive as ACORD loss notices, 837 files, portal forms, emails and scans, not as our JSON. Structured formats get a deterministic field mapper first (exact, free, testable). A cheap model is used only for free text and scans the mapper cannot read, and its output is a draft claim a person confirms. Either way the draft goes through the same `intake.parse_and_validate` and the same rules, and extraction is scored field by field against the generator's ground truth.
 2. Adjuster summaries: a short narrative of each decision, checked against the rule trace so it cannot cite a rule that did not fire.
 3. Document triage: classify uploads and flag likely rejections before the R-DOC-01 check.
 4. Cost and privacy: a local model on the claim text, no personal data leaving the machine, a fixed prompt version logged per decision, and the rules (not the model) keep the final say.
