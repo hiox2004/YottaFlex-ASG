@@ -91,3 +91,12 @@ def test_switching_dataset_clears_results(AppTest):
 def test_text_area_is_capped(AppTest):
     app = _app(AppTest)
     assert app.text_area(key="intake_json").max_chars == 50_000
+
+
+def test_choosing_an_example_loads_it_without_clicking(AppTest):
+    app = _app(AppTest)
+    before = app.session_state["intake_json"]
+    app.selectbox(key="intake_example").select(TITLES["lapsed_policy"]).run()
+    assert not app.exception, app.exception
+    assert app.session_state["intake_json"] != before
+    assert app.session_state["intake_loaded"] == TITLES["lapsed_policy"]

@@ -6,7 +6,7 @@ import json
 
 import streamlit as st
 
-from claimsgen import config, intake, intake_examples, view_data, vocab, whatif
+from claimsgen import claim_prompt, config, intake, intake_examples, view_data, vocab, whatif
 
 MAX_SESSION = 50
 MAX_JSON_CHARS = 50_000
@@ -62,6 +62,7 @@ def _load_example(examples):
         by_title[st.session_state["intake_example"]].draft.to_json(), indent=2
     )
     st.session_state["intake_errors"] = []
+    st.session_state["intake_loaded"] = st.session_state["intake_example"]
 
 
 def _submit(tables):
@@ -187,9 +188,20 @@ def render(tables, scale):
     titles = [e.title for e in examples]
     if "intake_json" not in st.session_state:
         st.session_state["intake_json"] = json.dumps(examples[0].draft.to_json(), indent=2)
-    pick = st.selectbox("Example claim", titles, key="intake_example")
+    pick = st.selectbox(
+        "Example claim", titles, key="intake_example", on_change=_load_example, args=(examples,)
+    )
     st.caption(examples[titles.index(pick)].expect)
-    st.button("Load example", key="intake_load", on_click=_load_example, args=(examples,))
+    st.button(
+        "Reset the box to this example", key="intake_load", on_click=_load_example, args=(examples,)
+    )
+    if st.session_state.get("intake_loaded"):
+        st.caption(f"Loaded '{st.session_state['intake_loaded']}' into the Claim (JSON) box below.")
+    with st.expander("Make your own test claim with any AI chat (copy and paste)"):
+        st.caption(
+            "Paste this into ChatGPT, Claude or similar, change the last line to the case you want, then paste the JSON it returns into the box below."
+        )
+        st.code(claim_prompt.build(tables), language="text")
     _form(tables)
     st.text_area("Claim (JSON)", key="intake_json", height=320, max_chars=MAX_JSON_CHARS)
     st.button("Submit and evaluate", key="intake_submit", on_click=_submit, args=(tables,))
