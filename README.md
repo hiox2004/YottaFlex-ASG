@@ -11,7 +11,7 @@ All data is fully synthetic ([SOURCE_MANIFEST.md](SOURCE_MANIFEST.md)). Scope an
 
 ## AI approach in brief
 
-**There is no AI in this product.** Every decision is a deterministic rule that cites a rule id, because the evaluation needs
+**There is no AI in this product, only used for building.** Every decision is a deterministic rule that cites a rule id, because the evaluation needs
 exact, repeatable answers and a claim decision needs an audit trail a person can check. Same seed, same bytes; precision and
 recall against the answer key only mean something if decisions repeat.
 
