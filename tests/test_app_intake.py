@@ -32,10 +32,38 @@ def _submit(app, key):
     return app.session_state["intake_results"][-1]["result"]
 
 
-def test_first_run_has_no_exception_and_no_result(AppTest):
+def test_first_run_auto_evaluates_one_result(AppTest):
     app = _app(AppTest)
     assert len(app.tabs) == 8
-    assert "intake_results" not in app.session_state or app.session_state["intake_results"] == []
+    results = app.session_state["intake_results"]
+    assert len(results) == 1
+    assert results[0]["result"]["decision"]["decision"] == "approve"
+    app.run()
+    assert len(app.session_state["intake_results"]) == 1
+
+
+def test_stage_strip_is_shown(AppTest):
+    app = _app(AppTest)
+    text = " ".join(m.value for m in app.markdown)
+    for name in ("Intake", "Coverage", "Documents", "Eligibility", "Routing"):
+        assert f"**{name}**" in text
+    assert any(s.value == "Workflow stages" for s in app.subheader)
+
+
+def test_dataset_checksum_unchanged_by_autorun(AppTest):
+    from claimsgen import view_data
+
+    tables = view_data.load(0.05)[0]
+    before = view_data.dataset_checksum(tables)
+    _app(AppTest)
+    assert view_data.dataset_checksum(tables) == before
+
+
+def test_headline_strip_has_four_metrics(AppTest):
+    app = _app(AppTest)
+    labels = [m.label for m in app.metric[:4]]
+    assert labels[:3] == ["Claims", "Straight-through", "Open exceptions"]
+    assert labels[3].startswith("Seed ")
 
 
 @pytest.mark.parametrize("key", list(intake_examples.EXPECTED))
@@ -51,7 +79,7 @@ def test_invalid_json_gives_error_and_no_result(AppTest):
     app.button(key="intake_submit").click().run()
     assert not app.exception, app.exception
     assert app.error
-    assert not app.session_state["intake_results"]
+    assert len(app.session_state["intake_results"]) == 1  # only the auto-evaluated example
 
 
 def test_request_docs_leads_to_second_assessment_and_approval(AppTest):
@@ -63,7 +91,9 @@ def test_request_docs_leads_to_second_assessment_and_approval(AppTest):
     second = app.session_state["intake_results"][-1]["result"]
     assert len(second["assessments"]) == 2
     assert second["decision"]["decision"] == "approve"
-    assert len(app.session_state["intake_results"]) == 2
+    assert (
+        len(app.session_state["intake_results"]) == 3
+    )  # auto example, pended claim, resumed claim
 
 
 def test_clear_empties_the_list(AppTest):
@@ -72,6 +102,8 @@ def test_clear_empties_the_list(AppTest):
     assert len(app.session_state["intake_results"]) == 1
     app.button(key="intake_clear").click().run()
     assert not app.exception, app.exception
+    assert app.session_state["intake_results"] == []
+    app.run()
     assert app.session_state["intake_results"] == []
 
 
@@ -83,9 +115,9 @@ def test_switching_dataset_clears_results(AppTest):
     other = next(o for o in options if o != app.sidebar.selectbox(key="dataset").value)
     app.sidebar.selectbox(key="dataset").select(other).run()
     assert not app.exception, app.exception
-    assert (
-        not app.session_state["intake_results"] if "intake_results" in app.session_state else True
-    )
+    results = app.session_state["intake_results"]
+    assert len(results) == 1  # a fresh auto result for the new dataset
+    assert results[0]["scale"] != 0.05
 
 
 def test_text_area_is_capped(AppTest):

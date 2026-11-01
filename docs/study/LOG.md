@@ -2,6 +2,7 @@
 
 Add a line per step: date, commit scope, what it taught or changed, which notes were updated.
 
+- 2026-11-01 `feat(ui)` first screen: `view_stages.py` (five-stage strip Intake, Coverage, Documents, Eligibility, Routing from the rule trace; four-number headline above the tabs) and the default example is evaluated once on load (what-if on a copy, flag `intake_autorun`, Clear does not re-run, checksum unchanged). 340 tests. Worker: Sonnet.
 - 2026-11-01 `fix(metrics)` IMP-013/014/015 closed (run 6): stale doc lines corrected (rules has 16 IDs, adjuster pick is random per claim, whatif passes only as_of, six draws comment, csv_text, eight tabs); boundary_incident_on_start/_on_end/_amount_at_limit predictions now also test the boundary on input tables (scores unchanged: full 9/10, 10/10, 10/10; starter 1/1, 1/1, 0/1); LookupError everywhere in intake_examples, empty-list guards in metrics, sidebar as-of from config.AS_OF. Notes: scoring, metrics, intake_examples, rules, intake, export, view_data.
 - 2026-11-01 `docs(readme)` final pass: container section moved before the tour; new section "Why there is no AI inside the product"; removed two internal research notes (reviewer-expectations, streamlit-deprecations) from the public tree (the audit flagged the first as a perception risk); release v1.0.1.
 - 2026-11-01 `chore(release)` freeze (T13): README test count refreshed to 330; full checks green (pytest 330, ruff, verify 0.05 and 1.0); final prompt export; tag v1.0.0.

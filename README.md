@@ -14,7 +14,7 @@ All data is fully synthetic ([SOURCE_MANIFEST.md](SOURCE_MANIFEST.md)). Scope an
 Full scale (seed 20261022, 2,000 policies, 1,000 claims, 24,551 rows in the 16 input tables; derived from a fresh build and `metrics.md`):
 
 - **Outcomes:** 70.3% approved, 15.3% denied, 4.0% waiting for documents, 6.4% under review, 4.0% not yet assessed at the as-of date.
-- **Proof:** validation flags exactly the 30 planted defects (4 in the starter), a same-seed rebuild is byte-identical, and `pytest -q` runs 330 tests.
+- **Proof:** validation flags exactly the 30 planted defects (4 in the starter), a same-seed rebuild is byte-identical, and `pytest -q` runs 340 tests.
 - **Workflow:** 69.3% of assessed claims are straight-through (no pend, no review); 30 claims (3.0%) are referred as suspected fraud; 12.0% of approved settlements need the approver.
 - **Honest misses:** recall is 0.90 to 0.97 for lapsed policy, outside coverage period, duplicate, incomplete evidence and boundary-on-start (recent claims are not assessed yet); `claim_over_limit` precision is 0.81. Fraud scores 1.00 only because its labels are planted ([why](docs/DESIGN.md)).
 
@@ -74,7 +74,7 @@ streamlit run app.py                        # the view
 ```
 
 1. Open `output/starter/` (small, committed): `README.md`, `validation_summary.md`, `metrics.md`, `ground_truth.csv`.
-2. Run the view. Tabs: Submit a claim (fill in a form or load one of seven examples, watch the whole workflow decide it, request missing documents; template in [docs/CLAIM_INPUT.md](docs/CLAIM_INPUT.md)), Decisions (rule, reason, actor per claim), Exceptions, Claim timeline (append-only history, a rule trace showing where a claim stopped and why, and what would make it payable), Metrics (rates, cycle times, amounts blocked, money effect by rule, straight-through (no exception) rate, approver workload, docs-pending aging, reserve vs final, threshold sensitivity, precision/recall), Realism (distributions) and Reproducibility (fixed seed, dataset checksum, rebuild-and-compare) and Quality and data (validation checks, planted defects vs flagged, answer key, data dictionary, rule catalogue, table browser).
+2. Run the view. A four-number strip (claims, straight-through rate, open exceptions, seed and checksum) sits above the tabs, and the default example claim is already decided on load, with a five-stage strip (Intake, Coverage, Documents, Eligibility, Routing) showing where it passed or stopped. Tabs: Submit a claim (fill in a form or load one of seven examples, watch the whole workflow decide it, request missing documents; template in [docs/CLAIM_INPUT.md](docs/CLAIM_INPUT.md)), Decisions (rule, reason, actor per claim), Exceptions, Claim timeline (append-only history, a rule trace showing where a claim stopped and why, and what would make it payable), Metrics (rates, cycle times, amounts blocked, money effect by rule, straight-through (no exception) rate, approver workload, docs-pending aging, reserve vs final, threshold sensitivity, precision/recall), Realism (distributions) and Reproducibility (fixed seed, dataset checksum, rebuild-and-compare) and Quality and data (validation checks, planted defects vs flagged, answer key, data dictionary, rule catalogue, table browser).
 3. Regenerate anything with the command below; the same seed always gives byte-identical files.
 
 ## Generate data

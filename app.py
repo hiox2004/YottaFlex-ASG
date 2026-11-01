@@ -8,7 +8,7 @@ import app_intake
 import app_quality
 import streamlit as st
 
-from claimsgen import SEED, config, view_data
+from claimsgen import SEED, config, view_data, view_stages
 
 DATASETS = {
     "Starter (100 policies, 50 claims)": 0.05,
@@ -35,6 +35,12 @@ def checksum(scale: float) -> str:
     return view_data.dataset_checksum(load(scale)[0])
 
 
+@st.cache_data(show_spinner=False)
+def headline(scale: float) -> dict:
+    tables, _, checks = load(scale)
+    return view_stages.headline(tables, checks, checksum(scale))
+
+
 st.title("Claims workflow: decisions, exceptions, traceability")
 choice = st.sidebar.selectbox("Dataset scale", list(DATASETS), key="dataset")
 scale = DATASETS[choice]
@@ -47,6 +53,23 @@ st.sidebar.caption(
 
 st.caption("Start with an example claim in 'Submit a claim', or open Decisions / Metrics.")
 app_basics.render()
+
+head = headline(scale)
+strip = st.columns(4)
+strip[0].metric("Claims", head["claims"])
+strip[1].metric(
+    "Straight-through",
+    f"{head['straight_through_rate']:.1%}",
+    f"{head['straight_through']} of {head['assessed']} assessed",
+    delta_color="off",
+)
+strip[2].metric("Open exceptions", head["open_exceptions"])
+strip[3].metric(
+    "Seed (fixed)",
+    head["seed"],
+    "checksum computed" if head["checksum_present"] else "checksum missing",
+    delta_color="off",
+)
 
 decisions = view_data.decisions_table(tables)
 (

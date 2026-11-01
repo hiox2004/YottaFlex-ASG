@@ -6,11 +6,28 @@ import json
 
 import streamlit as st
 
-from claimsgen import claim_prompt, config, intake, intake_examples, view_data, vocab, whatif
+from claimsgen import (
+    claim_prompt,
+    config,
+    intake,
+    intake_examples,
+    view_data,
+    view_stages,
+    vocab,
+    whatif,
+)
 
 MAX_SESSION = 50
 MAX_JSON_CHARS = 50_000
-SCALE_KEYS = ("intake_results", "intake_errors", "intake_last", "intake_json", "intake_example")
+MARKERS = {"passed": "[ok]", "stopped": "[STOP]", "not reached": "[ ]"}
+SCALE_KEYS = (
+    "intake_results",
+    "intake_errors",
+    "intake_last",
+    "intake_json",
+    "intake_example",
+    "intake_autorun",
+)
 
 
 def _examples(tables, scale):
@@ -146,6 +163,11 @@ def _form(tables):
 
 def _show(result):
     d = result["decision"]
+    st.subheader("Workflow stages")
+    strip = view_stages.stages(result)
+    for col, s in zip(st.columns(len(strip)), strip, strict=True):
+        col.markdown(f"**{s['stage']}**\n\n{MARKERS[s['status']]} {s['status']}")
+        col.caption(" ".join(x for x in (s["rule_id"], s["note"]) if x) or " ")
     st.subheader("Decision")
     cols = st.columns(4)
     cols[0].metric("Status", d["status"])
@@ -175,43 +197,7 @@ def _show(result):
     st.caption(f"Evaluated up to the horizon {result['horizon']}.")
 
 
-def render(tables, scale):
-    st.caption(
-        "Pick an example or edit the JSON; a deterministic rule engine decides it as a what-if (the dataset never changes)."
-    )
-    with st.expander("How the what-if works"):
-        st.write(whatif.NOTE)
-    _reset_for_scale(scale)
-    examples = _examples(tables, scale)
-    if examples is None:
-        return
-    titles = [e.title for e in examples]
-    if "intake_json" not in st.session_state:
-        st.session_state["intake_json"] = json.dumps(examples[0].draft.to_json(), indent=2)
-    pick = st.selectbox(
-        "Example claim", titles, key="intake_example", on_change=_load_example, args=(examples,)
-    )
-    st.caption(examples[titles.index(pick)].expect)
-    st.button(
-        "Reset the box to this example", key="intake_load", on_click=_load_example, args=(examples,)
-    )
-    if st.session_state.get("intake_loaded"):
-        st.caption(f"Loaded '{st.session_state['intake_loaded']}' into the Claim (JSON) box below.")
-    with st.expander("Make your own test claim with any AI chat (copy and paste)"):
-        st.caption(
-            "Paste this into ChatGPT, Claude or similar, change the last line to the case you want, then paste the JSON it returns into the box below."
-        )
-        st.code(claim_prompt.build(tables), language="text")
-    _form(tables)
-    st.text_area("Claim (JSON)", key="intake_json", height=320, max_chars=MAX_JSON_CHARS)
-    st.button("Submit and evaluate", key="intake_submit", on_click=_submit, args=(tables,))
-    if st.session_state.get("intake_errors"):
-        st.error("The claim is not valid.")
-        st.dataframe(st.session_state["intake_errors"], hide_index=True, width="stretch")
-        return
-    results = st.session_state.setdefault("intake_results", [])
-    if not results:
-        return
+def _result_section(tables, results):
     latest = results[-1]["result"]
     _show(latest)
     if latest["decision"]["decision"] == "pend_docs":
@@ -228,3 +214,50 @@ def render(tables, scale):
     st.subheader("Submitted this session")
     st.dataframe([r["summary"] for r in results], hide_index=True, width="stretch")
     st.button("Clear", key="intake_clear", on_click=_clear)
+
+
+def render(tables, scale):
+    st.caption(
+        "Pick an example or edit the JSON; a deterministic rule engine decides it as a what-if (the dataset never changes)."
+    )
+    with st.expander("How the what-if works"):
+        st.write(whatif.NOTE)
+    _reset_for_scale(scale)
+    examples = _examples(tables, scale)
+    if examples is None:
+        return
+    titles = [e.title for e in examples]
+    if "intake_json" not in st.session_state:
+        st.session_state["intake_json"] = json.dumps(examples[0].draft.to_json(), indent=2)
+    if not st.session_state.get("intake_results") and not st.session_state.get("intake_autorun"):
+        st.session_state["intake_autorun"] = (
+            True  # once per session and scale; Clear does not re-run
+        )
+        _submit(tables)
+    pick = st.selectbox(
+        "Example claim", titles, key="intake_example", on_change=_load_example, args=(examples,)
+    )
+    st.caption(examples[titles.index(pick)].expect)
+    if st.session_state.get("intake_loaded"):
+        st.caption(f"Loaded '{st.session_state['intake_loaded']}' into the Claim (JSON) box below.")
+    if st.session_state.get("intake_errors"):
+        st.error("The claim is not valid.")
+        st.dataframe(st.session_state["intake_errors"], hide_index=True, width="stretch")
+    results = st.session_state.setdefault("intake_results", [])
+    if results and not st.session_state.get("intake_errors"):
+        _result_section(tables, results)
+    with st.expander("Edit the claim: form or JSON, then submit", expanded=True):
+        st.button(
+            "Reset the box to this example",
+            key="intake_load",
+            on_click=_load_example,
+            args=(examples,),
+        )
+        _form(tables)
+        st.text_area("Claim (JSON)", key="intake_json", height=320, max_chars=MAX_JSON_CHARS)
+        st.button("Submit and evaluate", key="intake_submit", on_click=_submit, args=(tables,))
+    with st.expander("Make your own test claim with any AI chat (copy and paste)"):
+        st.caption(
+            "Paste this into ChatGPT, Claude or similar, change the last line to the case you want, then paste the JSON it returns into the box below."
+        )
+        st.code(claim_prompt.build(tables), language="text")
