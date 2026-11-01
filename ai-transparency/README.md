@@ -3,8 +3,8 @@
 This directory is the transparency record required by the submission guidelines: which AI tools were used, where they helped,
 what the candidate reviewed, and the prompts submitted. Facts below come from the project history; the candidate statement at the end is the candidate's own.
 
-**Status of the prompt history: EXPORTED.** `prompt-history/` holds all four Claude Code sessions of this project (counts at the last export: 104 user prompts,
-55 subagent prompts and 5 helper-model prompts). Re-run `python scripts/export_prompts.py` before the final push so it is current.
+**Status of the prompt history: EXPORTED.** `prompt-history/` holds all four Claude Code sessions of this project (counts at the last export: 111 user prompts,
+56 subagent prompts and 5 helper-model prompts). Re-run `python scripts/export_prompts.py` before the final push so it is current.
 
 ## Timeline
 The 72-hour window ran from Fri 30 Oct 2026 01:13:12 IST to Mon 2 Nov 2026 01:13:12 IST (as given by the organisation). The first prompt in the history is

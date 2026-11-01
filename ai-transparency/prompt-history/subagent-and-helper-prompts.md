@@ -550,6 +550,23 @@ RULES: commit per logical step `<type>(<scope>): <summary>` <=72 chars (types: f
 REPORT: per finding what was true/false, commits, CI, commands with one-line results, number changes, skipped items; end with git status, HEAD, CI state, IST time.
 ```
 
+### Session 1, 2026-11-01T06:58:27.005Z: claude on sonnet (Add walkthrough chapter to book)
+
+```text
+Task: add ONE new chapter, "Walkthrough cheat sheet (rehearse this)", to the candidate's local study book C:\Users\<user>\Desktop\YottaFlex_ASG\book\yottaflex-interview-book.html (untracked, local only; do not git add or commit anything; do not touch any other file). It is a single self-contained HTML file whose chapters are `<section class="chapter" id="cN" data-title="..." data-part="Part 3 · Interview">` blocks (c15 to c18 are Part 3). Study how c15 to c18 are structured and styled, and how the table of contents and navigation are built (nav id="tocnav", any JS that reads data-title/data-part, search or progress features), then insert the new chapter as id "c19", data-part "Part 3 · Interview", placed right after c15 ("Your story and owning it") if the order of ids does not matter to the JS, otherwise at the end; make sure it shows up in the TOC and any chapter counter or search index exactly like the existing chapters, and that the page still works (check for JS references to chapter counts; no external resources, keep it offline).
+
+Content (one page, scannable, use the book's existing component styles such as callouts, tables and flashcards where they exist). Use ONLY facts you verify in the repo (read README.md, docs/DESIGN.md, docs/study/FLOW.md, docs/CLAIM_INPUT.md, ai-transparency/README.md and, for hard questions, docs/review/REVIEWER_REPORT.md section 5 which is local and partly stale: the approver threshold is now 30,000 USD (not 10,000), claim_over_limit precision is 0.81, approved is 70.3% and denied 15.3%, R-ELG-01 now fires on 10 planted claims, tests are 330, README is the authority for every number; re-check each figure you quote against README/DESIGN/metrics). Sections:
+1. The 5-minute demo order (exact clicks): README tour, Read-first panel, Submit a claim (load Clean claim, Missing document, Duplicate, Over the limit, a bad JSON), Decisions, Exceptions, Claim timeline (rule trace and what would make it payable), Metrics (straight-through, approver share, precision/recall with the honest misses), Reproducibility (checksum, rebuild), Quality and data.
+2. The 60-second pitch: what was built, why deterministic, how we know it works (verify.py byte-identical twice, 12 checks flag exactly the planted defects, independent payable reference, mutation tests, injection isolation).
+3. Three design decisions to lead with and the trade-off of each (from the README trade-offs table).
+4. The honest-limits list to volunteer before being asked (recent claims unassessed, claim_over_limit precision, fraud 1.00 by construction, what-if not persisted, no HTTP API, claim frequency far above reality, MIN_SCALE rule).
+5. The AI-disclosure answer (what the candidate did vs what Claude did) exactly consistent with the statement in ai-transparency/README.md; do not add claims beyond it.
+6. The 12 hardest questions with short honest answers and the file to open for each (adapt the 15 in REVIEWER_REPORT section 5 to current facts; drop stale ones).
+7. One live-change drill: change DOC_WINDOW_DAYS to 10, what breaks and which tests/checksums move, how to regenerate the starter.
+8. Commands to have ready: pytest -q, python scripts/verify.py 1.0, docker build/run (including the no-clone URL form), python -m claimsgen build --scale 0.25 --out <dir>.
+Plain, accurate, no flattery, no invented claims about what the candidate did. When done, open nothing in a browser, just report: where the chapter was inserted, how the TOC picked it up, and the list of figures you verified with their sources.
+```
+
 ### Session 2, 2026-10-31T12:58:43.598Z: claude on haiku (Code walkthrough: Python primer)
 
 ```text
