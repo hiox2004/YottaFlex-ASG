@@ -1,6 +1,6 @@
 # rules (`src/claimsgen/rules.py`)
 
-**Purpose:** the rule catalogue (`RULES`, 14 IDs with text), the legal claim-status `TRANSITIONS`, and the pure functions the engine calls.
+**Purpose:** the rule catalogue (`RULES`, 16 IDs with text), the legal claim-status `TRANSITIONS`, and the pure functions the engine calls.
 **Brief items:** "every decision has a reason and audit trail" (rule IDs), coverage checks follow policy rules, reserves and settlements obey limits and deductibles (review d).
 
 | Function | Rule | Gotcha |

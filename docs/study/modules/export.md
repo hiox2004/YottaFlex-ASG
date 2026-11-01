@@ -8,7 +8,8 @@
 | rows keep dataset order, never re-sorted by key | injected rows must not be revealed by position; same order every run |
 | columns follow the schema field order | stable headers and JSON keys |
 | money = exact `dollars.cents` text from integer cents; ratio = fixed 2 decimals; dates ISO | no float formatting, so SHA-256 is stable |
-| LF line endings, UTF-8, `newline=""` for csv | identical bytes on Windows and Linux |
+| LF line endings, UTF-8, bytes written with `lineterminator="
+"` for csv | identical bytes on Windows and Linux |
 | `ground_truth` goes only to `ground_truth.csv|json|sql` at the top level | never mixed into input tables |
 
 | Function | Role |

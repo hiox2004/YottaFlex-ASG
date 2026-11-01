@@ -215,7 +215,8 @@ def _ready_date(w, c):
 
 def _process(w: World, c: dict, rng):
     # fixed draw order per claim; the stream depends only on the claim's own stable fields
-    # three draws per claim, always: assessment days (per product), a uniform for approval days, payment days
+    # six draws per claim, always: assessment days (per product), a uniform for approval days, payment days (first line below),
+    # then the reassignment roll and the two adjuster picks (second line below)
     delays = (rng.randint(*config.ASSESS_DAYS[c["claim_type"]]), rng.random(), rng.randint(1, 5))
     reassign, pick1, pick2 = rng.random() < 0.05, rng.random(), rng.random()
     cid, sub, as_of = c["claim_id"], c["submission_date"], w.as_of
