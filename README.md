@@ -9,6 +9,29 @@ decisions, exceptions, per-claim timeline and metrics.
 All data is fully synthetic ([SOURCE_MANIFEST.md](SOURCE_MANIFEST.md)). Scope and decisions: [docs/SPEC.md](docs/SPEC.md),
 [docs/DESIGN.md](docs/DESIGN.md), [docs/BRIEF_VS_PLAN.md](docs/BRIEF_VS_PLAN.md).
 
+## AI approach in brief
+
+**There is no AI in this product.** Every decision is a deterministic rule that cites a rule id, because the evaluation needs
+exact, repeatable answers and a claim decision needs an audit trail a person can check. Same seed, same bytes; precision and
+recall against the answer key only mean something if decisions repeat.
+
+If this became a hybrid system, the principle would be: **AI proposes, rules decide, a person confirms anything uncertain.**
+Proposed additions, none of them built, in order:
+
+1. **Extraction** in front of intake: deterministic mappers for structured formats (837, ACORD), a model only for emails and
+   scans, returning the existing intake template plus a confidence per field. Low confidence goes to a human queue.
+2. **Adjuster summaries** built from the rule trace and rejected if they cite anything not in it.
+3. **Document triage** before the R-DOC-01 check.
+4. **Similarity flags** for near-duplicate narratives, routed to review, never to a denial.
+5. **A chat assistant** for the response side. Extraction is the model call going in (words become a structured claim); the
+   assistant is the call coming out. Claimants, adjusters and analysts ask "why was this denied?", "what do I still need to
+   send?" or "which claims have waited longest?", and it answers in plain language using read-only tools over the decision,
+   rule trace, history and metrics. It cannot approve, deny or change anything, every claim id, rule and amount in a reply is
+   checked against the tool results, and it hands off to a person when it cannot ground an answer.
+
+Each would be scored against the generator's answer key before it is trusted. The reasoning, contracts, guardrails,
+evaluation plan and rollout order are in [docs/AI_APPROACH.md](docs/AI_APPROACH.md).
+
 ## Results at a glance
 
 Full scale (seed 20261022, 2,000 policies, 1,000 claims, 24,551 rows in the 16 input tables; derived from a fresh build and `metrics.md`):
@@ -188,7 +211,7 @@ The engine is one set of pure rule functions (`rules.py`, `decide.py`, `engine.p
 
 | Decision | Chosen | Alternative | Why | Cost |
 |---|---|---|---|---|
-| Decision logic | Deterministic rules, every outcome cites a rule id | An LLM decides | Exact scoring against the answer key, same input gives the same output, audit trail by construction | Cannot read free text yet (see "Where AI would go next") |
+| Decision logic | Deterministic rules, every outcome cites a rule id | An LLM decides | Exact scoring against the answer key, same input gives the same output, audit trail by construction | Cannot read free text yet (see [docs/AI_APPROACH.md](docs/AI_APPROACH.md)) |
 | Storage | CSV and SQL files, byte-stable, with checksums | PostgreSQL with migrations | No setup, diffable, reproducibility is provable by comparing hashes | No concurrent writers, no row-level security or tenants (one synthetic dataset) |
 | Input validation | Standard library, every problem reported at once | Pydantic schemas | The core stays free of third-party dependencies | Checks are hand-written; [docs/CLAIM_INPUT.md](docs/CLAIM_INPUT.md) is the contract |
 | Submitted claims | What-if on a copy; nothing is saved | Persist them into the dataset | The dataset stays valid for scoring; no state to corrupt | Results disappear when the page reloads |
@@ -234,21 +257,9 @@ There is no HTTP API by design: this is a reviewer-run test bed and workflow, no
 
 ## Why there is no AI inside the product
 
-AI built this project; it does not run inside it. On purpose:
-
-1. **The evaluation needs exact answers.** A separate answer key, the same seed giving the same bytes, and precision and recall against planted cases only mean something if the decisions repeat exactly. A model in the decision path would make outcomes vary between runs and the scores approximate. Rules make them exact, and every decision cites a rule id.
-2. **Coverage and payment decisions need an audit trail a person can check.** "The model judged so" is not a reason; "R-PAY-01: eligible minus deductible, capped at the remaining limit" is.
-3. **Free and local only.** The FAQ asks for free or locally runnable services. There are no keys, accounts or network calls at run time, and a reviewer runs one Docker command.
-4. **Leaving AI out of intake costs no accuracy.** The claim form is structured and validated, so a model would add risk without adding information. Free text and scans are where a model would help, and that is the extraction layer in "Where AI would go next".
-5. **Knowing where AI belongs is part of the job.** It belongs at the edges (extraction, summaries, document triage), with a person confirming and the rules keeping the final say, scored against the answer key. It does not belong in the middle of the decision.
-
-## Where AI would go next
-
-Not built: the dataset and workflow are deterministic by choice, so the evaluation is exact. Where a model would help, in order:
-1. An extraction layer in front of intake: real claims arrive as ACORD loss notices, 837 files, portal forms, emails and scans, not as our JSON. Structured formats get a deterministic field mapper first (exact, free, testable). A cheap model is used only for free text and scans the mapper cannot read, and its output is a draft claim a person confirms. Either way the draft goes through the same `intake.parse_and_validate` and the same rules, and extraction is scored field by field against the generator's ground truth.
-2. Adjuster summaries: a short narrative of each decision, checked against the rule trace so it cannot cite a rule that did not fire.
-3. Document triage: classify uploads and flag likely rejections before the R-DOC-01 check.
-4. Cost and privacy: a local model on the claim text, no personal data leaving the machine, a fixed prompt version logged per decision, and the rules (not the model) keep the final say.
+Short answer: exact, repeatable decisions and a checkable audit trail (see [AI approach in brief](#ai-approach-in-brief)). The
+full reasoning, the hybrid design we would add (extraction, summaries, document triage, similarity flags, a chat assistant), its guardrails,
+how each piece would be scored against the answer key, and the rollout order are in [docs/AI_APPROACH.md](docs/AI_APPROACH.md).
 
 ## AI use and prompt history
 
@@ -258,5 +269,5 @@ Not built: the dataset and workflow are deterministic by choice, so the evaluati
 ## Repository map
 
 `src/claimsgen/` generator, rules engine, validation, injection, export, metrics, view data · `app.py` the view ·
-`scripts/` verify and helpers · `tests/` · `docs/` spec, design, data dictionary, schema · `docs/study/` a living study
+`scripts/` verify and helpers · `tests/` · `docs/` spec, design, AI approach, data dictionary, schema · `docs/study/` a living study
 guide (one note per module, glossary, an end-to-end claim walk-through, change log) · `CONTRIBUTING.md` commit format.

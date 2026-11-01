@@ -30,3 +30,15 @@
 | AS_OF | Fixed "today" in config, replacing the system clock for reproducibility |
 | Scale | Parameter: 1.0 = 2,000 policies / 1,000 claims; starter = 0.05 |
 | Origin | ground_truth column: baseline or injected |
+
+## AI design (proposed, not built)
+| Term | Meaning |
+|---|---|
+| Hybrid system | Rules decide; a model only proposes fields, drafts text or raises flags; a person confirms anything uncertain |
+| Extraction | Turning free text or scans into the intake template, with a confidence per field |
+| Confidence threshold | Per-field cut-off below which a draft goes to a person; chosen from the confidence-versus-correctness curve |
+| Grounding | Every id, rule, date and amount in a model reply must appear in the tool results it was built from |
+| Read-only tool | A function the assistant can call to look something up; none can approve, deny, pay or edit |
+| Shadow mode | The model runs and is logged but its output is not used, so it can be scored safely |
+| Ship gate | A fixed accuracy bar the model must pass on generated test data before it is switched on |
+| Prompt injection | Claim text that tries to instruct the model; handled by treating text as quoted data and validating output |
