@@ -38,6 +38,25 @@ The same table is shown in the app under "Read first: units and basic terms".
 | Rule ids | R-COV coverage, R-ELG eligibility, R-DOC documents, R-FRD fraud, R-PAY payment, R-RSV reserve, R-APR approval. Every decision names one. |
 | Data | Fully synthetic, seed 20261022. The starter is 100 policies and 50 claims; the full set is 2,000 and 1,000. Answers (ground truth) are used only to score the engine, never to decide a claim. |
 
+## Run it in a container (no Python setup)
+
+Only Docker is needed, not Python and not a git clone: Docker fetches the repository itself.
+
+```
+docker build -t yottaflex-asg https://github.com/hiox2004/YottaFlex-ASG.git
+docker run --rm -p 8501:8501 yottaflex-asg                 # the view at http://localhost:8501
+docker run --rm yottaflex-asg pytest -q                    # the tests
+docker run --rm yottaflex-asg python scripts/verify.py     # the reproducibility proof
+```
+
+(From a local clone, build with `docker build -t yottaflex-asg .` instead.)
+
+Or with compose (same image, port from `.env.example`): `docker compose up --build`, then `docker compose run --rm app pytest -q` for the tests.
+
+CI builds this image on every push, runs the proof inside it and checks that the view serves. The image installs the optional extras
+(Streamlit and the test tools), so it is larger than the core, which has no third-party runtime dependencies. Versions are pinned in `constraints.txt` (what the build resolved on 2026-11-01), so the image and CI are repeatable; the generated data does not depend on them. There is no hosted demo: the
+project runs locally or in this container, and the starter dataset and its reports are committed in `output/starter/`.
+
 ## Five-minute tour
 
 ```
@@ -57,25 +76,6 @@ streamlit run app.py                        # the view
 1. Open `output/starter/` (small, committed): `README.md`, `validation_summary.md`, `metrics.md`, `ground_truth.csv`.
 2. Run the view. Tabs: Submit a claim (fill in a form or load one of seven examples, watch the whole workflow decide it, request missing documents; template in [docs/CLAIM_INPUT.md](docs/CLAIM_INPUT.md)), Decisions (rule, reason, actor per claim), Exceptions, Claim timeline (append-only history, a rule trace showing where a claim stopped and why, and what would make it payable), Metrics (rates, cycle times, amounts blocked, money effect by rule, straight-through (no exception) rate, approver workload, docs-pending aging, reserve vs final, threshold sensitivity, precision/recall), Realism (distributions) and Reproducibility (fixed seed, dataset checksum, rebuild-and-compare) and Quality and data (validation checks, planted defects vs flagged, answer key, data dictionary, rule catalogue, table browser).
 3. Regenerate anything with the command below; the same seed always gives byte-identical files.
-
-## Run it in a container (no Python setup)
-
-Only Docker is needed, not Python and not a git clone: Docker fetches the repository itself.
-
-```
-docker build -t yottaflex-asg https://github.com/hiox2004/YottaFlex-ASG.git
-docker run --rm -p 8501:8501 yottaflex-asg                 # the view at http://localhost:8501
-docker run --rm yottaflex-asg pytest -q                    # the tests
-docker run --rm yottaflex-asg python scripts/verify.py     # the reproducibility proof
-```
-
-(From a local clone, build with `docker build -t yottaflex-asg .` instead.)
-
-Or with compose (same image, port from `.env.example`): `docker compose up --build`, then `docker compose run --rm app pytest -q` for the tests.
-
-CI builds this image on every push, runs the proof inside it and checks that the view serves. The image installs the optional extras
-(Streamlit and the test tools), so it is larger than the core, which has no third-party runtime dependencies. Versions are pinned in `constraints.txt` (what the build resolved on 2026-11-01), so the image and CI are repeatable; the generated data does not depend on them. There is no hosted demo: the
-project runs locally or in this container, and the starter dataset and its reports are committed in `output/starter/`.
 
 ## Generate data
 
@@ -231,6 +231,16 @@ There is no HTTP API by design: this is a reviewer-run test bed and workflow, no
 - The approver threshold (30,000 USD), fraud cutoff (score 0.5), the 30/90/60-day fraud windows and the document window (5 days) are hand-chosen constants in `src/claimsgen/config.py`, not fitted to data.
 - There is no reopen or appeal flow: `denied` and `under_review` claims are final in this dataset.
 - The four fraud flags (early claim, repeated claims, amount near the limit, late reporting) are simple heuristics, combined as flags divided by 4, not a trained model.
+
+## Why there is no AI inside the product
+
+AI built this project; it does not run inside it. On purpose:
+
+1. **The evaluation needs exact answers.** A separate answer key, the same seed giving the same bytes, and precision and recall against planted cases only mean something if the decisions repeat exactly. A model in the decision path would make outcomes vary between runs and the scores approximate. Rules make them exact, and every decision cites a rule id.
+2. **Coverage and payment decisions need an audit trail a person can check.** "The model judged so" is not a reason; "R-PAY-01: eligible minus deductible, capped at the remaining limit" is.
+3. **Free and local only.** The FAQ asks for free or locally runnable services. There are no keys, accounts or network calls at run time, and a reviewer runs one Docker command.
+4. **Leaving AI out of intake costs no accuracy.** The claim form is structured and validated, so a model would add risk without adding information. Free text and scans are where a model would help, and that is the extraction layer in "Where AI would go next".
+5. **Knowing where AI belongs is part of the job.** It belongs at the edges (extraction, summaries, document triage), with a person confirming and the rules keeping the final say, scored against the answer key. It does not belong in the middle of the decision.
 
 ## Where AI would go next
 
