@@ -13,9 +13,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # Editable install keeps the package at /app/src, so the generator finds the docs it copies into each dataset.
-COPY pyproject.toml README.md ./
+COPY pyproject.toml README.md constraints.txt ./
 COPY src ./src
-RUN pip install -e ".[dev,ui]"
+RUN pip install -c constraints.txt -e ".[dev,ui]"
 
 COPY . .
 RUN useradd --create-home app && chown -R app /app

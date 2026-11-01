@@ -48,7 +48,7 @@ docker run --rm yottaflex-asg python scripts/verify.py     # the reproducibility
 ```
 
 CI builds this image on every push, runs the proof inside it and checks that the view serves. The image installs the optional extras
-(Streamlit and the test tools), so it is larger than the core, which has no third-party runtime dependencies. There is no hosted demo: the
+(Streamlit and the test tools), so it is larger than the core, which has no third-party runtime dependencies. Versions are pinned in `constraints.txt` (what the build resolved on 2026-11-01), so the image and CI are repeatable; the generated data does not depend on them. There is no hosted demo: the
 project runs locally or in this container, and the starter dataset and its reports are committed in `output/starter/`.
 
 ## Generate data
