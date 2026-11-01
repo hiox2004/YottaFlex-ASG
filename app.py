@@ -3,6 +3,7 @@
 Rendering only; every number comes from claimsgen.view_data (tested). Run: streamlit run app.py   (pip install -e ".[ui]")
 """
 
+import app_basics
 import app_intake
 import app_quality
 import streamlit as st
@@ -45,6 +46,7 @@ st.sidebar.caption(
 )
 
 st.caption("Start with an example claim in 'Submit a claim', or open Decisions / Metrics.")
+app_basics.render()
 
 decisions = view_data.decisions_table(tables)
 (

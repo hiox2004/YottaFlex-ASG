@@ -100,3 +100,16 @@ def test_choosing_an_example_loads_it_without_clicking(AppTest):
     assert not app.exception, app.exception
     assert app.session_state["intake_json"] != before
     assert app.session_state["intake_loaded"] == TITLES["lapsed_policy"]
+
+
+def test_read_first_panel_states_the_units_from_config(AppTest):
+    import app_basics
+
+    from claimsgen import config
+
+    text = app_basics.text()
+    assert config.CURRENCY in text and str(config.AS_OF) in text
+    assert f"{config.APPROVER_THRESHOLD_CENTS // 100:,}" in text
+    assert f"{config.DOC_WINDOW_DAYS} days" in text
+    app = _app(AppTest)
+    assert any("Read first" in e.label for e in app.expander)
