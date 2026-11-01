@@ -1,11 +1,10 @@
 # AI use and prompt history
 
 This directory is the transparency record required by the submission guidelines: which AI tools were used, where they helped,
-what the candidate reviewed, and the prompts submitted. Facts below come from the project history; items marked **TO COMPLETE**
-can only be written by the candidate and are left open on purpose.
+what the candidate reviewed, and the prompts submitted. Facts below come from the project history; the candidate statement at the end is the candidate's own.
 
-**Status of the prompt history: EXPORTED.** `prompt-history/` holds all three Claude Code sessions of this project (counts at the last export: 66 user prompts,
-32 subagent prompts and 2 helper-model prompts). Re-run `python scripts/export_prompts.py` before the final push so it is current.
+**Status of the prompt history: EXPORTED.** `prompt-history/` holds all four Claude Code sessions of this project (counts at the last export: 104 user prompts,
+55 subagent prompts and 5 helper-model prompts). Re-run `python scripts/export_prompts.py` before the final push so it is current.
 
 ## Timeline
 The 72-hour window ran from Fri 30 Oct 2026 01:13:12 IST to Mon 2 Nov 2026 01:13:12 IST (as given by the organisation). The first prompt in the history is
@@ -73,11 +72,18 @@ per-claim random streams so a re-run cannot change untouched claims; injecting b
 single-map ID renumbering after injection; the replay validator and its shared-formula limit (and the independent reference in tests);
 predicted labels never reading ground truth; byte-stable export.
 
-## Candidate statement (to be written by the candidate before submitting)
-The sections above are facts from the project history. The following can only be stated by the candidate and are intentionally not
-filled in by an AI:
-1. **What I personally reviewed, changed and validated:** _[to be written by the candidate]_
-2. **claude.ai prompts:** the chat that produced the Understanding Brief and the setup pitch cannot be exported from the coding sessions
-   (only its share link appears, session 1 prompt 1). _[paste its prompts, or state that they could not be exported]_
-3. **Research session:** _[confirm the section "The research session" is complete, whether any idea from those repositories or entries
-   influenced a decision, whether you read them yourself, and that no third-party solution or core code was imported or copied (FAQ 7 and 10)]_
+## Candidate statement
+Written by the candidate (the sections above are facts taken from the project history).
+
+1. **What I personally did, reviewed and validated.** I defined the goal, supplied the organisers' brief and guidelines, and made the main
+   scope calls: I caught that the plan treated the working claims workflow as optional and had it corrected (IMP-001, SPEC deliverable 11),
+   set the agent policy (Opus for reviews and audits, Sonnet for implementation, Haiku for mechanical work) and decided what to build and in
+   what order. I approved or pushed back on the design decisions the AI proposed. I reviewed the plans, reports and test results the agents
+   produced, and I ran the app, the container and example claims myself to see the behaviour. Claude wrote nearly all of the code, tests and
+   documents, and I relied on it heavily for implementation. I did not write the code by hand and did not read every line; I am working through
+   the study guide in `docs/study/` to be able to explain each module.
+2. **claude.ai prompts.** The chat that produced the Understanding Brief and the setup pitch cannot be exported from the coding sessions;
+   only its share link appears (session 1, prompt 1). I have no further export of it.
+3. **Research session.** I looked at the public repositories and entries that the research session pointed to, and I read those repositories
+   myself. No code from them, and no third-party solution, was imported or copied into this repository; the history shows nothing from the
+   research reports was passed into the build session (FAQ 7 and 10).

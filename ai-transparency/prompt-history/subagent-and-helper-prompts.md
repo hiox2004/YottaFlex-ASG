@@ -359,6 +359,317 @@ An audit found these statements wrong or missing; the code is being corrected in
 Final reply (max 5 lines): what you changed.
 ```
 
+### Session 1, 2026-10-30T20:12:38.292Z: claude on haiku (Haiku research: Streamlit deprecations)
+
+```text
+You are a quick, cheap RESEARCH worker (read-only: do not edit, write or commit anything; do not read output/ or ai-transparency/prompt-history/). Repo: C:\Users\<user>\Desktop\YottaFlex_ASG (a Python project with a Streamlit front end in app.py, app_intake.py, app_quality.py; pyproject.toml pins `streamlit>=1.38`; the installed version is 1.66.1).
+QUESTIONS (use the web: docs.streamlit.io release notes / API reference / changelog; cite URLs):
+1. Streamlit now logs: "`use_container_width` will be removed after 2025-12-31. For use_container_width=True use width='stretch'; for False use width='content'." In which Streamlit RELEASE did `width="stretch"` / `width="content"` become available for st.dataframe, st.button, st.data_editor and any other widget we use? What is the lowest Streamlit version where `width="stretch"` works for st.dataframe?
+2. Grep our three app files for every Streamlit API call we use (st.dataframe, st.button, st.selectbox, st.multiselect, st.text_area, st.tabs, st.metric, st.expander, st.columns, st.cache_data, st.session_state, on_click callbacks, st.set_page_config, st.caption, st.subheader, st.title, st.write, st.date_input, st.number_input, st.text_input, st.form...) and check each against the current docs for deprecations or removals or changed behaviour between 1.38 and the latest release. List only things that are deprecated, removed, or that behave differently, with the replacement and the version.
+3. Is `streamlit.testing.v1.AppTest` still supported and are there changes that affect AppTest-based tests?
+Reply in at most 30 lines: a table (API, status, replacement, first version with the replacement), then a one-line recommendation for the `streamlit>=...` pin we should declare so every API we use exists. Mark anything you could not verify as UNVERIFIED rather than guessing.
+```
+
+### Session 1, 2026-10-30T20:12:38.328Z: claude on haiku (Haiku research: reviewer expectations)
+
+```text
+You are a quick, cheap RESEARCH worker (read-only: do not edit, write or commit anything; do not read output/ or ai-transparency/prompt-history/). Context: a candidate is submitting a 72-hour take-home project for an "Associate AI Forward Deployed Engineer" role at an AI company (YottaFlex AI). The organisation's guidelines say: submit working executable code with clear install/run/verify steps; a public GitHub repo with meaningful commits; transparent LLM use (full prompt history, where AI accelerated, what the human reviewed/changed/validated); visible reasoning (problem, assumptions, decisions, trade-offs, testing, limitations, how you know it works); individual work; no secrets/personal data; partial solutions are fine if stated. The task itself: a deterministic synthetic insurance-claims dataset generator (11 related entities, labelled edge cases, separate ground truth, validation, reproducibility) plus a working claims workflow (intake, coverage validation, document request, eligibility, settlement routing) exposing decisions and exceptions with traceability and metrics.
+QUESTIONS (use the web, cite URLs, prefer primary or well-known sources):
+1. What do hiring teams for forward-deployed-engineer and AI-engineer take-home projects typically score? Find 4-6 public rubrics, blog posts or guidance (company engineering blogs, candidate guides) and distil a rubric of criteria with typical weights where stated.
+2. What do reviewers say they look for when a candidate discloses AI-assisted work (prompt logs, ownership, verification)? What red flags do they mention (for example AI-written READMEs that overclaim, untested code, copied solutions, undisclosed tools)?
+3. Common README/repo-hygiene expectations for a reviewer who has 15 minutes (first screen, run in under 5 minutes, evidence of testing).
+Reply in at most 35 lines: (a) a distilled rubric table (criterion, what a strong submission shows, red flags), (b) a short list of the sources with URLs, (c) mark anything you could not verify as UNVERIFIED. Do not pad.
+```
+
+### Session 1, 2026-10-30T20:12:38.349Z: claude on haiku (Haiku research: insurance claims realism)
+
+```text
+You are a quick, cheap RESEARCH worker (read-only: do not edit, write or commit anything; do not read output/ or ai-transparency/prompt-history/). Context: our project generates a SYNTHETIC insurance-claims dataset and a rules-based claims workflow; reviewers will judge whether the data is realistic ("realistic distributions and meaningful variation"). Our full-scale numbers (2,000 policies, 1,000 claims, 5 products AUTO/HOME/HLTH/TRVL/LIAB, as-of 2026-10-22, policies started 2024-2026): claim outcomes by final status: approved/paid 62.1%, denied 23.0%, documents pending 4.9%, under review (duplicate/fraud) 6.5%, not yet assessed 3.5%; claims per policy 0.5; mean claimed amount about USD 10,075 vs median about 6,700 (log-normal items, sigma 0.9, medians about 4% of the coverage limit); policy status: in force 75%, expired 13%, lapsed 8%, cancelled 4%; days from submission to paid: median 8, p90 12; approval needing the senior approver above USD 10,000 (about 17% of settlements); fraud-flag referral about 3%; duplicate referral about 3.5%; touchless rate 61.5%.
+QUESTIONS (use the web, cite URLs, prefer insurer/regulator/industry sources such as NAIC, Insurance Information Institute, III, Verisk, Swiss Re, actuarial society papers, claims-automation vendor benchmarks):
+1. Typical claim frequency per policy-year and typical severity distribution shape for private auto collision, homeowners fire/water, individual health outpatient, travel (cancellation/baggage), general liability. 
+2. Typical initial denial / claim-rejection rates, suspected-fraud referral rates (SIU referral), duplicate-claim rates, and "straight-through / touchless" processing rates for simple claims.
+3. Typical cycle times (first notice to settlement/payment) by line, and typical annual lapse/cancellation rates.
+4. Standard claims workflow stages and what a reviewer would call realistic (FNOL, coverage verification, document collection, adjuster assignment, reserving, settlement authority levels).
+Reply in at most 35 lines: a table with, for each metric, the typical range and source URL, then a verdict per our number (plausible / too high / too low / unknowable) with one phrase of reasoning. Mark anything you could not verify as UNVERIFIED rather than guessing.
+```
+
+### Session 1, 2026-10-30T20:19:26.409Z: claude on opus (Opus company-side reviewer: score and plan)
+
+```text
+You are the REVIEWER on the hiring team at YottaFlex AI, reviewing a candidate's 72-hour take-home project for an "Associate AI Forward Deployed Engineer" role. Review it exactly as the company would: run it, read it, score it, find what is wrong, and write down in depth how to raise it to the level you would want to see. Repo: C:\Users\<user>\Desktop\YottaFlex_ASG (public GitHub: hiox2004/YottaFlex-ASG). The submission window closes Mon 2 Nov 2026 01:13 IST; it is now about Sat 31 Oct 2026 03:00 IST, so roughly 46 hours of improvement time remain.
+
+WHAT THE COMPANY ASKED FOR (guidelines and FAQ, summarised): working executable code with clear install/configure/run/verify steps; a public repo whose commits and context show the evolution of the work; LLM use disclosed transparently (full prompt history for every AI tool used, where AI accelerated the work, where it was relied on heavily, what the human personally reviewed/changed/validated); visible reasoning (problem, assumptions, key decisions, trade-offs, testing approach, limitations, how you know it works); individual work (AI and public learning resources are fine, implementation help from other people is not; do not import a complete solution or existing code that does the core work); no secrets, personal or sensitive data or proprietary code in the public repo; partial solutions are fine if stated honestly; no hosted demo or test suite is mandatory. "Be ready to explain your decisions, verify your work and own your submission." THE TASK ITSELF (see docs/SPEC.md and docs/BRIEF_VS_PLAN.md for the brief): a deterministic synthetic insurance-claims dataset generator (11 related entities, 2,000 policies, 1,000 claims, 5 claim types, fixed seed, scale parameter, six labelled edge cases injected after a clean baseline, separate ground truth, validation, same-seed reproducibility, exports, docs) PLUS a working claims workflow (intake, coverage validation, document request, eligibility, settlement routing) that exposes key decisions and exceptions, preserves traceability and produces measurable outputs. Evaluation focus: (a) realistic distributions, (b) IDs and joins, (c) lifecycle consistency, (d) derived values, (e) normal/boundary/failure/exception coverage, (f) separate ground truth, (g) reproducibility, documentation and lawful provenance.
+
+CONTEXT TO READ FIRST: docs/review/research/*.md (three snippet-level research notes by a cheap worker: Streamlit deprecations, what hiring reviewers look for, insurance-claims realism benchmarks; claims marked UNVERIFIED are unverified, treat them as hints, not facts). Then README.md, docs/SPEC.md, docs/DESIGN.md, docs/CLAIM_INPUT.md, docs/BRIEF_VS_PLAN.md, CLAUDE.md, CONTRIBUTING.md, ai-transparency/README.md (and you MAY read ai-transparency/prompt-history/ as a reviewer would), docs/study/ (study guide, IMPROVEMENTS.md, LOG.md), the code under src/claimsgen, app.py, app_intake.py, app_quality.py, scripts/, tests/, .github/workflows/ci.yml, Dockerfile, git log. Do NOT read output/ (a rule blocks it; the starter dataset is described by its own README) or anything under .venv.
+
+DO THE REVIEW FOR REAL: run `python -m pytest -q`, `python -m ruff check .`, `python scripts/verify.py 0.05`, build the data (`python -m claimsgen build --scale 0.05 --out <a scratch dir under the OS temp folder>`), exercise the Streamlit app headlessly with streamlit.testing.v1.AppTest (submit examples, invalid input, request documents, switch scale), try to break intake with odd input, and you may build and run the Docker image (`docker build -t yottaflex-asg .`, `docker run --rm yottaflex-asg pytest -q`; remove containers afterwards with --rm). Look at the data the way a claims person would (the realism notes list flags: touchless rate 61.5% looks high, submission-to-paid median 8 days looks low and narrow, 17% of settlements above the 10,000 senior-approval threshold versus the amount distribution, claims per policy 0.5 with no stated basis, lapse+cancel 12%, a single lognormal for all lines understating fire and liability tails). Decide which realism changes are worth making and give exact parameter changes. Consider a reviewer's 15-minute first pass (first screen of the README, can they run it in 5 minutes, is there evidence of testing), the walkthrough questions you would ask the candidate, red flags (overclaiming, tautological tests, AI-sounding prose that the code does not back, stale docs, unexplained scope), and anything that would make you doubt individual authorship or honest disclosure.
+
+YOUR DELIVERABLE: write ONE file, docs/review/REVIEWER_REPORT.md, and change nothing else (no other files, no commits, no git writes). It must be in depth and structured so that a Sonnet-model LEAD can treat it as its work instructions. Structure it as:
+ 1. Verdict and scorecard: a rubric of 8-10 criteria with weights (derive them from the company's four guideline pillars, the evaluation focus a-g and the research note), a current score out of 10 per criterion with the evidence for each score, a weighted total, a hire/no-hire style verdict, and the TARGET score per criterion for a top submission with the gap.
+ 2. First-pass experience: what a reviewer sees in the first 15 minutes and where they stumble.
+ 3. Findings: numbered, each with severity (blocker/high/medium/low), evidence (file:line or command output), why a reviewer cares, and the fix. Include realism findings with exact proposed parameter changes and their blast radius (what regenerates, which tests and docs change, the committed starter output, the dataset checksum tests).
+ 4. The path to the target level: a PRIORITISED BACKLOG T1..Tn for the lead, each task with: goal, exact files, acceptance criteria that can be checked by a command, estimated effort, which model should do it (sonnet for logic/design-sensitive work, haiku for mechanical docs/boilerplate), dependencies, and risk. Order by return on effort and mark what must NOT be done (scope creep, risky refactors, anything that could break reproducibility or CI). Include a stop rule (when to stop improving and freeze).
+ 5. Walkthrough preparation: the 15 hardest questions a reviewer would ask this candidate about the design and the AI use, with the honest answers the repo supports and the files to read.
+ 6. The items only the human candidate can do and cannot be delegated (candidate statement in ai-transparency/README.md, claude.ai chat prompts, final prompt-history export, sending the link) and a final pre-submission checklist with commands.
+ 7. Lead operating rules: the guardrails the lead must follow (CLAUDE.md rules, ground_truth only for scoring, determinism and no clock, deny rules, never rewrite pushed history, small commits with type(scope) format, do not touch ai-transparency/prompt-history, CI must stay green, regenerate output/starter whenever data or docs copied into it change and run the starter-sync test, keep files under ~300 lines, do not add heavy dependencies), how to verify each task, and how to report.
+Be concrete, honest and specific; do not pad; be willing to give low scores where deserved. Length: as long as it needs to be to be genuinely actionable (a few hundred lines is fine). When the file is written, reply with at most 12 lines: the weighted total, the top 5 findings, and the number of backlog tasks.
+```
+
+### Session 1, 2026-10-30T21:43:51.285Z: claude on sonnet (Sonnet lead 1: execute reviewer backlog T1-T4)
+
+```text
+You are the Sonnet LEAD engineer for the YottaFlex-ASG project (repo C:\Users\<user>\Desktop\YottaFlex_ASG, Python 3.12, Windows with Git Bash and PowerShell, pytest, ruff, Streamlit, public GitHub repo hiox2004/YottaFlex-ASG, branch main). The owner has authorised you to edit files, COMMIT and PUSH to main, and run any command except those blocked by the deny rules. Nobody will review your work while you run, so be careful and verify everything yourself.
+
+YOUR WORK ORDER is docs/review/REVIEWER_REPORT.md (written by an Opus reviewer acting as the hiring company's reviewer; it is local-only and git-ignored, never commit it, never edit it except to append a one-line Status). READ IT IN FULL FIRST, then CLAUDE.md and CONTRIBUTING.md. Section 7 (lead operating rules) is binding. The three docs/review/research/*.md notes are snippet-level hints, not facts.
+
+YOUR SLICE IN THIS RUN: execute backlog tasks T1, T2, T3 and T4, in that order, exactly as specified in section 4 (files, acceptance criteria, risks), and then STOP and report. Do NOT start T5 or later. Task summary: T1 honesty sweep (docs/docstring only; do not touch SOURCE_MANIFEST.md, docs/DATA_DICTIONARY.md or docs/schema.sql there); T2 R-ELG-01 coverage terms (new coverage columns, rule R-ELG-01 in rules/engine/claim_build/intake form/payable_reference/docs; the probe `hospital_stay` under an auto Theft coverage must give deny R-ELG-01 not_covered, and the generator must stop producing items a coverage does not cover); T3 record requested documents (assessment.missing_doc_types, validator reconciliation, timeline text, aging buckets, no new statuses); T4 metric honesty (rename touchless to straight-through no-exception rate, approver share line, fraud caveat sentence).
+
+HOW TO WORK:
+- One commit per task (more if a task naturally splits), `<type>(<scope>): <summary>` of 72 characters or fewer (the commit-msg hook rejects anything else), a body saying why, ending with the trailer line `Co-Authored-By: Claude Sonnet 5.5 <<email>>`. Use explicit `git add <paths>`; NEVER `git add -A` or `git add .` (there are uncommitted changes under ai-transparency/prompt-history/ that belong to the owner: never stage or touch them). Never amend, never force push, never reset, never rewrite history.
+- Data-changing tasks (T2, T3, T4 touch generated data or metrics or copied docs): run `python -m claimsgen.schema_docs` after schema changes and `python -m claimsgen build --scale 0.05 --out output/starter` and the starter-sync test IN THE SAME COMMIT as the change. Verify minimum per task: `python -m pytest -q`, `python -m ruff check . && python -m ruff format --check .`, `python scripts/verify.py 0.05`, and for data tasks also `python scripts/verify.py 1.0` and builds at 1.0 and 0.25 that say "= planted defects" (see section 7 of the report). Push after each task, then check CI: get the run id with `"/c/Program Files/GitHub CLI/gh.exe" run list --limit 1 --json databaseId,status,headSha` and wait with `gh.exe run watch <id> --exit-status` run in the background (do not poll in a loop; do not chain sleeps). Do not start the next task while CI is red; fix forward with a new commit, or `git revert` (never reset).
+- You may delegate disjoint-file work to workers with the Agent tool (subagent_type "claude", an explicit model: "sonnet" for logic, "haiku" for mechanical docs); never `general-purpose`; workers never commit and never edit docs/study/README.md, LOG.md, DESIGN.md or SPEC.md (you integrate those). If the Agent tool is not available to you, do the work yourself. The PostToolUse hook runs the whole test suite (about 60 s) after every Python edit and may fail transiently while a multi-file change is half done: batch related edits, and do not panic over a mid-change failure.
+- Writing files with shell heredocs mangles backslashes (for example `\a` becomes a control character): put multi-line Python edit scripts in a file via the Write tool (use the scratchpad directory C:\Users\<user>\AppData\Local\Temp\claude\c--Users-<user>-Desktop-YottaFlex-ASG\0e27adb4-ec19-4cde-8d1c-5afad6f934b6\scratchpad) and run them, or use the Edit tool. Do not use `rm -rf`. Do not read output/ (use scripts/summarize_data.py or scratch builds in the OS temp folder). Keep new or touched files under about 300 lines where possible and add no dependencies.
+- Guardrails from the report that matter most: ground_truth only for scoring; determinism (no clock, only seeded streams, any change to draw order is a data change that must be regenerated and reported); do not tune data to push a score to 1.00; do not loosen a test without a written reason inside the test; append to docs/study/LOG.md (never edit history lines), update the touched modules' study notes, the README index when a module is added, DESIGN.md decisions, and CLAIM_INPUT.md for intake-visible rules.
+- If you hit an API rate limit or any error that stops you, stop cleanly and describe the exact state (which task, which files are changed, what is committed and pushed) so the work can be resumed.
+
+REPORT (your final reply, one block per task, per section 7 "How to report"): task id, commit hash(es), pushed yes/no, CI result; commands run with one-line results (test count, verify result, failing ids = planted); numbers before -> after for every metric the task touched; docs and tests changed (with a reason for any loosened assertion); risks, anything skipped. Finish with a one-line status of the whole repo (git status clean apart from the owner's prompt-history changes, HEAD hash, CI state).
+```
+
+### Session 1, 2026-10-30T22:16:27.869Z: claude on sonnet (Sonnet lead 2: backlog T5, T6, T9, T12)
+
+```text
+You are the Sonnet LEAD engineer for the YottaFlex-ASG project (repo C:\Users\<user>\Desktop\YottaFlex_ASG, Python 3.12, Windows with Git Bash and PowerShell, pytest, ruff, Streamlit, public GitHub repo hiox2004/YottaFlex-ASG, branch main). The owner has authorised you to edit files, COMMIT and PUSH to main, and run any command except those blocked by the deny rules. Nobody will review your work while you run, so verify everything yourself.
+
+YOUR WORK ORDER is docs/review/REVIEWER_REPORT.md (written by an Opus reviewer acting as the hiring company's reviewer; it is local-only and git-ignored: never commit it; you may append one line to its Status section at the end). READ IT IN FULL FIRST, then CLAUDE.md and CONTRIBUTING.md. Section 7 (lead operating rules) is binding. The docs/review/research/*.md notes are snippet-level hints, not facts (the report itself says some of their figures are wrong).
+
+STATE: a previous lead already finished and pushed T1-T4 (HEAD 03f4af5, CI green, 282 tests): honesty sweep; R-ELG-01 coverage terms (coverage.covered_incident_types / covered_item_types, deny R-ELG-01 not_covered, generator draws the incident type first); assessment.missing_doc_types plus a validator reconciliation; straight-through (no-exception) rate renamed from touchless and an approver-share line. Known after T2: approver share is 22.9% of approved first settlements (DESIGN's band was 5-15%, T5 retunes it); two organic drops appeared that were never investigated: duplicate_incident recall 1.00 -> 0.94 and boundary_amount_at_deductible "decided as expected" 10/10 -> 9/10.
+
+YOUR SLICE IN THIS RUN: execute T5, T6, T9 and T12 from section 4 (in the order T5, T6, T9, T12; T5 and T6 both change generation so they are sequential), exactly per the specs and acceptance criteria there, then STOP and report. Do NOT start T7, T8, T10, T11 or T13. Extra duty after T6: re-check every class in the metrics.md precision/recall table that is below 0.95 (including the two drops above) and find out WHY (read the specific claims through a scratch build in the OS temp folder, never output/); if a genuine bug in the generator/engine/injection causes a miss, fix it with a test; if it is an honest organic effect, record it in LOG.md and DESIGN.md with the reason. Do not tune anything to push a score to 1.00.
+Notes for T5: the severity table and approver threshold must produce an approver share of 8-15% of approved first settlements; if the reviewer's suggested 25,000 USD does not land there at full scale, pick from {15k, 20k, 25k, 30k} by measurement and document the choice; update sensitivity.APPROVER_VALUES; tests that assume a coverage with limit >= 3x threshold (tests/test_whatif.py approver tests) must still find one. Write tests/test_realism.py with the acceptance bounds listed in T5/T6 (at scale 1.0, build once per module).
+Notes for T9: `MIN_SCALE`/`MAX_SCALE` in config, a ValueError in generate.build_dataset, a clean argparse error (exit 2, one-line message, no traceback) in __main__.py, verify.py failing with the same message; first check which scales actually still build after T5/T6 (the pools change) and set MIN_SCALE to the smallest value that builds reliably with every scenario present (0.05 is the starter and must keep working); tests for 0, -1, below-min and above-max.
+Notes for T12: read `.claude/agents/*.md` and `.claude/commands/verify.md`, make sure they contain no secrets or personal data, copy the agent files into ai-transparency/agents/ (do NOT un-ignore .claude/agents/), add one line under "Limits of this record" in ai-transparency/README.md, and do not touch ai-transparency/prompt-history/ in any way.
+
+HOW TO WORK (same rules as the previous lead):
+- Commit per task or logical step, `<type>(<scope>): <summary>` of 72 characters or fewer (a hook rejects anything else), a body saying why, ending with `Co-Authored-By: Claude Sonnet 5.5 <<email>>`. Use explicit `git add <paths>`; NEVER `git add -A` or `git add .`; never touch ai-transparency/prompt-history/ (the owner exports it); never amend, force push, reset, or rewrite history.
+- Data-changing work: run `python -m claimsgen.schema_docs` after schema changes and `python -m claimsgen build --scale 0.05 --out output/starter` plus `python -m pytest -q tests/test_starter_in_sync.py` in the SAME commit. Verify minimum per task: `python -m pytest -q`, `python -m ruff check . && python -m ruff format --check .`, `python scripts/verify.py 0.05`, and for data tasks also `python scripts/verify.py 1.0` and builds at 1.0 and 0.25 whose summary line says "= planted defects". Push after each task and check CI: `"/c/Program Files/GitHub CLI/gh.exe" run list --limit 1 --json databaseId,status,headSha`, then `gh.exe run watch <id> --exit-status` run in the background (do not poll in a loop, do not chain sleeps). Do not start the next task while CI is red; fix forward or `git revert`.
+- You may delegate disjoint-file work with the Agent tool (subagent_type "claude", explicit model: "sonnet" for logic, "haiku" for mechanical text); never `general-purpose`; workers never commit and never edit docs/study/README.md, LOG.md, DESIGN.md or SPEC.md. If the Agent tool is unavailable, do it yourself. The PostToolUse hook runs the whole test suite (about 90 s) after every Python edit and may fail transiently mid-change; batch related edits.
+- Multi-line Python edit scripts: write them with the Write tool into the scratchpad directory C:\Users\<user>\AppData\Local\Temp\claude\c--Users-<user>-Desktop-YottaFlex-ASG\0e27adb4-ec19-4cde-8d1c-5afad6f934b6\scratchpad and run them (shell heredocs mangle backslashes). No `rm -rf`. Keep touched files under about 300 lines where possible, no new dependencies, core stays stdlib-only.
+- Guardrails: ground_truth only for scoring; determinism (no clock, only seeded streams; a change to draw order is a data change: regenerate and report it); never loosen a test without a written reason inside the test; append to docs/study/LOG.md (never edit history lines); update touched modules' study notes, the README index for new modules, DESIGN.md decisions and every doc that quotes a number you changed (README, CLAIM_INPUT, config comments, study notes). Never copy figures from the research notes as facts; re-derive from a fresh build.
+- If you hit an API rate limit or any stopping error, stop cleanly and describe the exact state (task, files changed, what is committed and pushed) so the work can be resumed.
+
+REPORT (final reply, one block per task per section 7 "How to report"): task id, commit hash(es), pushed yes/no, CI result; commands run with one-line results; numbers before -> after for every metric touched (severity medians by claim type, within_deductible denial share, approver share, F1/F2/F3/F4 flag rates, lag maximum, recall/precision table); the explanation of each sub-0.95 class; docs and tests changed (with a reason for any loosened assertion); risks, anything skipped. Finish with a one-line repo status (git status, HEAD hash, CI state) and the current time in IST so the owner can see how much of the day is used.
+```
+
+### Session 1, 2026-10-31T08:16:03.662Z: claude on sonnet (Sonnet lead 3: T11, T7, T8)
+
+```text
+You are the Sonnet LEAD engineer (run 3) for the YottaFlex-ASG project (repo c:\Users\<user>\Desktop\YottaFlex_ASG, Python 3.12, Windows Git Bash/PowerShell, pytest, ruff, Streamlit, public repo hiox2004/YottaFlex-ASG, branch main). You may edit, COMMIT and PUSH to main and run any command not blocked by the deny rules. Nobody reviews while you run; verify yourself.
+
+WORK ORDER: docs/review/REVIEWER_REPORT.md (local-only, git-ignored, never commit; you may append one line to its Status section at the end). Read it fully, then CLAUDE.md and CONTRIBUTING.md. Section 7 operating rules are binding. Previous leads finished T1-T6, T9, T12 (HEAD 2250018, 313 tests, CI green). Read docs/DESIGN.md "Realism decisions" and "Why some classes are below 0.95" and the tail of docs/study/LOG.md for current state (approver threshold now 30,000 USD, share 11.8%; test_realism guards 8-15%; MIN_SCALE rule: 0.05 or 0.075-5.0).
+
+YOUR SLICE: T11 (rejected-document path + first-screen polish), then T7 (per-line cycle times, horizon 21->45, inject filter +15->+30 as specified in the report; it is allowed now because T1-T6 are green), then T8 (README "Results at a glance", "Realism and calibration", "Where AI would go next", with every number re-derived from a fresh full-scale build and the current metrics output, never copied from notes). Do NOT start T10 or T13. After T7, re-check the approver share (test_realism band 8-15%; if it leaves the band, re-pick the threshold from {20k,25k,30k,35k} by measurement and document), the flag rates, and the recall/precision classes below 0.95; explain changes honestly in DESIGN/LOG, never tune to chase 1.00. Any change to draw order or the engine is a data change: regenerate the starter (`python -m claimsgen build --scale 0.05 --out output/starter`) and run tests/test_starter_in_sync.py in the same commit; run `python -m claimsgen.schema_docs` after schema changes.
+
+RULES: commit per task, `<type>(<scope>): <summary>` <=72 chars, body explains why, end with `Co-Authored-By: Claude Sonnet 5.5 <<email>>`; explicit `git add <paths>` only (never -A or .); never touch ai-transparency/prompt-history/; never amend/force/reset. Per task verify: `python -m pytest -q`, `python -m ruff check . && python -m ruff format --check .`, `python scripts/verify.py 0.05`, and for data tasks `python scripts/verify.py 1.0` plus builds at 1.0 and 0.25 whose summary says "= planted defects". Push after each task, check CI with `"/c/Program Files/GitHub CLI/gh.exe" run list --limit 1 --json databaseId,status,headSha` then `gh.exe run watch <id> --exit-status` in the background; do not start the next task while CI is red. Multi-line Python edit scripts: write files via Write tool into C:\Users\<user>\AppData\Local\Temp\claude\c--Users-<user>-Desktop-YottaFlex-ASG\0e27adb4-ec19-4cde-8d1c-5afad6f934b6\scratchpad and run them. No rm -rf. Never read raw output/ files (use scripts/summarize_data.py or temp-folder builds with code). Never loosen a test without a written reason inside it. ground_truth only for scoring; determinism only (seeded streams, no clock). Update study notes, README index for new modules, DESIGN, LOG (append only) and every doc quoting a changed number. Subagents only via Agent with subagent_type "claude" and explicit model (sonnet/haiku), never general-purpose, disjoint files, workers never commit or edit study README/LOG/DESIGN/SPEC. If you hit a rate limit or stopping error, stop cleanly and report exact state.
+
+REPORT per section 7: per task: commit hashes, pushed, CI, commands with one-line results, before->after numbers (cycle time by claim type, approver share, flag rates, recall/precision table), docs/tests changed with reasons for any loosened assertion, risks, skipped items. End with git status, HEAD, CI state and current IST time.
+```
+
+### Session 1, 2026-10-31T08:49:09.854Z: claude on sonnet (Sonnet lead 4: remaining code work)
+
+```text
+You are the Sonnet LEAD engineer (run 4) for YottaFlex-ASG (repo C:\Users\<user>\Desktop\YottaFlex_ASG, Python 3.12, Windows Git Bash/PowerShell, pytest, ruff, Streamlit, public repo hiox2004/YottaFlex-ASG, branch main). You may edit, COMMIT and PUSH to main and run any command not blocked by deny rules. Nobody reviews while you run; verify yourself.
+
+GOAL: finish ALL remaining CODE work (the owner will do the human-only items later). Read docs/review/REVIEWER_REPORT.md fully (local-only, git-ignored, never commit; append one Status line at the end), CLAUDE.md, CONTRIBUTING.md, docs/DESIGN.md (Realism decisions, class-recall sections), tail of docs/study/LOG.md. Leads 1-3 finished T1-T9, T11, T12 (HEAD ef3537c, 315 tests, CI green).
+
+DO, in order:
+1. Audit: go through every task, finding and "DO NOW/DO LATER" item in REVIEWER_REPORT.md and docs/study/IMPROVEMENTS.md and list anything still unaddressed in code (not human items H1-H8, not T13). Fix the ones that are cheap and valuable; log the rest in LOG.md with a reason.
+2. engine.py is ~320 lines (over the 300 rule): split one cohesive concern into its own module with no behaviour change (output of `python scripts/verify.py 0.05` and 1.0 must be byte-identical, starter checksums unchanged), update the study note and README index.
+3. T10 (FNOL reserve development) per the report, ONLY if it can be done cleanly with data/tests/docs; if it is risky or the spec is vague, skip it and say why.
+4. Robustness sweep: run the Streamlit AppTest suite, try hostile/edge inputs in the intake tab and CLI (scales, empty out dirs, repeated builds), docs links (README/docs relative links resolve, numbers quoted in README/DESIGN match a fresh full-scale build and `pytest -q` count), no stale mentions of old thresholds (10,000 USD approver, touchless, 21-day horizon). Fix what you find with tests.
+5. Final verification: pytest, ruff check + format check, verify.py 0.05 and 1.0, builds at 1.0 and 0.25 say "= planted defects", test_starter_in_sync, CI green on the last commit.
+
+RULES: commit per logical step, `<type>(<scope>): <summary>` <=72 chars, body explains why, end with `Co-Authored-By: Claude Sonnet 5.5 <<email>>`; explicit `git add <paths>` only; never touch ai-transparency/prompt-history/; never amend/force/reset/rewrite history; do not do T13 (freeze/tag) or any H item. Data-affecting change: regenerate starter (`python -m claimsgen build --scale 0.05 --out output/starter`) in the same commit; `python -m claimsgen.schema_docs` after schema changes. Push after each commit; check CI with `"/c/Program Files/GitHub CLI/gh.exe" run list --limit 1 --json databaseId,status,headSha` then `gh.exe run watch <id> --exit-status` in background; don't proceed while red. Multi-line Python edit scripts: write via Write tool into C:\Users\<user>\AppData\Local\Temp\claude\c--Users-<user>-Desktop-YottaFlex-ASG\0e27adb4-ec19-4cde-8d1c-5afad6f934b6\scratchpad. No rm -rf. Never read raw output/ files. Never loosen a test without a written reason in it. ground_truth only for scoring; deterministic only. Update study notes, DESIGN, LOG (append only) and every doc quoting a changed number. Subagents only via Agent with subagent_type "claude" and explicit model, never general-purpose, workers never commit. Stop cleanly with exact state if rate-limited.
+
+REPORT: per step commit hashes, pushed, CI, commands with one-line results, before->after numbers if any, skipped items with reasons, remaining risks; end with git status, HEAD, CI state and current IST time.
+```
+
+### Session 1, 2026-10-31T11:38:40.512Z: claude on opus (Opus brief-vs-project audit)
+
+```text
+You are an independent Opus auditor for the YottaFlex-ASG take-home (repo C:\Users\<user>\Desktop\YottaFlex_ASG). Question to answer: does the finished project cleanly and completely answer what the organisers actually asked for? Write the result to docs/review/BRIEF_AUDIT.md (you may create only that file; do not edit anything else, do not commit, do not run git commands that change state).
+
+RAW TASK MATERIAL (read these first, they are the ground truth, not our summaries):
+1. C:\Users\<user>\Downloads\Claims Synthetic Data Challenge Understanding Brief.pdf (read with the Read tool, pages parameter)
+2. C:\Users\<user>\Downloads\YottaFlex AI Candidate Project Submission Guidelines.pdf
+3. C:\Users\<user>\Downloads\YottaFlex AI Candidate Project-FAQ.pdf
+4. The user's pasted raw objective text: C:\Users\<user>\AppData\Local\Temp\claude\c--Users-<user>-Desktop-YottaFlex-ASG\0e27adb4-ec19-4cde-8d1c-5afad6f934b6\scratchpad\raw\original_brief_text.txt ("Build a working solution for this end-to-end workflow: Intake claims, validate policy coverage, request missing documents, assess eligibility and route for settlement. The solution should expose key decisions and exceptions, preserve traceability, and produce measurable outputs. Medium complexity means multiple related entities, conditional rules, at least one exception path and meaningful evaluation metrics.")
+5. The image C:\Users\<user>\AppData\Local\Temp\claude\c--Users-<user>-Desktop-YottaFlex-ASG\0e27adb4-ec19-4cde-8d1c-5afad6f934b6\scratchpad\raw\image1.png (a rules table fragment: R-PAY-01 "Payable per coverage (your formula)" risk Overpaying; R-RSV-01 "Set the reserve = payable" risk Under-reserving). The user says they sent two images; only this one could be recovered. If the brief PDF contains the other (likely the rules or edge-case table), use that, and say in the report which items you could not verify.
+Earlier summaries of the brief exist in docs/BRIEF_VS_PLAN.md and docs/SPEC.md, but verify them against the raw material; they may have omitted or mis-stated items.
+
+THEN inspect the project: README.md, docs/SPEC.md, docs/DESIGN.md, docs/CLAIM_INPUT.md, docs/DATA_DICTIONARY.md, src/claimsgen/*, app*.py, scripts/, tests/, ai-transparency/, Dockerfile, .github/workflows/ci.yml. NEVER read raw files under output/ (they are denied); use `python scripts/summarize_data.py` and run `python -m claimsgen build --scale 0.05 --out <temp dir under the OS temp folder>` if you need data. You have Bash and can run pytest, scripts/verify.py, ruff.
+
+DELIVERABLE docs/review/BRIEF_AUDIT.md, sections:
+1. Requirement inventory: every explicit and implicit requirement in the raw material (task, deliverables, submission format, evaluation criteria, FAQ answers, AI-use disclosure, deadlines), each with an ID.
+2. Traceability matrix: requirement -> where we satisfy it (file/test/command) -> verdict (MET / PARTIAL / MISSING / EXCEEDS / NOT-APPLICABLE) with evidence you verified yourself (run commands; quote one-line results).
+3. Gaps and over-reach: anything asked but missing or weak; anything we built that was not asked and could confuse or cost (scope creep), and anything in our docs that contradicts the raw brief (e.g. wording of rule R-PAY-01 / R-RSV-01 vs the brief's table, entity count and names, ID formats, counts 2,000/1,000/5 claim types, seed, edge-case names and row counts of 10-30, ground_truth separation, reproducibility proof, SQL/CSV/JSON exports).
+4. Submission-readiness: what the submission guidelines require that we have not done or that only the human can do (AI-use disclosure, prompt history, candidate statements, email format, repo access), with exact quotes from the guidelines.
+5. Verdict: "is this what is being asked, cleanly?" yes/no/partly, a score out of 10 with reasons, and a ranked fix list (DO NOW / DO LATER / SKIP by ROI) with file-level instructions a Sonnet engineer can follow. Mark which fixes are code/doc work for an engineer and which are human-only.
+Be adversarial and specific; no flattery; do not claim something is verified unless you ran or read it. Finish with a 10-line summary in your reply (verdict, score, top five fixes).
+```
+
+### Session 1, 2026-10-31T11:46:55.206Z: claude on sonnet (Sonnet lead 5: audit fixes)
+
+```text
+You are the Sonnet LEAD engineer (run 5) for YottaFlex-ASG (repo C:\Users\<user>\Desktop\YottaFlex_ASG, Python 3.12, Windows Git Bash/PowerShell, pytest, ruff, Streamlit, public repo hiox2004/YottaFlex-ASG, branch main). You may edit, COMMIT and PUSH to main and run any command not blocked by deny rules. Nobody reviews while you run; verify yourself.
+
+WORK ORDER: docs/review/BRIEF_AUDIT.md (local-only, git-ignored; never commit; you may append one Status line at its end). Read section 5 (verdict and fix list), CLAUDE.md, CONTRIBUTING.md, docs/SUBMISSION_CHECKLIST.md. HEAD is 17dd6ff, 319 tests, CI green. Apply the engineer items only (not human items H1-H10, not T13, never touch ai-transparency/prompt-history/ or the candidate-statement placeholders):
+1. Data dictionary: add a generated "Relationships and lifecycle" section via src/claimsgen/schema_docs.py (cardinality of each FK, optional links, effective dates, status states from rules.TRANSITIONS, ID formats incl. that the policy serial is one counter shared across products); regenerate docs/DATA_DICTIONARY.md and docs/schema.sql if affected, regenerate output/starter and keep tests/test_starter_in_sync.py green in the same commit.
+2. CI: add `python scripts/verify.py 1.0` (about 13 s) to the CI test job (.github/workflows/ci.yml) and to the README tour/proof text; verify locally first.
+3. Doc drift: reword docs/SPEC.md line about the reserve to match the code (R-RSV-01 is now the FNOL reserve = per coverage min(claimed, limit) summed; R-RSV-02 is the reserve at decision = payable) and note in SPEC that its source is the organisers' text plus the candidate's Understanding Brief; fix README numbers that drifted (checks count and row count: take them from a fresh full build, e.g. the validation summary, not from the audit); add README assumptions for the shared policy-ID counter, "2026 is the series year", and how a document request is recorded (assessment.missing_doc_types / requested documents). Check every other doc quoting rule IDs or counts for the same drift (grep R-RSV, 290,000, 23,5).
+4. R-ELG-01 never fires on the data (0 of 1,000 assessments): plant about 10 baseline claims that R-ELG-01 denies as a labelled-in-ground_truth ordinary scenario ONLY IF it fits the existing scenario mechanism cleanly (a baseline scenario like the others, outcomes derived by the engine, no label columns in input tables, validation still flags exactly the planted integrity defects, test_realism bounds still hold, approver share stays 8-15%). If it forces risky changes, skip it and log why in LOG.md. If done: new/updated tests, DESIGN + study notes + LOG, starter regenerated, metrics classes re-checked.
+Also: update docs/SUBMISSION_CHECKLIST.md statuses (C3 done, C4 done: fresh clone passed 319 tests and verify; C5 done with its fix list applied).
+
+RULES: commit per logical step, `<type>(<scope>): <summary>` <=72 chars, body says why, end with `Co-Authored-By: Claude Sonnet 5.5 <<email>>`; explicit `git add <paths>` only; never amend/force/reset/rewrite history. Verify per commit: `python -m pytest -q`, `python -m ruff check . && python -m ruff format --check .`, `python scripts/verify.py 0.05`, and for data changes `python scripts/verify.py 1.0` plus builds at 1.0 and 0.25 whose summary says "= planted defects". Push after each commit; check CI with `"/c/Program Files/GitHub CLI/gh.exe" run list --limit 1 --json databaseId,status,headSha` then `gh.exe run watch <id> --exit-status` in the background; don't continue while red. Multi-line Python edit scripts: write via Write tool into C:\Users\<user>\AppData\Local\Temp\claude\c--Users-<user>-Desktop-YottaFlex-ASG\0e27adb4-ec19-4cde-8d1c-5afad6f934b6\scratchpad. No rm -rf (a deny rule blocks any command containing it). Never read raw output/ files. Never loosen a test without a written reason in it. ground_truth scoring-only; deterministic only. Update study notes, DESIGN, LOG (append only), and every doc quoting a changed number. Subagents only via Agent with subagent_type "claude" and explicit model, never general-purpose; workers never commit. Stop cleanly with exact state if rate-limited.
+
+REPORT: per step commit hashes, pushed, CI, commands with one-line results, before->after numbers, skipped items with reasons, risks; end with git status, HEAD, CI state and IST time.
+```
+
+### Session 1, 2026-11-01T06:21:42.952Z: claude on sonnet (Sonnet lead 6: IMP-013 to IMP-015)
+
+```text
+You are the Sonnet LEAD engineer (run 6) for YottaFlex-ASG (repo C:\Users\<user>\Desktop\YottaFlex_ASG, Python 3.12, Windows Git Bash/PowerShell, pytest, ruff, Streamlit, public repo hiox2004/YottaFlex-ASG, branch main). You may edit, COMMIT and PUSH to main. Read CLAUDE.md and CONTRIBUTING.md first.
+
+TASK: close the three open findings IMP-013, IMP-014, IMP-015 in docs/study/IMPROVEMENTS.md (written by the study teacher; the file has UNCOMMITTED edits that are yours to commit). Verify each claim against the code before changing anything (some may already be fixed or slightly wrong); the code is the authority.
+- IMP-013 (docs stale vs code): fix every doc line that is actually wrong (rules.md rule count: count RULES in src/claimsgen/rules.py; DESIGN 'least-loaded by specialty'; engine.py comment about draws; DESIGN whatif thresholds; intake.md `_incident_types`; export.md newline; `export._csv` vs `export.csv_text`; view_data.md six vs eight tabs). Comment fixes in engine.py must not change behaviour (verify.py output stays byte-identical).
+- IMP-014 (scoring): make boundary_incident_on_start / _on_end / boundary_amount_at_limit scoring check what the label says (incident date equals policy start or end; claimed amount equals the coverage limit), OR document them honestly as 'decided as expected' checks. Prefer real conditions if they stay derived from INPUT tables and engine output only (never ground_truth); if scores change, report before->after and explain; do not tune to reach 1.00; update docs that quote these numbers (README, DESIGN, metrics docs) and tests.
+- IMP-015 (robustness): same error type in intake_examples, guard empty lists in metrics.operational, build the sidebar as-of text in app.py from config.AS_OF; add small tests.
+Then move the three entries to Done in IMPROVEMENTS.md with commit hashes, append a LOG.md line (newest first, top of the list), update touched module notes.
+
+DO NOT touch: scripts/export_prompts.py, tests/test_export_prompts.py, ai-transparency/ (another process owns them), docs/SUBMISSION_CHECKLIST.md, README sections other than numbers you change. Never commit docs/review/BRIEF_AUDIT.md, docs/review/REVIEWER_REPORT.md or book/.
+RULES: commit per logical step `<type>(<scope>): <summary>` <=72 chars (types: feat fix docs test refactor chore ci data), body says why, end with `Co-Authored-By: Claude Sonnet 5.5 <<email>>`; explicit `git add <paths>` only; never amend/force/reset. A data-affecting change (unlikely) needs starter regeneration `python -m claimsgen build --scale 0.05 --out output/starter` in the same commit. Verify before each push: `python -m pytest -q`, `python -m ruff check . && python -m ruff format --check .`, `python scripts/verify.py 0.05`; for scoring changes also `python scripts/verify.py 1.0` and a full build whose summary says '= planted defects'. After pushing check CI: `"/c/Program Files/GitHub CLI/gh.exe" run list --limit 1 --json databaseId,status,headSha` then `gh.exe run watch <id> --exit-status` (background). Multi-line Python edit scripts: write with the Write tool into C:\Users\<user>\AppData\Local\Temp\claude\c--Users-<user>-Desktop-YottaFlex-ASG\0e27adb4-ec19-4cde-8d1c-5afad6f934b6\scratchpad. No rm -rf. Never read raw output/ files. Never loosen a test without a written reason in it. ground_truth scoring-only. Subagents only via Agent with subagent_type 'claude' and explicit model; never general-purpose; workers never commit.
+REPORT: per finding what was true/false, commits, CI, commands with one-line results, number changes, skipped items; end with git status, HEAD, CI state, IST time.
+```
+
+### Session 2, 2026-10-31T12:58:43.598Z: claude on haiku (Code walkthrough: Python primer)
+
+```text
+You are a worker writing one chapter of a study book. FIRST read the spec: C:\Users\<user>\AppData\Local\Temp\claude\c--Users-<user>-Desktop-YottaFlex-ASG\f410fea5-8d30-4aa6-8184-d317b0538592\scratchpad\book\code\WORKER_SPEC.md and follow it exactly.
+
+Your ID is `primer`. Output files: `40_primer.html` and `qs_primer.json` in the output folder named in the spec.
+
+Assignment: a "Python reading primer" for a beginner who must read the repo's code. Cover ONLY constructs that actually appear in the repo's `src/claimsgen/` code, each shown with a real verbatim excerpt (5 to 25 lines) found with the Grep tool, and explained in plain words: imports and `from ... import`, type hints (`list[dict]`, `-> str`), `@dataclass` (use decide.py or rules.py), dict and list comprehensions, `sorted(..., key=...)`, `defaultdict`, f-strings, tuple unpacking, `Decimal` money handling (see intake.py), `random.Random` seeded streams (config.py `rng`), `with open`/`pathlib` file writing (export.py), `lambda`, generator expressions inside `sum(...)`/`all(...)`/`any(...)`, `assert`, and pytest basics (a fixture in tests/conftest.py and a parametrized test). One `<section id="m-primer">` with an `<h3>` per construct (~14 constructs). Give each construct: what it is, the verbatim excerpt (with data-file/data-start/data-end), and a short 'read it like this' walk. 2-3 self-checks at the end.
+```
+
+### Session 2, 2026-10-31T12:58:43.630Z: claude on haiku (Code walkthrough: foundations modules)
+
+```text
+You are a worker writing one chapter of a study book. FIRST read the spec: C:\Users\<user>\AppData\Local\Temp\claude\c--Users-<user>-Desktop-YottaFlex-ASG\f410fea5-8d30-4aa6-8184-d317b0538592\scratchpad\book\code\WORKER_SPEC.md and follow it exactly.
+
+Your ID is `found`. Output files: `41_found.html` and `qs_found.json` in the output folder named in the spec.
+
+Assigned source files (under src/claimsgen/): config.py, ids.py, vocab.py, generate.py, schema.py (schema.py is long: cover only its structure, i.e. how a table/field spec is declared, how the DDL and data dictionary are generated from it; 3 to 4 excerpts). Matching notes: docs/study/modules/config.md, ids.md, vocab.md, generate.md, schema.md. Use one `<section id="m-found">` with an `<h2>` per file, or one section per file (ids m-found-a ...). Emphasize: AS_OF instead of the clock, the seeded `rng(stream)` factory, scale checks, ID builders, enums, and how generate.build_dataset chains the pipeline steps.
+```
+
+### Session 2, 2026-10-31T12:58:43.656Z: claude on haiku (Code walkthrough: rules and decide)
+
+```text
+You are a worker writing one chapter of a study book. FIRST read the spec: C:\Users\<user>\AppData\Local\Temp\claude\c--Users-<user>-Desktop-YottaFlex-ASG\f410fea5-8d30-4aa6-8184-d317b0538592\scratchpad\book\code\WORKER_SPEC.md and follow it exactly.
+
+Your ID is `rules`. Output files: `42_rules.html` and `qs_rules.json` in the output folder named in the spec.
+
+Assigned source files (under src/claimsgen/): rules.py and decide.py. Matching notes: docs/study/modules/rules.md, decide.md; also docs/DESIGN.md section 'Rule catalogue'. Cover every function in both files: the RULES catalogue, TRANSITIONS, `in_force`, `covered`, `missing_docs`, `fraud_flags`, `covered_items`, `eligible_by_coverage`, `fnol_reserve`, `payable` (with a worked numeric example, e.g. claimed 4200, deductible 500, limit 20000 -> 3700), the `Payout` dataclass, and `decide.evaluate` (walk it top to bottom: first failing rule returns; explain the `resumed` flag and the inner `out` helper). Use one `<section id="m-rules">` with `<h2>` per file. This is the most important chapter in the book: be exact.
+```
+
+### Session 2, 2026-10-31T12:58:43.686Z: claude on haiku (Code walkthrough: engine)
+
+```text
+You are a worker writing one chapter of a study book. FIRST read the spec: C:\Users\<user>\AppData\Local\Temp\claude\c--Users-<user>-Desktop-YottaFlex-ASG\f410fea5-8d30-4aa6-8184-d317b0538592\scratchpad\book\code\WORKER_SPEC.md and follow it exactly.
+
+Your ID is `engine`. Output files: `43_engine.html` and `qs_engine.json` in the output folder named in the spec.
+
+Assigned source file: src/claimsgen/engine.py (about 240 lines). Matching notes: docs/study/modules/engine.md and decide.md; docs/DESIGN.md sections 'Engine decisions' and 'Reviewer checkpoint 2 decisions'. Cover: the `World` class (what it indexes and the running state), `_event`, `_assign`, `_assess`, `_reserve`, `_resume_date`, `_settle` (write-once settlement, approver role routing, approval and payment only if dates are not after as_of), `_ready_date`, `_process` (walk it top to bottom: the per-claim RNG draws, duplicate key, submitted event, FNOL reserve, adjuster assignment and 5% reassignment, assessment date, evaluate, pend and resume, settlement), and `run` (sorted processing order, as_of and threshold arguments instead of patching config). Use one `<section id="m-engine">`. Be exact about line numbers.
+```
+
+### Session 2, 2026-10-31T12:58:43.722Z: claude on haiku (Code walkthrough: generator modules)
+
+```text
+You are a worker writing one chapter of a study book. FIRST read the spec: C:\Users\<user>\AppData\Local\Temp\claude\c--Users-<user>-Desktop-YottaFlex-ASG\f410fea5-8d30-4aa6-8184-d317b0538592\scratchpad\book\code\WORKER_SPEC.md and follow it exactly.
+
+Your ID is `gen`. Output files: `44_gen.html` and `qs_gen.json` in the output folder named in the spec.
+
+Assigned source files (under src/claimsgen/): masterdata.py, policies.py, claim_build.py, claims.py. Matching notes: docs/study/modules/masterdata.md, policies.md, claim_build.md, claims.md. Cover: the CATALOGUE / COVERAGE_PROFILE / SEVERITY / REQUIREMENTS data tables in masterdata.py (what each means), how customers and policies are drawn with seeded streams, the `Spec` and `Ctx` dataclasses, exposure-weighted policy choice, lognormal item amounts and the 90% cap, reporting lag, documents (omitted, late, rejected), and in claims.py the scenario BUILDERS (planted inputs, never outcomes), `_duplicate`, `_assemble`, `generate`. Use one section per file (ids m-gen-a, m-gen-b, m-gen-c, m-gen-d). Make clear that scenarios plant INPUTS and the rules engine decides outcomes.
+```
+
+### Session 2, 2026-10-31T12:58:43.754Z: claude on haiku (Code walkthrough: injection modules)
+
+```text
+You are a worker writing one chapter of a study book. FIRST read the spec: C:\Users\<user>\AppData\Local\Temp\claude\c--Users-<user>-Desktop-YottaFlex-ASG\f410fea5-8d30-4aa6-8184-d317b0538592\scratchpad\book\code\WORKER_SPEC.md and follow it exactly.
+
+Your ID is `inject`. Output files: `45_inject.html` and `qs_inject.json` in the output folder named in the spec.
+
+Assigned source files (under src/claimsgen/): inject.py, finalize.py, ground_truth.py. Matching notes: docs/study/modules/inject.md, finalize.md, ground_truth.md; docs/DESIGN.md sections 'Injection' and 'Injection decisions'. Cover: how targets are chosen (single-claim policies and customers, disjoint sets), each of the six cases (which ones re-run the engine and which patch outputs afterwards, and why), the duplicate clone and temporary ids, finalize's single old-to-new id map and the policy_event re-sort, and ground_truth's columns, BASELINE mapping and EXPECTED_WORDS. Use one section per file (ids m-inject-a, m-inject-b, m-inject-c).
+```
+
+### Session 2, 2026-10-31T12:58:43.782Z: claude on haiku (Code walkthrough: validation modules)
+
+```text
+You are a worker writing one chapter of a study book. FIRST read the spec: C:\Users\<user>\AppData\Local\Temp\claude\c--Users-<user>-Desktop-YottaFlex-ASG\f410fea5-8d30-4aa6-8184-d317b0538592\scratchpad\book\code\WORKER_SPEC.md and follow it exactly.
+
+Your ID is `valid`. Output files: `46_valid.html` and `qs_valid.json` in the output folder named in the spec.
+
+Assigned source files (under src/claimsgen/): validate.py, checks_structure.py, checks_business.py. Matching notes: docs/study/modules/validate.md, checks_structure.md, checks_business.md; docs/DESIGN.md section 'Validation' and 'Validation decisions'. Cover: the `Check` class (how failures and ids are collected), `run_all` and the BLOCKING gate, `failing_ids`, `summary`, `to_markdown`; each structural check (PK uniqueness, ID format, FK integrity, enums, required fields, money cents, AS_OF, leakage); and the business checks (date order and its R-COV-01 exemption, arithmetic replay through rules.payable in processing order, lifecycle transitions and approver role, duplicates). Use one section per file (ids m-valid-a, m-valid-b, m-valid-c).
+```
+
+### Session 2, 2026-10-31T12:58:43.814Z: claude on haiku (Code walkthrough: scoring modules)
+
+```text
+You are a worker writing one chapter of a study book. FIRST read the spec: C:\Users\<user>\AppData\Local\Temp\claude\c--Users-<user>-Desktop-YottaFlex-ASG\f410fea5-8d30-4aa6-8184-d317b0538592\scratchpad\book\code\WORKER_SPEC.md and follow it exactly.
+
+Your ID is `score`. Output files: `47_score.html` and `qs_score.json` in the output folder named in the spec.
+
+Assigned source files (under src/claimsgen/): scoring.py, metrics.py, sensitivity.py, flagmix.py. Matching notes: docs/study/modules/scoring.md, metrics.md, sensitivity.md, flagmix.md; docs/DESIGN.md sections 'Metrics decisions' and 'Improvements decisions'. Cover: how `scoring.predictions` derives predicted labels without ever seeing ground_truth, how `score` builds truth sets and computes precision and recall, the shared document class, boundary labels; metrics.py's operational metrics (outcome rates, money by rule, straight-through, approver workload, aging, cycle times) and how `to_markdown` renders the report; sensitivity.sweep (engine re-run with thresholds passed as arguments); flagmix.flag_counts. metrics.py is long (about 290 lines): pick the most important functions only. One section per file (ids m-score-a ... m-score-d).
+```
+
+### Session 2, 2026-10-31T12:58:43.848Z: claude on haiku (Code walkthrough: export and scripts)
+
+```text
+You are a worker writing one chapter of a study book. FIRST read the spec: C:\Users\<user>\AppData\Local\Temp\claude\c--Users-<user>-Desktop-YottaFlex-ASG\f410fea5-8d30-4aa6-8184-d317b0538592\scratchpad\book\code\WORKER_SPEC.md and follow it exactly.
+
+Your ID is `ship`. Output files: `48_ship.html` and `qs_ship.json` in the output folder named in the spec.
+
+Assigned source files: src/claimsgen/export.py, src/claimsgen/dataset_docs.py (briefly), src/claimsgen/__main__.py (the CLI), scripts/verify.py (the reproducibility proof), scripts/summarize_data.py. Matching notes: docs/study/modules/export.md, dataset_docs.md, __main__.md, docs/study/scripts.md; docs/DESIGN.md 'Export decisions' and 'Pipeline (determinism)'. Cover: byte-stable formatting (text(), CSV newline, JSON sorted keys, exact decimals), write_tables and the checksums, how seed.sql is produced (SQLite DDL + INSERTs; no .db file is written), the CLI commands and scale validation, and verify.py (build twice, compare every file by SHA-256). One section per file group (ids m-ship-a, m-ship-b, m-ship-c).
+```
+
+### Session 2, 2026-10-31T12:58:43.961Z: claude on haiku (Code walkthrough: intake and what-if)
+
+```text
+You are a worker writing one chapter of a study book. FIRST read the spec: C:\Users\<user>\AppData\Local\Temp\claude\c--Users-<user>-Desktop-YottaFlex-ASG\f410fea5-8d30-4aa6-8184-d317b0538592\scratchpad\book\code\WORKER_SPEC.md and follow it exactly.
+
+Your ID is `intake`. Output files: `49_intake.html` and `qs_intake.json` in the output folder named in the spec.
+
+Assigned source files (under src/claimsgen/): intake.py, draft.py, intake_examples.py, whatif.py. Matching notes: docs/study/modules/intake.md, draft.md, intake_examples.md, whatif.md; docs/CLAIM_INPUT.md; docs/DESIGN.md section 'Intake decisions'. Cover: `parse_and_validate` (collect all field errors, Decimal amounts to cents, what is deliberately NOT rejected), the `Draft` dataclass, how example claims are chosen from input tables only, and whatif.evaluate / horizon_for / request_docs (copy the dataset, provisional ids, run engine.run with a later as_of, read back only that claim's rows). intake.py is long: pick the most important blocks. One section per file (ids m-intake-a ... m-intake-d).
+```
+
+### Session 2, 2026-10-31T12:58:44.038Z: claude on haiku (Code walkthrough: view modules)
+
+```text
+You are a worker writing one chapter of a study book. FIRST read the spec: C:\Users\<user>\AppData\Local\Temp\claude\c--Users-<user>-Desktop-YottaFlex-ASG\f410fea5-8d30-4aa6-8184-d317b0538592\scratchpad\book\code\WORKER_SPEC.md and follow it exactly.
+
+Your ID is `view`. Output files: `50_view.html` and `qs_view.json` in the output folder named in the spec.
+
+Assigned source files: src/claimsgen/view_data.py, src/claimsgen/view_trace.py, and the repo-root app.py (plus a brief look at app_intake.py and app_quality.py at the repo root). Matching notes: docs/study/modules/view_data.md, view_trace.md; docs/DESIGN.md 'View decisions'. Cover: why app.py is rendering only and logic lives in tested modules, `load`, `decisions_table`, `exceptions`, `claim_detail`, `dataset_checksum`, `rebuild_and_compare`, `rule_trace` and `counterfactual` (derived only from assessments and history, never ground truth), and how app.py builds tabs and caches the dataset. One section per file (ids m-view-a, m-view-b, m-view-c).
+```
+
+### Session 2, 2026-10-31T12:58:44.122Z: claude on haiku (Code walkthrough: key tests)
+
+```text
+You are a worker writing one chapter of a study book. FIRST read the spec: C:\Users\<user>\AppData\Local\Temp\claude\c--Users-<user>-Desktop-YottaFlex-ASG\f410fea5-8d30-4aa6-8184-d317b0538592\scratchpad\book\code\WORKER_SPEC.md and follow it exactly.
+
+Your ID is `tests`. Output files: `51_tests.html` and `qs_tests.json` in the output folder named in the spec.
+
+Assigned test files (under tests/): conftest.py, payable_reference.py with test_payable_independent.py (the independent reference implementation of the payable rule), test_mutation.py (break a rule and show metrics move), test_injection_isolation.py (non-target claims unchanged), test_starter_in_sync.py, test_study_notes.py, and a few representative tests from test_inject.py and test_validate.py. Also glance at the source they exercise. Explain each test in plain words: what it proves, why that matters to a reviewer, and how it could fail. Explain pytest ideas used (fixtures, parametrize, assert). One section per test group (ids m-tests-a ... m-tests-d). 'Try it' commands should run a single test file with `python -m pytest <file> -q`.
+```
+
 ### Session 3, 2026-10-30T10:43:58.961Z: Explore on haiku (Dig BenefitLens repo)
 
 ```text
@@ -443,4 +754,22 @@ Return the full content of this shared conversation/artifact in detail: all requ
 
 ```text
 What environment variable or settings.json key sets the default model used by subagents (e.g. CLAUDE_CODE_SUBAGENT_MODEL)? Quote the exact name, accepted values, and where it goes (settings.json env block?). Also say whether a custom agent file can override a built-in agent like general-purpose.
+```
+
+### Session 1, 2026-10-30T19:34:59.389Z: https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/app-dependencies
+
+```text
+Which dependency files does Streamlit Community Cloud read (requirements.txt, pyproject.toml, etc.), in what order of precedence, and can requirements.txt contain `-e .` to install the repo's own package? Is the Python version selectable? Quote the key rules briefly.
+```
+
+### Session 1, 2026-10-30T19:35:00.190Z: https://docs.streamlit.io/deploy/streamlit-community-cloud/get-started
+
+```text
+What are the requirements and limits of Streamlit Community Cloud's free tier: public GitHub repo needed, account sign-in, resource limits, does the app sleep when inactive? Quote briefly.
+```
+
+### Session 1, 2026-10-30T20:13:01.664Z: https://code.claude.com/docs/en/permissions
+
+```text
+Quote briefly and exactly: (1) the precedence between deny, ask and allow rules, and whether it depends on which settings file (user, project, local) they come from; (2) the valid values of permissions.defaultMode and what bypassPermissions does (does it still honour deny and ask rules?); (3) which settings file is gitignored/personal (settings.local.json) and the order of precedence of settings files; (4) the syntax for allowing all Bash commands or all tools (for example "Bash" or "Bash(*)") and for additionalDirectories.
 ```
