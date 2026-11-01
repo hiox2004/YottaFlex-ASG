@@ -18,6 +18,10 @@ from pathlib import Path
 
 REDACTIONS = [
     (re.compile(r"(?i)(?<=[\\/]users[\\/])[^\\/\s\"'<>|:*?]+"), "<user>"),
+    (
+        re.compile(r"(?i)(?<=-users-)[a-z0-9_.]+(?=-)"),
+        "<user>",
+    ),  # Claude Code project slugs: c--Users-name-Desktop-...
     (re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+"), "<email>"),
     (re.compile(r"\bgh[pousr]_[A-Za-z0-9]{20,}"), "<token>"),
     (re.compile(r"\bgithub_pat_[A-Za-z0-9_]{20,}"), "<token>"),

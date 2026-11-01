@@ -197,3 +197,9 @@ def test_rebuild_refuses_when_a_session_disappears_and_allows_growth(source, tmp
     write_jsonl(source / "bbbb2222.jsonl", [user("2026-10-30T08:00:00Z", "other", origin="human")])
     with pytest.raises(SystemExit, match="aaaa1111: 4 -> 0"):
         ep.export(source, out)
+
+
+def test_project_slug_username_is_redacted():
+    text = ep.redact("see temp/claude/c--Users-alice-Desktop-Proj/x")
+    assert "alice" not in text and "c--Users-<user>-Desktop-Proj" in text
+    assert ep.leftovers("c--Users-alice-Desktop-Proj") != []
