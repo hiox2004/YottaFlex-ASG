@@ -42,3 +42,7 @@
 | Shadow mode | The model runs and is logged but its output is not used, so it can be scored safely |
 | Ship gate | A fixed accuracy bar the model must pass on generated test data before it is switched on |
 | Prompt injection | Claim text that tries to instruct the model; handled by treating text as quoted data and validating output |
+| Value-token log-prob | Probability the model gave to the tokens of a field's value (not the JSON keys); a usable per-field confidence signal |
+| Risk-coverage curve | Accuracy as a function of how many fields are auto-accepted; used to pick a confidence threshold |
+| Constrained decoding | Forcing output to match a JSON schema or grammar; guarantees syntax, never correctness |
+| Quantisation | Storing model weights in fewer bits (for example 4-bit) so a model fits in laptop RAM |

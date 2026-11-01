@@ -1,6 +1,7 @@
 # AI approach: why the decision path has no LLM, and the hybrid design we would add
 
-Short version is in the [README](../README.md#ai-approach-in-brief). This page is the detail.
+Short version is in the [README](../README.md#ai-approach-in-brief). This page is the detail. Which local models and
+runtimes would fit, and what the research says about them, is in [LOCAL_MODELS.md](LOCAL_MODELS.md).
 
 ## Position
 

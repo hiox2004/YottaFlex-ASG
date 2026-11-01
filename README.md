@@ -32,6 +32,15 @@ Proposed additions, none of them built, in order:
 Each would be scored against the generator's answer key before it is trusted. The reasoning, contracts, guardrails,
 evaluation plan and rollout order are in [docs/AI_APPROACH.md](docs/AI_APPROACH.md).
 
+**Local models, not hosted APIs.** If a model were added it would run on the reviewer's machine, behind a flag, off by default,
+so claim text (names, addresses, injuries) never leaves it and the repo needs no keys or accounts. Research-based picks, to be
+confirmed by a 10-claim trial: Ollama in Docker on CPU, a small Apache-2.0 model (Qwen3.5 4B, with Gemma 4 E2B or E4B as
+alternates), and nomic-embed-text for similarity. What the research says small models can and cannot do shapes the design:
+schema-constrained output guarantees valid JSON, not correct values; a model's own stated confidence is badly calibrated, so
+routing uses token log-probabilities plus code checks; dates and duplicates stay in deterministic code; reproducibility is
+claimed only as "same machine, same build, run twice, compare hashes". Sources, speed budget, governance mapping and open
+questions are in [docs/LOCAL_MODELS.md](docs/LOCAL_MODELS.md).
+
 ## Results at a glance
 
 Full scale (seed 20261022, 2,000 policies, 1,000 claims, 24,551 rows in the 16 input tables; derived from a fresh build and `metrics.md`):

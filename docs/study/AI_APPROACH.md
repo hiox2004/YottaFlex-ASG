@@ -44,5 +44,19 @@ plain-language answer). Neither is built; both have a contract and a way to be s
 - **"What is the cheapest real step?"** A narrative generator plus a field-level extraction scoring harness, with the
   extractor stubbed. It proves the "scored against the answer key" claim in code before any model is involved.
 
+## Local models (see [../LOCAL_MODELS.md](../LOCAL_MODELS.md))
+- **Why local:** claim text is nonpublic personal information; a hosted LLM is a third-party recipient (NAIC #668 wording,
+  our reading), health claims add HIPAA business associate agreements, and local means no keys or retention questions. The
+  data here is synthetic, so this is a design argument, not a present legal duty.
+- **Default stack, low to medium confidence:** Ollama in Docker on CPU, a small Apache-2.0 model (Qwen3.5 4B; Gemma 4 E2B or
+  E4B as alternates), nomic-embed-text for similarity. Expect 10 to 30 seconds per extraction on a laptop, so precompute.
+- **What the evidence says:** schema-constrained decoding gives valid JSON, not correct values; verbalised confidence is
+  badly calibrated, so route on value-token log-probs plus code checks; models are weak at dates, so extract the phrase and
+  resolve it in code; embeddings over-match templated text, so they only suggest duplicate candidates.
+- **Honest limits:** no source measured hallucination rates of 1 to 8B models on insurance text, speeds are secondary-source
+  figures, and regulator claims come from secondary summaries. The first step is a 10-claim trial, then shadow mode.
+- **Reproducibility answer:** "same machine, same build, same flags, run twice, compare hashes", never identical across
+  machines, and model output never feeds a rule or the dataset.
+
 ## Terms
 See the AI section of [GLOSSARY.md](GLOSSARY.md).
