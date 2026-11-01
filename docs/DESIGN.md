@@ -156,7 +156,7 @@ the target is ~5-15% of settlements above the approver threshold so the approver
   lapsed_policy = denied R-COV-02 and a `lapsed` event; outside_coverage_period = denied R-COV-03; duplicate_incident = referred R-ELG-03;
   suspected_fraud = referred R-FRD-05; claim_over_limit = decision with reason limit_reached;
   DOC class (incomplete_evidence + missing_mandatory_doc share one prediction, pended R-DOC-01) is scored as one class and reported per label for recall;
-  settlement_exceeds_limit and paid_twice = validator failing ids; boundary labels = recall of "decided as expected".
+  settlement_exceeds_limit and paid_twice = validator failing ids; boundary labels = recall of "decided as expected" plus the boundary condition read from input tables (incident date equals policy start/end; an item equals its coverage limit; IMP-014).
 - Operational metrics: approval/denial/docs-pending rates, days submission to settlement, amount blocked by rules (claimed minus payable on decided claims), reserve vs final settlement.
 
 ## Reviewer checkpoint 3 decisions (injection step)

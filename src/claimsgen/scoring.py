@@ -40,6 +40,24 @@ def predictions(tables: dict, checks: list) -> dict[str, set]:
                     out.add(cid)
         return out
 
+    policy = {p["policy_id"]: p for p in tables["policy"]}
+    on_start = {
+        cid: incident[c["incident_id"]] == policy[c["policy_id"]]["start_date"]
+        for cid, c in claim.items()
+    }
+    on_end = {
+        cid: incident[c["incident_id"]] == policy[c["policy_id"]]["end_date"]
+        for cid, c in claim.items()
+    }
+    limit = {
+        (r["policy_id"], r["coverage_id"]): r["limit_amount"] for r in tables["policy_coverage"]
+    }
+    at_limit = {
+        i["claim_id"]
+        for i in tables["claim_item"]
+        if i["claimed_amount"] == limit.get((claim[i["claim_id"]]["policy_id"], i["coverage_id"]))
+    }
+
     failures = [(i, why) for c in checks for i, why in c.failures]
     return {
         "claim_before_policy_start": denied_by("R-COV-01"),
@@ -53,14 +71,16 @@ def predictions(tables: dict, checks: list) -> dict[str, set]:
         "documents": {c for c, r in rules.items() if "R-DOC-01" in r},
         "settlement_exceeds_limit": {i for i, why in failures if why.startswith("recommended")},
         "paid_twice": {i for i, why in failures if why == "more than one settlement for a claim"},
-        # boundary labels are scored on recall of "decided as expected"
+        # boundary labels are scored on recall of "decided as expected", with the boundary condition read from input tables
         "boundary_incident_on_start": {
-            c for c, a in last.items() if a["rule_id"] not in COVERAGE_RULES
+            c for c, a in last.items() if a["rule_id"] not in COVERAGE_RULES and on_start[c]
         },
         "boundary_incident_on_end": {
-            c for c, a in last.items() if a["rule_id"] not in COVERAGE_RULES
+            c for c, a in last.items() if a["rule_id"] not in COVERAGE_RULES and on_end[c]
         },
-        "boundary_amount_at_limit": {c for c, a in last.items() if a["decision"] == "approve"},
+        "boundary_amount_at_limit": {
+            c for c, a in last.items() if a["decision"] == "approve" and c in at_limit
+        },
         "boundary_amount_at_deductible": {
             c
             for c, a in last.items()

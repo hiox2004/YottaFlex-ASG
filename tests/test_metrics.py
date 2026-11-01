@@ -77,6 +77,32 @@ def test_scoring_covers_every_label_and_is_reasonable(built):
     assert len(boundary) == 4 and all(r["precision"] is None for r in boundary)
 
 
+def test_boundary_predictions_check_the_boundary_condition(built):
+    """IMP-014: the on_start / on_end / at_limit predictions each test their own input condition, not just the decision."""
+    tables, _, checks = built
+    pred = scoring.predictions(tables, checks)
+    policy = {p["policy_id"]: p for p in tables["policy"]}
+    claim = {c["claim_id"]: c for c in tables["claim"]}
+    incident = {i["incident_id"]: i["incident_date"] for i in tables["incident"]}
+    on_start, on_end = pred["boundary_incident_on_start"], pred["boundary_incident_on_end"]
+    assert on_start and on_end and not on_start & on_end
+    for cid in on_start:
+        c = claim[cid]
+        assert incident[c["incident_id"]] == policy[c["policy_id"]]["start_date"]
+    for cid in on_end:
+        c = claim[cid]
+        assert incident[c["incident_id"]] == policy[c["policy_id"]]["end_date"]
+    limit = {
+        (r["policy_id"], r["coverage_id"]): r["limit_amount"] for r in tables["policy_coverage"]
+    }
+    for cid in pred["boundary_amount_at_limit"]:
+        assert any(
+            i["claimed_amount"] == limit.get((claim[cid]["policy_id"], i["coverage_id"]))
+            for i in tables["claim_item"]
+            if i["claim_id"] == cid
+        )
+
+
 def test_markdown_report_has_every_section(built):
     tables, gt, checks = built
     text = metrics.to_markdown(tables, gt, checks)

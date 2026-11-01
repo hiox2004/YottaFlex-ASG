@@ -19,7 +19,9 @@
 | incomplete_evidence + missing_mandatory_doc | any assessment cites R-DOC-01 (one shared class) |
 | settlement_exceeds_limit | validator failure "recommended ... != replayed" (settlement id) |
 | paid_twice | validator failure "more than one settlement for a claim" (second settlement id) |
-| boundary_* | recall only: decided as expected (not denied by a coverage rule; approved at limit; denied within deductible) |
+| boundary_incident_on_start / _on_end | recall only: incident date equals the policy start / end date (input tables) AND not denied by a coverage rule |
+| boundary_amount_at_limit | recall only: a claim item equals its coverage limit (input tables) AND the final decision is approve |
+| boundary_amount_at_deductible | recall only: denied with reason `within_deductible` (amount is not re-checked) |
 
 `score(tables, ground_truth, checks)` builds truth sets from ground_truth and returns rows with truth, predicted, true positives, precision, recall.
 The shared document class is scored as one class and also per label for recall, because the two labels produce the same decision.
