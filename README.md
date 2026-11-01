@@ -161,7 +161,7 @@ validator against the answer key) are in each package's `metrics.md` and the vie
 ## Architecture
 
 ```mermaid
-flowchart LR
+flowchart TB
   subgraph Build["Build: python -m claimsgen build"]
     A[config: seed, fixed as-of date] --> B[master data, policies]
     B --> C[claims and planted scenarios]
