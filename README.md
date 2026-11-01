@@ -14,9 +14,29 @@ All data is fully synthetic ([SOURCE_MANIFEST.md](SOURCE_MANIFEST.md)). Scope an
 Full scale (seed 20261022, 2,000 policies, 1,000 claims, 24,551 rows in the 16 input tables; derived from a fresh build and `metrics.md`):
 
 - **Outcomes:** 70.3% approved, 15.3% denied, 4.0% waiting for documents, 6.4% under review, 4.0% not yet assessed at the as-of date.
-- **Proof:** validation flags exactly the 30 planted defects (4 in the starter), a same-seed rebuild is byte-identical, and `pytest -q` runs 325 tests.
+- **Proof:** validation flags exactly the 30 planted defects (4 in the starter), a same-seed rebuild is byte-identical, and `pytest -q` runs 326 tests.
 - **Workflow:** 69.3% of assessed claims are straight-through (no pend, no review); 30 claims (3.0%) are referred as suspected fraud; 12.0% of approved settlements need the approver.
 - **Honest misses:** recall is 0.90 to 0.97 for lapsed policy, outside coverage period, duplicate, incomplete evidence and boundary-on-start (recent claims are not assessed yet); `claim_over_limit` precision is 0.81. Fraud scores 1.00 only because its labels are planted ([why](docs/DESIGN.md)).
+
+## Units and basic terms
+
+The same table is shown in the app under "Read first: units and basic terms".
+
+| Term | Meaning here |
+|---|---|
+| Currency | USD. Tables show exact amounts with two decimals (1250.00); the engine counts in whole cents, so there is no rounding drift. |
+| Dates | ISO `YYYY-MM-DD`. "Today" is fixed at **2026-10-22** (never the real clock), so every run gives the same answer. The what-if tab evaluates up to 2026-11-21 or later. |
+| Claim types | AUTO, HOME, HLTH (health), TRVL (travel), LIAB (liability). Policy ids look like `POL-AUTO-2026-000001`, claims `CLM-2026-000001`. |
+| Limit | The most a coverage pays in total on a policy. Earlier claims use it up, so a later claim can be paid only the remaining limit. |
+| Deductible | The part of each claim the customer bears first. Payable = min(max(0, eligible amount - deductible), remaining limit) (R-PAY-01). |
+| Reserve | Money set aside: an estimate at first notice (R-RSV-01), revised to the payable when the claim is decided (R-RSV-02). |
+| Documents | Each claim type has mandatory documents. One must arrive within 5 days of submission or the claim waits in `docs_pending` (R-DOC-01). |
+| Decisions | `approve`, `deny`, `pend_docs` (waiting for documents), `refer_review` (a person must look: duplicate or suspected fraud). |
+| Statuses | submitted, docs_pending, assessed, approved, paid, denied, under_review. Status changes are appended to a history, never overwritten. |
+| Approval | Payable above 30,000 USD goes to the approver role; otherwise the process owner (R-APR-01). |
+| Fraud score | Flags divided by 4 (new policy, many recent claims, near-limit amount, late report); at or above 0.5 the claim is referred (R-FRD-05). |
+| Rule ids | R-COV coverage, R-ELG eligibility, R-DOC documents, R-FRD fraud, R-PAY payment, R-RSV reserve, R-APR approval. Every decision names one. |
+| Data | Fully synthetic, seed 20261022. The starter is 100 policies and 50 claims; the full set is 2,000 and 1,000. Answers (ground truth) are used only to score the engine, never to decide a claim. |
 
 ## Five-minute tour
 
@@ -40,12 +60,16 @@ streamlit run app.py                        # the view
 
 ## Run it in a container (no Python setup)
 
+Only Docker is needed, not Python and not a git clone: Docker fetches the repository itself.
+
 ```
-docker build -t yottaflex-asg .
+docker build -t yottaflex-asg https://github.com/hiox2004/YottaFlex-ASG.git
 docker run --rm -p 8501:8501 yottaflex-asg                 # the view at http://localhost:8501
 docker run --rm yottaflex-asg pytest -q                    # the tests
 docker run --rm yottaflex-asg python scripts/verify.py     # the reproducibility proof
 ```
+
+(From a local clone, build with `docker build -t yottaflex-asg .` instead.)
 
 CI builds this image on every push, runs the proof inside it and checks that the view serves. The image installs the optional extras
 (Streamlit and the test tools), so it is larger than the core, which has no third-party runtime dependencies. Versions are pinned in `constraints.txt` (what the build resolved on 2026-11-01), so the image and CI are repeatable; the generated data does not depend on them. There is no hosted demo: the

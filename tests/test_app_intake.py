@@ -113,3 +113,10 @@ def test_read_first_panel_states_the_units_from_config(AppTest):
     assert f"{config.DOC_WINDOW_DAYS} days" in text
     app = _app(AppTest)
     assert any("Read first" in e.label for e in app.expander)
+
+
+def test_readme_carries_the_same_units_table_as_the_app():
+    import app_basics
+
+    readme = (ROOT / "README.md").read_text(encoding="utf-8").replace("\r\n", "\n")
+    assert app_basics.text().strip() in readme
